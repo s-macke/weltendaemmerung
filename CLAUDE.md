@@ -8,6 +8,8 @@ A Commodore 64 fantasy strategy game for two players.
 - `disassembly/archive/weltendaemmerung.bin` - Original C64 binary
 - `disassembly/archive/weltendaemmerung.asm` - Original disassembled 6502 assembly (archived)
 - `tools/c64_disasm.py` - Disassembler with flow analysis to distinguish code from data
+- `docs/memory_layout.md` - Memory Map
+- `docs/variables.md` - Game State Variables
 
 ## Module Structure
 
