@@ -9,9 +9,9 @@ sub_0E14:
         LDA #$F3
         STA SID_RESFLT
         LDX #$01
-        STX $0343
+        STX $0343               ; TEMP_CALC (temp calc hi)
         DEX
-        STX $0344
+        STX $0344               ; TEMP_STORE (temp storage lo)
         LDA #$8F
         JSR sub_20E7
         LDA #$04
@@ -39,7 +39,7 @@ sub_0E56:
         LDA #$0E
         STA IRQ_VECTOR_HI
         LDX #$07
-        STX $0348
+        STX $0348               ; IRQ_COUNT (IRQ timer)
         LDA #$00
         STA VIC_RASTER
         LDA VIC_SCROLY
@@ -63,11 +63,11 @@ sub_0ECF:
         JMP loc_1EA8
 
 L0ED9:
-        LDA $034A
+        LDA $034A               ; GAME_STATE (game phase)
         CMP #$02
         BNE L0EF6
-        LDX $034B
-        LDA $0347
+        LDX $034B               ; CURSOR_MAP_Y (cursor Y on map)
+        LDA $0347               ; CURRENT_PLAYER (active player)
         BEQ L0EEE
         CPX #$3C
         BMI L0EF6
@@ -80,7 +80,7 @@ L0EEE:
         .byte $4C, $06, $0F  ; l..
 
 L0EF6:
-        LDA $034A
+        LDA $034A               ; GAME_STATE (game phase)
         BNE L0EFE
         JSR sub_12B1
 
@@ -94,7 +94,7 @@ L0F05:
 
 L0F06:
         LDA #$00
-        STA $034E
+        STA $034E               ; UNIT_TYPE_IDX (unit type index)
         JSR sub_0F8C
         JSR sub_1F1C
 
@@ -103,10 +103,10 @@ loc_0F11:
         BEQ L0F4E
         CMP #$0B
         BCC L0F2B
-        STA $034E
+        STA $034E               ; UNIT_TYPE_IDX (unit type index)
         JSR sub_1FF6
         LDY #$05
-        LDA ($F9),Y
+        LDA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         TAX
         TXA
         SEC
@@ -118,23 +118,23 @@ L0F2B:
 
 loc_0F2D:
         PHA
-        LDX $034E
+        LDX $034E               ; UNIT_TYPE_IDX (unit type index)
         BNE L0F77
         JSR sub_1F77
         PLA
         PHA
-        STA ($D1),Y
+        STA ($D1),Y             ; SCREEN_PTR (screen line ptr lo)
         JSR sub_1C01
-        STA ($F3),Y
-        LDX $034C
+        STA ($F3),Y             ; COLOR_PTR (color RAM ptr lo)
+        LDX $034C               ; CURSOR_MAP_X (cursor X on map)
         JSR sub_0F82
         PLA
-        STA ($B4),Y
+        STA ($B4),Y             ; MAP_PTR (map data ptr lo)
         JSR sub_1F82
         JMP sub_1EE2
 
 L0F4E:
-        LDA $0347
+        LDA $0347               ; CURRENT_PLAYER (active player)
         BEQ L0F58
         LDA #$69
         JMP loc_0F2D
@@ -149,14 +149,14 @@ L0F77:
         JSR sub_1FF6
         LDY #$05
         PLA
-        STA ($F9),Y
+        STA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         JMP sub_1F82
 
 sub_0F82:
         DEX
         TXA
         JSR sub_1AD3
-        LDY $034B
+        LDY $034B               ; CURSOR_MAP_Y (cursor Y on map)
         DEY
         RTS
 
@@ -164,10 +164,10 @@ sub_0F8C:
         LDX #$0C
 
 L0F8E:
-        LDA $034B
+        LDA $034B               ; CURSOR_MAP_Y (cursor Y on map)
         CMP $0F5D,X
         BNE L0F9E
-        LDA $034C
+        LDA $034C               ; CURSOR_MAP_X (cursor X on map)
         CMP $0F6A,X
         BEQ L0FA1
 
@@ -177,7 +177,7 @@ L0F9E:
 
 L0FA1:
         BMI L0FA9
-        LDA $4FF2,X
+        LDA $4FF2,X             ; TOWN_FLAGS (town capture flags)
         BMI L0FA9
         RTS
 

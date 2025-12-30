@@ -12,25 +12,25 @@ L0887:
         BNE L0887
 
 loc_088D:
-        LDA $0347
+        LDA $0347               ; CURRENT_PLAYER (active player)
         EOR #$01
         AND #$01
         TAX
         LDA CIA1_PRA,X
         EOR #$1F
         AND #$1F
-        STA $0354
+        STA $0354               ; JOY_STATE (joystick state)
         BNE L08AA
-        STA $034D
+        STA $034D               ; PREV_JOY (prev joystick)
         JSR sub_12C0
         JMP loc_088D
 
 L08AA:
         CMP #$10
         BNE L08BC
-        CMP $034D
+        CMP $034D               ; PREV_JOY (prev joystick)
         BEQ loc_0885
-        STA $034D
+        STA $034D               ; PREV_JOY (prev joystick)
         JSR sub_0ECF
         JMP loc_0885
 
@@ -57,7 +57,7 @@ loc_08CD:
         JSR sub_09F2
         JSR sub_23C3
         JSR sub_1EE2
-        LDA $0354
+        LDA $0354               ; JOY_STATE (joystick state)
         AND #$10
         BNE L08E8
         LDA #$96
@@ -204,31 +204,31 @@ sub_09B4:
         BEQ L09F1
         JSR sub_1FF6
         LDY #$03
-        LDA ($F9),Y
+        LDA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         BNE L09C5
         JMP loc_12B6
 
 L09C5:
         LDY #$05
-        LDA ($F9),Y
+        LDA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         PHA
-        LDA $F9
-        STA $0350
-        LDA $FA
-        STA $0351
+        LDA $F9                 ; TEMP_PTR2 (general ptr lo)
+        STA $0350               ; STORED_PTR (F9/FA backup lo)
+        LDA $FA                 ; TEMP_PTR2 (general ptr hi)
+        STA $0351               ; STORED_PTR (F9/FA backup hi)
         JSR sub_1F1C
         JSR sub_1F77
-        LDA ($D1),Y
-        STA $0352
+        LDA ($D1),Y             ; SCREEN_PTR (screen line ptr lo)
+        STA $0352               ; STORED_CHAR (stored char)
         PLA
         PHA
-        STA ($D1),Y
+        STA ($D1),Y             ; SCREEN_PTR (screen line ptr lo)
         JSR sub_1C01
-        STA ($F3),Y
-        LDX $034C
+        STA ($F3),Y             ; COLOR_PTR (color RAM ptr lo)
+        LDX $034C               ; CURSOR_MAP_X (cursor X on map)
         JSR sub_0F82
         PLA
-        STA ($B4),Y
+        STA ($B4),Y             ; MAP_PTR (map data ptr lo)
 
 L09F1:
         RTS
@@ -238,35 +238,35 @@ sub_09F2:
         BEQ L09F1
         JSR sub_1F1C
         JSR sub_1F77
-        LDA ($D1),Y
+        LDA ($D1),Y             ; SCREEN_PTR (screen line ptr lo)
         PHA
-        LDA $0352
-        STA ($D1),Y
+        LDA $0352               ; STORED_CHAR (stored char)
+        STA ($D1),Y             ; SCREEN_PTR (screen line ptr lo)
         PHA
         JSR sub_1C01
-        STA ($F3),Y
-        LDX $034C
+        STA ($F3),Y             ; COLOR_PTR (color RAM ptr lo)
+        LDX $034C               ; CURSOR_MAP_X (cursor X on map)
         JSR sub_0F82
         PLA
-        STA ($B4),Y
-        LDA $0350
-        STA $F9
-        LDA $0351
-        STA $FA
+        STA ($B4),Y             ; MAP_PTR (map data ptr lo)
+        LDA $0350               ; STORED_PTR (F9/FA backup lo)
+        STA $F9                 ; TEMP_PTR2 (general ptr lo)
+        LDA $0351               ; STORED_PTR (F9/FA backup hi)
+        STA $FA                 ; TEMP_PTR2 (general ptr hi)
         LDY #$00
-        LDX $034B
+        LDX $034B               ; CURSOR_MAP_Y (cursor Y on map)
         DEX
         TXA
-        STA ($F9),Y
+        STA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         INY
-        LDX $034C
+        LDX $034C               ; CURSOR_MAP_X (cursor X on map)
         DEX
         TXA
-        STA ($F9),Y
+        STA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         LDY #$05
         PLA
-        STA ($F9),Y
-        LDA $0352
+        STA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
+        LDA $0352               ; STORED_CHAR (stored char)
         CMP #$76
         BEQ L0A5A
         CMP #$7D
@@ -286,7 +286,7 @@ sub_09F2:
         JMP sub_1EE2
 
 L0A5A:
-        LDA $0353
+        LDA $0353               ; MOVE_FLAG (movement flag)
         BNE L0A62
         JSR sub_2013
 
@@ -294,7 +294,7 @@ L0A62:
         JMP sub_1EE2
 
 L0A65:
-        LDA $0353
+        LDA $0353               ; MOVE_FLAG (movement flag)
         BEQ L0A62
         JSR sub_1CE2
         JMP sub_1EE2

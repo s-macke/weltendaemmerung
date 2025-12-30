@@ -12,13 +12,13 @@ L1A41:
         LDY #$02
 
 L1A49:
-        LDA ($D1),Y
+        LDA ($D1),Y             ; SCREEN_PTR (screen line ptr lo)
         DEY
-        STA ($D1),Y
+        STA ($D1),Y             ; SCREEN_PTR (screen line ptr lo)
         INY
-        LDA ($F3),Y
+        LDA ($F3),Y             ; COLOR_PTR (color RAM ptr lo)
         DEY
-        STA ($F3),Y
+        STA ($F3),Y             ; COLOR_PTR (color RAM ptr lo)
         INY
         INY
         CPY #$27
@@ -36,13 +36,13 @@ L1A60:
         LDY #$25
 
 L1A68:
-        LDA ($D1),Y
+        LDA ($D1),Y             ; SCREEN_PTR (screen line ptr lo)
         INY
-        STA ($D1),Y
+        STA ($D1),Y             ; SCREEN_PTR (screen line ptr lo)
         DEY
-        LDA ($F3),Y
+        LDA ($F3),Y             ; COLOR_PTR (color RAM ptr lo)
         INY
-        STA ($F3),Y
+        STA ($F3),Y             ; COLOR_PTR (color RAM ptr lo)
         DEY
         DEY
         BNE L1A68
@@ -71,21 +71,21 @@ L1A8F:
         RTS
 
 sub_1A9A:
-        LDA $D1
-        STA $F7
-        LDA $D2
-        STA $F8
-        LDA $F3
-        STA $F9
-        LDA $F4
-        STA $FA
+        LDA $D1                 ; SCREEN_PTR (screen line ptr lo)
+        STA $F7                 ; TEMP_PTR1 (general ptr lo)
+        LDA $D2                 ; SCREEN_PTR (screen line ptr hi)
+        STA $F8                 ; TEMP_PTR1 (general ptr hi)
+        LDA $F3                 ; COLOR_PTR (color RAM ptr lo)
+        STA $F9                 ; TEMP_PTR2 (general ptr lo)
+        LDA $F4                 ; COLOR_PTR (color RAM ptr hi)
+        STA $FA                 ; TEMP_PTR2 (general ptr hi)
         RTS
 
 sub_1AAB:
-        LDA ($D1),Y
-        STA ($F7),Y
-        LDA ($F3),Y
-        STA ($F9),Y
+        LDA ($D1),Y             ; SCREEN_PTR (screen line ptr lo)
+        STA ($F7),Y             ; TEMP_PTR1 (general ptr lo)
+        LDA ($F3),Y             ; COLOR_PTR (color RAM ptr lo)
+        STA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         RTS
 
 sub_1AB4:
@@ -109,59 +109,59 @@ L1AC8:
         RTS
 
 sub_1AD3:
-        STA $0346
-        STA $B4
+        STA $0346               ; COUNTER (general counter)
+        STA $B4                 ; MAP_PTR (map data ptr lo)
         LDA #$00
-        STA $B5
-        ASL $B4
-        ROL $B5
-        ASL $B4
-        ROL $B5
-        ASL $B4
-        ROL $B5
-        LDA $B4
-        STA $0342
-        LDA $B5
-        STA $0343
-        LDA $0346
-        STA $B4
+        STA $B5                 ; MAP_PTR (map data ptr hi)
+        ASL $B4                 ; MAP_PTR (map data ptr lo)
+        ROL $B5                 ; MAP_PTR (map data ptr hi)
+        ASL $B4                 ; MAP_PTR (map data ptr lo)
+        ROL $B5                 ; MAP_PTR (map data ptr hi)
+        ASL $B4                 ; MAP_PTR (map data ptr lo)
+        ROL $B5                 ; MAP_PTR (map data ptr hi)
+        LDA $B4                 ; MAP_PTR (map data ptr lo)
+        STA $0342               ; TEMP_CALC (temp calc lo)
+        LDA $B5                 ; MAP_PTR (map data ptr hi)
+        STA $0343               ; TEMP_CALC (temp calc hi)
+        LDA $0346               ; COUNTER (general counter)
+        STA $B4                 ; MAP_PTR (map data ptr lo)
         LDA #$00
-        STA $B5
-        ASL $B4
-        ROL $B5
+        STA $B5                 ; MAP_PTR (map data ptr hi)
+        ASL $B4                 ; MAP_PTR (map data ptr lo)
+        ROL $B5                 ; MAP_PTR (map data ptr hi)
         CLC
-        LDA $B4
-        ADC $0342
-        STA $B4
-        LDA $B5
-        ADC $0343
-        STA $B5
-        ASL $B4
-        ROL $B5
-        ASL $B4
-        ROL $B5
-        ASL $B4
-        ROL $B5
+        LDA $B4                 ; MAP_PTR (map data ptr lo)
+        ADC $0342               ; TEMP_CALC (temp calc lo)
+        STA $B4                 ; MAP_PTR (map data ptr lo)
+        LDA $B5                 ; MAP_PTR (map data ptr hi)
+        ADC $0343               ; TEMP_CALC (temp calc hi)
+        STA $B5                 ; MAP_PTR (map data ptr hi)
+        ASL $B4                 ; MAP_PTR (map data ptr lo)
+        ROL $B5                 ; MAP_PTR (map data ptr hi)
+        ASL $B4                 ; MAP_PTR (map data ptr lo)
+        ROL $B5                 ; MAP_PTR (map data ptr hi)
+        ASL $B4                 ; MAP_PTR (map data ptr lo)
+        ROL $B5                 ; MAP_PTR (map data ptr hi)
         CLC
-        LDA $B5
+        LDA $B5                 ; MAP_PTR (map data ptr hi)
         ADC #$50
-        STA $B5
+        STA $B5                 ; MAP_PTR (map data ptr hi)
         RTS
 
 sub_1B22:
         SEI
         LDA #$31
-        STA $01
+        STA $01                 ; CPU_PORT (memory config)
         RTS
 
 sub_1B28:
         LDA #$37
-        STA $01
+        STA $01                 ; CPU_PORT (memory config)
         CLI
         RTS
 
 loc_1B2E:
-        LDA $0341
+        LDA $0341               ; SCROLL_Y (map scroll Y)
         JSR sub_1AD3
         LDX #$01
 
@@ -169,26 +169,26 @@ loc_1B36:
         JSR $E9F0
         JSR $EA24
         LDA #$01
-        STA $0343
-        LDY $0340
-        STY $0342
+        STA $0343               ; TEMP_CALC (temp calc hi)
+        LDY $0340               ; SCROLL_X (map scroll X)
+        STY $0342               ; TEMP_CALC (temp calc lo)
 
 L1B47:
-        LDY $0342
-        LDA ($B4),Y
-        LDY $0343
-        STA ($D1),Y
+        LDY $0342               ; TEMP_CALC (temp calc lo)
+        LDA ($B4),Y             ; MAP_PTR (map data ptr lo)
+        LDY $0343               ; TEMP_CALC (temp calc hi)
+        STA ($D1),Y             ; SCREEN_PTR (screen line ptr lo)
         JSR sub_1C01
-        STA ($F3),Y
-        INC $0342
-        INC $0343
-        LDA $0343
+        STA ($F3),Y             ; COLOR_PTR (color RAM ptr lo)
+        INC $0342               ; TEMP_CALC (temp calc lo)
+        INC $0343               ; TEMP_CALC (temp calc hi)
+        LDA $0343               ; TEMP_CALC (temp calc hi)
         CMP #$27
         BNE L1B47
         RTS
 
 sub_1B64:
-        LDA $0341
+        LDA $0341               ; SCROLL_Y (map scroll Y)
         CLC
         ADC #$12
         JSR sub_1AD3
@@ -196,84 +196,84 @@ sub_1B64:
         JMP loc_1B36
 
 loc_1B72:
-        LDA $0340
-        STA $0344
+        LDA $0340               ; SCROLL_X (map scroll X)
+        STA $0344               ; TEMP_STORE (temp storage lo)
         LDA #$01
-        STA $0345
+        STA $0345               ; TEMP_STORE (temp storage hi)
 
 loc_1B7D:
-        LDA $0341
+        LDA $0341               ; SCROLL_Y (map scroll Y)
         JSR sub_1AD3
         LDX #$01
 
 L1B85:
         JSR $E9F0
         JSR $EA24
-        LDY $0344
-        LDA ($B4),Y
-        LDY $0345
-        STA ($D1),Y
+        LDY $0344               ; TEMP_STORE (temp storage lo)
+        LDA ($B4),Y             ; MAP_PTR (map data ptr lo)
+        LDY $0345               ; TEMP_STORE (temp storage hi)
+        STA ($D1),Y             ; SCREEN_PTR (screen line ptr lo)
         JSR sub_1C01
-        STA ($F3),Y
-        LDA $B4
+        STA ($F3),Y             ; COLOR_PTR (color RAM ptr lo)
+        LDA $B4                 ; MAP_PTR (map data ptr lo)
         CLC
         ADC #$50
-        STA $B4
-        LDA $B5
+        STA $B4                 ; MAP_PTR (map data ptr lo)
+        LDA $B5                 ; MAP_PTR (map data ptr hi)
         ADC #$00
-        STA $B5
+        STA $B5                 ; MAP_PTR (map data ptr hi)
         INX
         CPX #$14
         BNE L1B85
         RTS
 
 loc_1BAD:
-        LDA $0340
+        LDA $0340               ; SCROLL_X (map scroll X)
         CLC
         ADC #$25
-        STA $0344
+        STA $0344               ; TEMP_STORE (temp storage lo)
         LDA #$26
-        STA $0345
+        STA $0345               ; TEMP_STORE (temp storage hi)
         JMP loc_1B7D
 
 sub_1BBE:
-        LDA $0340
+        LDA $0340               ; SCROLL_X (map scroll X)
         BEQ L1BEA
         JSR sub_1A5E
-        DEC $0340
+        DEC $0340               ; SCROLL_X (map scroll X)
         JMP loc_1B72
 
 sub_1BCC:
-        LDA $0340
+        LDA $0340               ; SCROLL_X (map scroll X)
         CMP #$2A
         BEQ L1BEA
         JSR sub_1A3F
-        INC $0340
+        INC $0340               ; SCROLL_X (map scroll X)
         JMP loc_1BAD
 
 sub_1BDC:
-        LDA $0341
+        LDA $0341               ; SCROLL_Y (map scroll Y)
         BEQ L1BEA
         JSR sub_1AB4
-        DEC $0341
+        DEC $0341               ; SCROLL_Y (map scroll Y)
         JMP loc_1B2E
 
 L1BEA:
         LDA #$01
-        STA $0353
+        STA $0353               ; MOVE_FLAG (movement flag)
         RTS
 
 sub_1BF0:
-        LDA $0341
+        LDA $0341               ; SCROLL_Y (map scroll Y)
         CMP #$15
         BEQ L1BEA
         JSR sub_1A7B
-        INC $0341
+        INC $0341               ; SCROLL_Y (map scroll Y)
         JSR sub_1B64
         RTS
 
 sub_1C01:
-        STX $0346
+        STX $0346               ; COUNTER (general counter)
         CMP #$69
         BCC L1C1F
         CMP #$74
@@ -294,7 +294,7 @@ L1C1F:
         LDA #$0B
 
 loc_1C21:
-        LDX $0346
+        LDX $0346               ; COUNTER (general counter)
         RTS
 
 L1C25:
@@ -326,7 +326,7 @@ L1C42:
         LDA #$B6
         STA VIC_SP0X
         LDA #$10
-        STA $C3F8
+        STA $C3F8               ; SPRITE_PTRS (sprite pointers)
         RTS
         .byte $1F, $80, $00, $3F, $C0, $00, $60, $60, $00, $C0, $30, $00, $C0, $30, $00, $C0  ; ...?..``..0..0..
         .byte $30, $00, $C0, $30, $00, $C0, $30, $00, $C0, $30, $00, $60, $60, $00, $3F, $C0  ; 0..0..0..0.``.?.
@@ -412,9 +412,9 @@ sub_1CFA:
 
 L1D02:
         LDA #$A0
-        STA ($D1),Y
+        STA ($D1),Y             ; SCREEN_PTR (screen line ptr lo)
         LDA #$06
-        STA ($F3),Y
+        STA ($F3),Y             ; COLOR_PTR (color RAM ptr lo)
         DEY
         BPL L1D02
         RTS
@@ -424,11 +424,11 @@ sub_1D0E:
         JSR $E9FF
         LDY #$0A
         JSR $E50C
-        LDX $0347
+        LDX $0347               ; CURRENT_PLAYER (active player)
         LDA $1D34,X
         TAX
         JSR sub_1E8B
-        LDX $034A
+        LDX $034A               ; GAME_STATE (game phase)
         LDA $1D36,X
         TAX
         JSR sub_1E8B

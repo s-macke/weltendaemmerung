@@ -46,16 +46,16 @@ L15E5:
 
 sub_1721:
         LDA #$88
-        STA $F7
+        STA $F7                 ; TEMP_PTR1 (general ptr lo)
         LDA #$17
-        STA $F8
+        STA $F8                 ; TEMP_PTR1 (general ptr hi)
         LDY #$00
-        STY $F9
+        STY $F9                 ; TEMP_PTR2 (general ptr lo)
         LDA #$50
-        STA $FA
+        STA $FA                 ; TEMP_PTR2 (general ptr hi)
 
 L1731:
-        LDA ($F7),Y
+        LDA ($F7),Y             ; TEMP_PTR1 (general ptr lo)
         JSR sub_1781
         CMP #$04
         BCS L1742
@@ -86,7 +86,7 @@ L1756:
 
 loc_1759:
         JSR sub_1766
-        STA ($F9),Y
+        STA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         JSR sub_177A
         DEX
         BNE loc_1759
@@ -109,17 +109,17 @@ L1779:
         RTS
 
 sub_177A:
-        INC $F9
+        INC $F9                 ; TEMP_PTR2 (general ptr lo)
         BNE L1780
-        INC $FA
+        INC $FA                 ; TEMP_PTR2 (general ptr hi)
 
 L1780:
         RTS
 
 sub_1781:
-        INC $F7
+        INC $F7                 ; TEMP_PTR1 (general ptr lo)
         BNE L1787
-        INC $F8
+        INC $F8                 ; TEMP_PTR1 (general ptr hi)
 
 L1787:
         RTS

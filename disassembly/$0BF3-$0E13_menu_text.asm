@@ -28,14 +28,14 @@ L0C19:
         JSR $EA24
         LDA #$68
         LDY #$00
-        STA ($D1),Y
+        STA ($D1),Y             ; SCREEN_PTR (screen line ptr lo)
         LDA #$01
-        STA ($F3),Y
+        STA ($F3),Y             ; COLOR_PTR (color RAM ptr lo)
         LDY #$27
         LDA #$67
-        STA ($D1),Y
+        STA ($D1),Y             ; SCREEN_PTR (screen line ptr lo)
         LDA #$01
-        STA ($F3),Y
+        STA ($F3),Y             ; COLOR_PTR (color RAM ptr lo)
         DEX
         BNE L0C19
         LDX #$61
@@ -59,9 +59,9 @@ L0C51:
         AND #$01
         CLC
         ADC #$69
-        STA ($D1),Y
+        STA ($D1),Y             ; SCREEN_PTR (screen line ptr lo)
         LDA #$0B
-        STA ($F3),Y
+        STA ($F3),Y             ; COLOR_PTR (color RAM ptr lo)
         DEY
         BNE L0C51
         DEX
@@ -83,14 +83,14 @@ L0C6A:
         LDA #$81
         JSR sub_1CE4
         LDY #$00
-        STY $0344
+        STY $0344               ; TEMP_STORE (temp storage lo)
         LDA $0CD3,Y
 
 L0C92:
-        STA $0286
+        STA $0286               ; CHARCOLOR (char color)
         INY
         LDA $0CD3,Y
-        STA $D3
+        STA $D3                 ; CURSOR_COL (cursor column)
         TYA
         PHA
         JSR $E56C
@@ -118,12 +118,12 @@ L0CBB:
         BEQ loc_0CCF
         CMP #$85
         BNE L0CBB
-        STA $035D
+        STA $035D               ; MENU_SELECT (menu selection)
         JSR sub_2364
         JMP loc_0CCF
 
 loc_0CCF:
-        STA $035D
+        STA $035D               ; MENU_SELECT (menu selection)
         RTS
         .byte $07, $0B, $44, $49, $52, $4B, $97, $A9, $9E, $4D, $45, $49, $45, $52, $97, $A9  ; ..dirk...meier..
         .byte $9E, $53, $43, $48, $52, $49, $45, $42, $3A, $5C, $01, $0D, $57, $45, $4C, $54  ; .schrieb:\..welt
@@ -151,9 +151,9 @@ sub_0DAB:
         LDA #$0D
         STA IRQ_VECTOR_HI
         LDA #$02
-        STA $0346
+        STA $0346               ; COUNTER (general counter)
         LDA #$02
-        STA $0342
+        STA $0342               ; TEMP_CALC (temp calc lo)
         CLI
         RTS
         .byte $CE, $46, $03, $F0, $03, $4C, $31, $EA, $A9, $02, $8D, $46, $03, $AD, $01, $08  ; Nf...l1....f....

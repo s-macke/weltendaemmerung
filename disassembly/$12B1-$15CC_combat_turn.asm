@@ -14,7 +14,7 @@ loc_12B6:
         BEQ L12D3
 
 sub_12C0:
-        LDX $034F
+        LDX $034F               ; ACTION_UNIT (unit in action)
         CPX #$11
         BEQ L12CB
         CPX #$16
@@ -31,8 +31,8 @@ L12D3:
         RTS
 
 sub_12D4:
-        LDX $034F
-        LDA $0347
+        LDX $034F               ; ACTION_UNIT (unit in action)
+        LDA $0347               ; CURRENT_PLAYER (active player)
 
 sub_12DA:
         BEQ L12E2
@@ -62,30 +62,30 @@ sub_12EE:
         BCC L12EA
         JSR sub_1FF6
         LDY #$03
-        LDA ($F9),Y
+        LDA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         BEQ L1327
         LDA #$0A
         STA VIC_SP0COL
-        LDA $034B
-        STA $0355
-        LDA $034C
-        STA $0356
-        LDA $F9
-        STA $0358
-        LDA $FA
-        STA $0359
-        LDA $034F
+        LDA $034B               ; CURSOR_MAP_Y (cursor Y on map)
+        STA $0355               ; ATTACK_SRC_Y (attack source Y)
+        LDA $034C               ; CURSOR_MAP_X (cursor X on map)
+        STA $0356               ; ATTACK_SRC_X (attack source X)
+        LDA $F9                 ; TEMP_PTR2 (general ptr lo)
+        STA $0358               ; ATTACKER_PTR (attacker data ptr lo)
+        LDA $FA                 ; TEMP_PTR2 (general ptr hi)
+        STA $0359               ; ATTACKER_PTR (attacker data ptr hi)
+        LDA $034F               ; ACTION_UNIT (unit in action)
         SEC
         SBC #$0B
-        STA $0357
+        STA $0357               ; ATTACKER_TYPE (attacker type)
 
 L1327:
         RTS
 
 L1328:
         JSR sub_13AE
-        LDX $034F
-        LDA $0357
+        LDX $034F               ; ACTION_UNIT (unit in action)
+        LDA $0357               ; ATTACKER_TYPE (attacker type)
         CMP #$08
         BEQ L134C
         CMP #$0C
@@ -94,7 +94,7 @@ L1328:
         BEQ L1350
 
 L133D:
-        LDA $0347
+        LDA $0347               ; CURRENT_PLAYER (active player)
         EOR #$01
         AND #$01
         JSR sub_12DA
@@ -110,14 +110,14 @@ L134C:
 L1350:
         CPX #$06
         BNE L133D
-        LDA $034B
+        LDA $034B               ; CURSOR_MAP_Y (cursor Y on map)
         CMP #$3C
         BCS L1349
         JSR sub_0F8C
-        DEC $4FF2,X
+        DEC $4FF2,X             ; TOWN_FLAGS (town capture flags)
 
 L1361:
-        LDA $0357
+        LDA $0357               ; ATTACKER_TYPE (attacker type)
         JSR sub_15AC
         JSR sub_2263
         JSR sub_1445
@@ -126,28 +126,28 @@ L1361:
         JMP loc_140E
 
 L1373:
-        LDA $0357
+        LDA $0357               ; ATTACKER_TYPE (attacker type)
         JSR sub_15AC
-        LDA $034F
+        LDA $034F               ; ACTION_UNIT (unit in action)
         SEC
         SBC #$0B
         JSR sub_15AC
         JSR sub_1445
-        LDX $0357
+        LDX $0357               ; ATTACKER_TYPE (attacker type)
         LDA $1047,X
         JSR sub_1567
-        STA $035C
+        STA $035C               ; SAVE_LETTER (save filename)
         JSR sub_1FF6
         LDY #$02
-        LDA ($F9),Y
+        LDA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         SED
         SEC
-        SBC $035C
+        SBC $035C               ; SAVE_LETTER (save filename)
         CLD
         BEQ L13FD
         CMP #$5A
         BCS L13FD
-        STA ($F9),Y
+        STA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
 
 loc_13A6:
         LDA #$01
@@ -155,36 +155,36 @@ loc_13A6:
         JMP sub_1EE2
 
 sub_13AE:
-        LDA $0355
+        LDA $0355               ; ATTACK_SRC_Y (attack source Y)
         SEC
-        SBC $034B
+        SBC $034B               ; CURSOR_MAP_Y (cursor Y on map)
         JSR $BC3C
         JSR $BC0C
-        LDA $61
+        LDA $61                 ; FAC_MANTISSA (math calc)
         JSR $BA2B
         JSR $BBCA
-        LDA $0356
+        LDA $0356               ; ATTACK_SRC_X (attack source X)
         SEC
-        SBC $034C
+        SBC $034C               ; CURSOR_MAP_X (cursor X on map)
         JSR $BC3C
         JSR $BC0C
-        LDA $61
+        LDA $61                 ; FAC_MANTISSA (math calc)
         JSR $BA2B
         LDA #$57
         LDY #$00
         JSR $BA8C
-        LDA $61
+        LDA $61                 ; FAC_MANTISSA (math calc)
         JSR $B86A
         JSR $BF71
         JSR $BC9B
-        LDX $0357
+        LDX $0357               ; ATTACKER_TYPE (attacker type)
         LDA $1027,X
         CMP #$12
         BNE L13F3
         LDA #$0C
 
 L13F3:
-        CMP $65
+        CMP $65                 ; ARG_MANTISSA (math calc)
         BCS L13FC
         PLA
         PLA
@@ -197,9 +197,9 @@ L13FD:
         JSR sub_20FB
         LDA #$FF
         LDY #$01
-        STA ($F9),Y
+        STA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         LDY #$05
-        LDA ($F9),Y
+        LDA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         PHA
         JSR sub_2197
 
@@ -208,36 +208,36 @@ loc_140E:
         JSR sub_1F77
         PLA
         PHA
-        STA ($D1),Y
+        STA ($D1),Y             ; SCREEN_PTR (screen line ptr lo)
         JSR sub_1C01
-        STA ($F3),Y
-        LDX $034C
+        STA ($F3),Y             ; COLOR_PTR (color RAM ptr lo)
+        LDX $034C               ; CURSOR_MAP_X (cursor X on map)
         JSR sub_0F82
         PLA
-        STA ($B4),Y
-        LDX $0347
-        LDA $034F
+        STA ($B4),Y             ; MAP_PTR (map data ptr lo)
+        LDX $0347               ; CURRENT_PLAYER (active player)
+        LDA $034F               ; ACTION_UNIT (unit in action)
         CMP #$11
         BEQ loc_1456
-        LDA $0347
+        LDA $0347               ; CURRENT_PLAYER (active player)
         BNE L1442
-        DEC $4FF0
+        DEC $4FF0               ; FELDOIN_UNITS (Feldoin unit count)
         BNE L1442
         LDA #$01
-        STA $034F
+        STA $034F               ; ACTION_UNIT (unit in action)
         JMP loc_1456
 
 L1442:
         JMP loc_13A6
 
 sub_1445:
-        LDA $0358
-        STA $F9
-        LDA $0359
-        STA $FA
+        LDA $0358               ; ATTACKER_PTR (attacker data ptr lo)
+        STA $F9                 ; TEMP_PTR2 (general ptr lo)
+        LDA $0359               ; ATTACKER_PTR (attacker data ptr hi)
+        STA $FA                 ; TEMP_PTR2 (general ptr hi)
         LDY #$03
         LDA #$00
-        STA ($F9),Y
+        STA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         RTS
 
 loc_1456:
@@ -305,7 +305,7 @@ L14D2:
         LDX #$0C
         LDY #$0F
         JSR $E50C
-        LDA $034F
+        LDA $034F               ; ACTION_UNIT (unit in action)
         CMP #$11
         BNE L14F3
         LDX #$09
@@ -375,8 +375,8 @@ sub_15AC:
 
 sub_15C2:
         LDA #$A0
-        STA $F9
+        STA $F9                 ; TEMP_PTR2 (general ptr lo)
         LDA #$5F
-        STA $FA
+        STA $FA                 ; TEMP_PTR2 (general ptr hi)
         LDY #$00
         RTS

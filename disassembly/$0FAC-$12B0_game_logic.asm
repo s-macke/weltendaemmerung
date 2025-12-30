@@ -5,45 +5,45 @@
 
 sub_0FAC:
         LDA #$57
-        STA $F7
+        STA $F7                 ; TEMP_PTR1 (general ptr lo)
         LDA #$10
-        STA $F8
+        STA $F8                 ; TEMP_PTR1 (general ptr hi)
         JSR sub_15C2
 
 loc_0FB7:
-        LDA ($F7),Y
+        LDA ($F7),Y             ; TEMP_PTR1 (general ptr lo)
         BMI L1003
-        STA ($F9),Y
+        STA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         PHA
         JSR sub_177A
         JSR sub_1781
-        LDA ($F7),Y
-        STA ($F9),Y
+        LDA ($F7),Y             ; TEMP_PTR1 (general ptr lo)
+        STA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         PHA
         JSR sub_177A
         JSR sub_1781
-        LDX $034E
+        LDX $034E               ; UNIT_TYPE_IDX (unit type index)
         LDA $1017,X
-        STA ($F9),Y
+        STA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         JSR sub_177A
         LDA $1037,X
-        STA ($F9),Y
+        STA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         JSR sub_177A
-        STA ($F9),Y
+        STA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         JSR sub_177A
         PLA
         JSR sub_1AD3
         PLA
         TAY
-        LDA ($B4),Y
+        LDA ($B4),Y             ; MAP_PTR (map data ptr lo)
         TAX
-        LDA $034E
+        LDA $034E               ; UNIT_TYPE_IDX (unit type index)
         CLC
         ADC #$74
-        STA ($B4),Y
+        STA ($B4),Y             ; MAP_PTR (map data ptr lo)
         LDY #$00
         TXA
-        STA ($F9),Y
+        STA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         JSR sub_177A
         JMP loc_0FB7
 
@@ -51,13 +51,13 @@ L1003:
         CMP #$FF
         BEQ L1012
         AND #$1F
-        STA $034E
+        STA $034E               ; UNIT_TYPE_IDX (unit type index)
         JSR sub_1781
         JMP loc_0FB7
 
 L1012:
         LDY #$04
-        STA ($F9),Y
+        STA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         RTS
         .byte $16, $12, $11, $14, $18, $10, $16, $12, $05, $10, $16, $16, $30, $05, $16, $18  ; ............0...
         .byte $01, $08, $02, $02, $08, $05, $01, $08, $12, $01, $01, $01, $02, $01, $07, $03  ; ................

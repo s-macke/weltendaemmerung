@@ -23,10 +23,10 @@ sub_1E9A:
         JMP sub_1E9A
 
 loc_1EA8:
-        LDA $034A
+        LDA $034A               ; GAME_STATE (game phase)
         ASL A
         CLC
-        ADC $0347
+        ADC $0347               ; CURRENT_PLAYER (active player)
         ADC #$01
         CMP #$06
         BNE L1EC1
@@ -49,10 +49,10 @@ L1EC9:
 loc_1ECE:
         TAX
         AND #$01
-        STA $0347
+        STA $0347               ; CURRENT_PLAYER (active player)
         TXA
         LSR A
-        STA $034A
+        STA $034A               ; GAME_STATE (game phase)
         JSR sub_1F69
         JSR sub_1C35
         JMP sub_1D0E
@@ -118,20 +118,20 @@ sub_1F1C:
         LSR $A8
         LDA $A7
         CLC
-        ADC $0341
-        STA $034C
+        ADC $0341               ; SCROLL_Y (map scroll Y)
+        STA $034C               ; CURSOR_MAP_X (cursor X on map)
         LDA $A8
-        ADC $0340
-        STA $034B
+        ADC $0340               ; SCROLL_X (map scroll X)
+        STA $034B               ; CURSOR_MAP_Y (cursor Y on map)
         JSR sub_1F77
-        LDA ($D1),Y
+        LDA ($D1),Y             ; SCREEN_PTR (screen line ptr lo)
         SEC
         SBC #$69
         BCS L1F65
         LDA #$09
 
 L1F65:
-        STA $034F
+        STA $034F               ; ACTION_UNIT (unit in action)
         RTS
 
 sub_1F69:
@@ -182,28 +182,28 @@ sub_1FAB:
         JSR sub_1F1C
         SEC
         SBC #$0B
-        STA $0346
+        STA $0346               ; COUNTER (general counter)
         LDX #$18
         JSR $E9FF
         LDY #$0A
         JSR $E50C
         LDA #$52
         JSR sub_1F88
-        LDX $0346
+        LDX $0346               ; COUNTER (general counter)
         LDA $1027,X
         JSR sub_1F90
         LDA #$42
         JSR sub_1F88
         JSR sub_1FF6
         LDY #$02
-        LDA ($F9),Y
+        LDA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         PHA
         INY
-        LDA ($F9),Y
+        LDA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         JSR sub_1F90
         LDA #$41
         JSR sub_1F88
-        LDX $0346
+        LDX $0346               ; COUNTER (general counter)
         LDA $1047,X
         JSR sub_1F90
         LDA #$56
@@ -215,16 +215,16 @@ sub_1FF6:
         JSR sub_15C2
 
 loc_1FF9:
-        LDA ($F9),Y
+        LDA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         TAX
         INX
-        CPX $034B
+        CPX $034B               ; CURSOR_MAP_Y (cursor Y on map)
         BNE L200C
         INY
-        LDA ($F9),Y
+        LDA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         TAX
         INX
-        CPX $034C
+        CPX $034C               ; CURSOR_MAP_X (cursor X on map)
         BEQ L2012
 
 L200C:
@@ -330,10 +330,10 @@ sub_20C0:
 
 loc_20C3:
         LDY #$04
-        LDA ($F9),Y
+        LDA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         BEQ L20D2
         DEY
-        STA ($F9),Y
+        STA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         JSR sub_20B7
         JMP loc_20C3
 
@@ -345,11 +345,11 @@ sub_20D3:
 
 loc_20D6:
         LDY #$04
-        LDA ($F9),Y
+        LDA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         BEQ L20D2
         LDA #$01
         DEY
-        STA ($F9),Y
+        STA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         JSR sub_20B7
         JMP loc_20D6
 
@@ -485,7 +485,7 @@ L228C:
         PLA
         CMP #$15
         BNE L22B1
-        STA $034F
+        STA $034F               ; ACTION_UNIT (unit in action)
         JMP loc_1456
 
 L22B1:

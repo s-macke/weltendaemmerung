@@ -5,41 +5,41 @@
 
 loc_080D:
         LDA #$9F
-        STA $4FF0
+        STA $4FF0               ; FELDOIN_UNITS (Feldoin unit count)
         LDA #$00
         LDX #$18
 
 L0816:
         STA SID_V1FREQL,X
-        STA $0340,X
-        STA $0359,X
-        STA $4FF2,X
+        STA $0340,X             ; SCROLL_X (map scroll X)
+        STA $0359,X             ; ATTACKER_PTR (attacker data ptr hi)
+        STA $4FF2,X             ; TOWN_FLAGS (town capture flags)
         DEX
         BPL L0816
         JSR sub_1B22
         LDA #$00
-        STA $F7
-        STA $F9
+        STA $F7                 ; TEMP_PTR1 (general ptr lo)
+        STA $F9                 ; TEMP_PTR2 (general ptr lo)
         TAY
         LDA #$D0
-        STA $F8
+        STA $F8                 ; TEMP_PTR1 (general ptr hi)
         LDA #$E0
-        STA $FA
+        STA $FA                 ; TEMP_PTR2 (general ptr hi)
 
 L0837:
-        LDA ($F7),Y
-        STA ($F9),Y
+        LDA ($F7),Y             ; TEMP_PTR1 (general ptr lo)
+        STA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         INY
         BNE L0837
-        INC $F8
-        INC $FA
-        LDA $FA
+        INC $F8                 ; TEMP_PTR1 (general ptr hi)
+        INC $FA                 ; TEMP_PTR2 (general ptr hi)
+        LDA $FA                 ; TEMP_PTR2 (general ptr hi)
         BNE L0837
         JSR sub_1B28
         LDA #$ED
-        STA $0341
+        STA $0341               ; SCROLL_Y (map scroll Y)
         LDA #$C0
-        STA $0288
+        STA $0288               ; HIBASE (screen mem page)
         LDA #$94
         STA CIA2_PRA
         LDA #$08
@@ -47,7 +47,7 @@ L0837:
         JSR sub_15CD
         JSR sub_0BF3
         JSR sub_0E56
-        LDA $035D
+        LDA $035D               ; MENU_SELECT (menu selection)
         CMP #$C4
         BEQ L0873
         JSR sub_1721

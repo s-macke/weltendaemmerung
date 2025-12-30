@@ -19,9 +19,9 @@ loc_2307:
         LDY #$03
         JSR SETNAM
         LDA #$4F
-        STA $F8
+        STA $F8                 ; TEMP_PTR1 (general ptr hi)
         LDA #$F0
-        STA $F7
+        STA $F7                 ; TEMP_PTR1 (general ptr lo)
         LDA #$F7
         LDX #$79
         LDY #$66
@@ -46,7 +46,7 @@ L234F:
         BCC L234F
         CMP #$5B
         BCS L234F
-        STA $035C
+        STA $035C               ; SAVE_LETTER (save filename)
         JSR CHROUT
         JSR sub_23BD
 
@@ -75,7 +75,7 @@ sub_2364:
 
 sub_2391:
         JSR sub_23B9
-        LDX $D6
+        LDX $D6                 ; CURSOR_ROW (cursor row)
         LDY #$0F
         JSR $E50C
         LDX #$55
@@ -113,12 +113,12 @@ L23C2:
         RTS
 
 sub_23C3:
-        LDX $034B
+        LDX $034B               ; CURSOR_MAP_Y (cursor Y on map)
         DEX
         BNE L23C2
-        LDA $034F
+        LDA $034F               ; ACTION_UNIT (unit in action)
         CMP #$12
         BCC L23C2
         LDA #$11
-        STA $034F
+        STA $034F               ; ACTION_UNIT (unit in action)
         JMP loc_1456

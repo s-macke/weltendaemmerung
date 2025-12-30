@@ -4,7 +4,7 @@
 ; =============================================================================
 
 sub_0A70:
-        LDA $034A
+        LDA $034A               ; GAME_STATE (game phase)
         CMP #$01
         BEQ L0A80
         CMP #$02
@@ -16,7 +16,7 @@ L0A80:
         RTS
 
 L0A81:
-        LDA $0353
+        LDA $0353               ; MOVE_FLAG (movement flag)
         BNE L0A62
         LDX #$03
 
@@ -29,7 +29,7 @@ L0A88:
         JMP sub_1EE2
 
 L0A96:
-        LDA $0353
+        LDA $0353               ; MOVE_FLAG (movement flag)
         BEQ L0A62
         LDA #$20
         JSR sub_1CE4
@@ -40,7 +40,7 @@ sub_0AA3:
 
 L0AA6:
         BEQ L0A80
-        LDX $034C
+        LDX $034C               ; CURSOR_MAP_X (cursor X on map)
         JSR sub_0F82
         DEY
         BMI L0AB6
@@ -55,7 +55,7 @@ L0AB6:
 sub_0ABB:
         JSR sub_0A70
         BEQ L0A80
-        LDX $034C
+        LDX $034C               ; CURSOR_MAP_X (cursor X on map)
         JSR sub_0F82
         INY
         CPY #$50
@@ -69,7 +69,7 @@ sub_0ABB:
 sub_0AD5:
         JSR sub_0A70
         BEQ L0A80
-        LDX $034C
+        LDX $034C               ; CURSOR_MAP_X (cursor X on map)
         DEX
         JSR sub_0F82
         JSR sub_0B10
@@ -81,7 +81,7 @@ sub_0AD5:
 sub_0AEB:
         JSR sub_0A70
         BEQ L0AA6
-        LDX $034C
+        LDX $034C               ; CURSOR_MAP_X (cursor X on map)
         INX
         JSR sub_0F82
         JSR sub_0B10
@@ -93,16 +93,16 @@ sub_0AEB:
 L0B01:
         JSR sub_1FF6
         LDY #$03
-        LDA ($F9),Y
+        LDA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         SED
         JSR sub_0B82
-        STA ($F9),Y
+        STA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         CLD
         RTS
 
 sub_0B10:
-        LDA ($B4),Y
-        LDX $034F
+        LDA ($B4),Y             ; MAP_PTR (map data ptr lo)
+        LDX $034F               ; ACTION_UNIT (unit in action)
         CPX #$0D
         BEQ L0B6A
         CPX #$14
@@ -137,34 +137,34 @@ sub_0B10:
 
 L0B52:
         LDA #$01
-        STA $0353
+        STA $0353               ; MOVE_FLAG (movement flag)
         SEC
         RTS
 
 L0B59:
-        STA $0353
+        STA $0353               ; MOVE_FLAG (movement flag)
         CMP #$6B
         BNE L0B52
         LDX #$00
-        STX $0353
+        STX $0353               ; MOVE_FLAG (movement flag)
         JSR sub_204C
         CLC
         RTS
 
 L0B6A:
-        STA $0353
+        STA $0353               ; MOVE_FLAG (movement flag)
         CMP #$74
         BCS L0B52
 
 L0B71:
         LDX #$00
-        STX $0353
+        STX $0353               ; MOVE_FLAG (movement flag)
         CLC
         RTS
 
 L0B78:
         LDX #$00
-        STX $0353
+        STX $0353               ; MOVE_FLAG (movement flag)
         JSR sub_209C
         CLC
         RTS
@@ -172,9 +172,9 @@ L0B78:
 sub_0B82:
         PHA
         LDY #$05
-        LDA ($F9),Y
+        LDA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         TAY
-        LDA $034F
+        LDA $034F               ; ACTION_UNIT (unit in action)
         CLD
         SEC
         SBC #$0B
@@ -205,10 +205,10 @@ L0BB1:
         LDA $0BE3,X
 
 loc_0BB4:
-        STA $0342
+        STA $0342               ; TEMP_CALC (temp calc lo)
         PLA
         SEC
-        SBC $0342
+        SBC $0342               ; TEMP_CALC (temp calc lo)
         CMP #$20
         BCC L0BC2
         LDA #$00
