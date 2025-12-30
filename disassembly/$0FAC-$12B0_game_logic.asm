@@ -2,6 +2,22 @@
 ; Core Game Logic and Data Tables
 ; Address range: $0FAC - $12B0
 ; =============================================================================
+; UNIT PLACEMENT DATA ($1057-$11A6):
+; ----------------------------------
+; Initial unit positions for both players (Feldoin and Dailor).
+; Format:
+;   $8X       - Unit type marker (X = 0-15)
+;   X, Y      - Coordinate pairs for each unit of that type
+;   ...       - More X,Y pairs
+;   $8X       - Next unit type
+;   ...
+;   $FF       - End of data
+;
+; Units with X < 40 belong to Feldoin (Player 1, left side)
+; Units with X >= 40 belong to Dailor (Player 2, right side)
+;
+; Total: 292 units (146 per player)
+; =============================================================================
 
 sub_0FAC:
         LDA #$57

@@ -109,43 +109,69 @@ L15E5:
         .byte $97, $83, $93, $B7, $E7, $E7, $E7, $FF, $FF, $C3, $95, $B1, $8D, $A9, $C3, $FF  ; .........C....C.
         .byte $FF, $87, $E3, $93, $F3, $E3, $C3, $C1, $FF, $FF, $9F, $00, $00, $9F, $FF, $FF  ; ......CA........
         .byte $FF, $FF, $F3, $E3, $01, $C9, $E3, $FF, $E7, $E3, $13, $81, $01, $C9, $8C, $FF  ; .....I.......I..
-        .byte $AB  ; .
+        .byte $AB  ; Terminator
 
+; -----------------------------------------------------------------------------
+; sub_1721 - Decompress Map Data (RLE Algorithm)
+; -----------------------------------------------------------------------------
+; Decompresses map data from $1788 to $5000 (80x40 = 3200 tiles).
+;
+; RLE COMPRESSION FORMAT:
+; -----------------------
+; For each byte in the compressed stream:
+;   $FF       - End of data (terminate)
+;   $00-$03   - Output character code (byte + $72) once
+;   $04-$FE   - RLE encoded:
+;               - High nibble = repeat count (1-15)
+;               - Low nibble  = terrain code:
+;                 - If < 8: terrain = nibble + $6A
+;                 - If >= 8: terrain = (nibble - $11) + $6A
+;
+; TERRAIN CHARACTER CODES:
+;   $69: Wiese (Meadow)      $6E: Tor (Gate)
+;   $6A: Fluss (River)       $6F: Gebirge (Mountains)
+;   $6B: Wald (Forest)       $70: Pflaster (Pavement)
+;   $6C: Ende (Edge)         $71: Mauer (Wall)
+;   $6D: Sumpf (Swamp)       $72-$73: Additional terrain
+;
+; Source: $1788 (compressed map data, ~700 bytes)
+; Dest:   $5000 (decompressed map, 3200 bytes)
+; -----------------------------------------------------------------------------
 sub_1721:
         LDA #$88
-        STA $F7                 ; TEMP_PTR1 (general ptr lo)
+        STA $F7                 ; Source pointer lo ($1788)
         LDA #$17
-        STA $F8                 ; TEMP_PTR1 (general ptr hi)
+        STA $F8                 ; Source pointer hi
         LDY #$00
-        STY $F9                 ; TEMP_PTR2 (general ptr lo)
+        STY $F9                 ; Dest pointer lo ($5000)
         LDA #$50
-        STA $FA                 ; TEMP_PTR2 (general ptr hi)
+        STA $FA                 ; Dest pointer hi
 
-L1731:
-        LDA ($F7),Y             ; TEMP_PTR1 (general ptr lo)
-        JSR sub_1781
+L1731:                          ; Main decompression loop
+        LDA ($F7),Y             ; Read compressed byte
+        JSR sub_1781            ; Increment source pointer
         CMP #$04
-        BCS L1742
-        LDX #$01
+        BCS L1742               ; If >= 4, process as RLE
+        LDX #$01                ; Count = 1
         CLC
-        ADC #$72
-        JMP loc_1759
+        ADC #$72                ; Terrain = byte + $72
+        JMP loc_1759            ; Output tile
 
-L1742:
+L1742:                          ; RLE decode
         CMP #$FF
-        BEQ L1780
+        BEQ L1780               ; End marker - exit
         PHA
+        LSR A                   ; Extract high nibble
         LSR A
         LSR A
         LSR A
-        LSR A
-        TAX
+        TAX                     ; X = repeat count
         PLA
-        AND #$0F
+        AND #$0F                ; Extract low nibble
         CMP #$08
-        BCC L1756
+        BCC L1756               ; If < 8, skip subtraction
         SEC
-        SBC #$11
+        SBC #$11                ; Subtract $11 (wraps for values 8-15)
 
 L1756:
         CLC
