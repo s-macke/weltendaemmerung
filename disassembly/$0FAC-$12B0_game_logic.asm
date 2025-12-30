@@ -2,6 +2,20 @@
 ; Core Game Logic and Data Tables
 ; Address range: $0FAC - $12B0
 ; =============================================================================
+;
+; UNIT STAT TABLES (BCD encoded values):
+; --------------------------------------
+; $1017 (16 bytes) - V (Verteidigung/Defense) - stored in unit[2], can change
+; $1027 (16 bytes) - R (Reichweite/Range) - constant, read from table
+; $1037 (16 bytes) - B (Bewegung/Movement) - stored in unit[3]/[4]
+; $1047 (16 bytes) - A (Angriff/Attack) - constant, read from table
+;
+; Unit types (index 0-15):
+;   0=Schwertträger, 1=Bogenschützen, 2=Adler, 3=Lanzenträger,
+;   4=Kriegsschiff, 5=Reiterei, 6=Katapult, 7=Blutsauger,
+;   8=Axtmänner, 9=Feldherr, 10=Lindwurm, 11=Rammbock,
+;   12=Wagenfahrer, 13=Wolfsreiter, 14=Unit14, 15=Unit15
+;
 ; UNIT PLACEMENT DATA ($1057-$11A6):
 ; ----------------------------------
 ; Initial unit positions for both players (Feldoin and Dailor).
@@ -16,69 +30,99 @@
 ; Units with X < 40 belong to Feldoin (Player 1, left side)
 ; Units with X >= 40 belong to Dailor (Player 2, right side)
 ;
-; Total: 292 units (146 per player)
+; Total: 292 units (Feldoin: 128, Dailor: 164)
 ; =============================================================================
 
+; -----------------------------------------------------------------------------
+; sub_0FAC - Initialize Units from Placement Data
+; -----------------------------------------------------------------------------
+; Reads placement table at $1057 and creates unit records at $5FA0.
+; Unit record structure (6 bytes):
+;   [0] X coordinate    [1] Y coordinate
+;   [2] V (defense)     [3] B current (movement)
+;   [4] B max           [5] Original terrain
+; -----------------------------------------------------------------------------
 sub_0FAC:
         LDA #$57
-        STA $F7                 ; TEMP_PTR1 (general ptr lo)
+        STA $F7                 ; Placement data pointer lo ($1057)
         LDA #$10
-        STA $F8                 ; TEMP_PTR1 (general ptr hi)
-        JSR sub_15C2
+        STA $F8                 ; Placement data pointer hi
+        JSR sub_15C2            ; Init unit record pointer ($F9=$5FA0)
 
 loc_0FB7:
-        LDA ($F7),Y             ; TEMP_PTR1 (general ptr lo)
-        BMI L1003
-        STA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
+        LDA ($F7),Y             ; Read from placement data
+        BMI L1003               ; If >= $80, it's a unit type marker
+        STA ($F9),Y             ; Store X coord → unit[0]
         PHA
-        JSR sub_177A
-        JSR sub_1781
-        LDA ($F7),Y             ; TEMP_PTR1 (general ptr lo)
-        STA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
+        JSR sub_177A            ; Advance unit pointer
+        JSR sub_1781            ; Advance placement pointer
+        LDA ($F7),Y             ; Read Y coord from placement
+        STA ($F9),Y             ; Store Y coord → unit[1]
         PHA
-        JSR sub_177A
-        JSR sub_1781
-        LDX $034E               ; UNIT_TYPE_IDX (unit type index)
-        LDA $1017,X
-        STA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
-        JSR sub_177A
-        LDA $1037,X
-        STA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
-        JSR sub_177A
-        STA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
-        JSR sub_177A
-        PLA
-        JSR sub_1AD3
-        PLA
+        JSR sub_177A            ; Advance unit pointer
+        JSR sub_1781            ; Advance placement pointer
+        LDX $034E               ; Get unit type index
+        LDA $1017,X             ; Load V (defense) from stat table
+        STA ($F9),Y             ; Store V → unit[2]
+        JSR sub_177A            ; Advance unit pointer
+        LDA $1037,X             ; Load B (movement) from stat table
+        STA ($F9),Y             ; Store B current → unit[3]
+        JSR sub_177A            ; Advance unit pointer
+        STA ($F9),Y             ; Store B max → unit[4] (same value)
+        JSR sub_177A            ; Advance unit pointer
+        PLA                     ; Restore Y coord
+        JSR sub_1AD3            ; Calculate map offset
+        PLA                     ; Restore X coord
         TAY
-        LDA ($B4),Y             ; MAP_PTR (map data ptr lo)
-        TAX
-        LDA $034E               ; UNIT_TYPE_IDX (unit type index)
+        LDA ($B4),Y             ; Read original terrain from map
+        TAX                     ; Save terrain in X
+        LDA $034E               ; Get unit type
         CLC
-        ADC #$74
-        STA ($B4),Y             ; MAP_PTR (map data ptr lo)
+        ADC #$74                ; Convert to tile char ($74-$83)
+        STA ($B4),Y             ; Place unit on map
         LDY #$00
-        TXA
-        STA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
-        JSR sub_177A
-        JMP loc_0FB7
+        TXA                     ; Get saved terrain
+        STA ($F9),Y             ; Store terrain → unit[5]
+        JSR sub_177A            ; Advance to next unit record
+        JMP loc_0FB7            ; Process next unit
 
-L1003:
-        CMP #$FF
+L1003:                          ; Handle unit type marker ($8X)
+        CMP #$FF                ; Check for end marker
         BEQ L1012
-        AND #$1F
-        STA $034E               ; UNIT_TYPE_IDX (unit type index)
-        JSR sub_1781
+        AND #$1F                ; Extract unit type (0-15)
+        STA $034E               ; Store as current unit type
+        JSR sub_1781            ; Advance placement pointer
         JMP loc_0FB7
 
-L1012:
+L1012:                          ; End of placement data
         LDY #$04
-        STA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
+        STA ($F9),Y             ; Mark end of unit list (0 in unit[4])
         RTS
-        .byte $16, $12, $11, $14, $18, $10, $16, $12, $05, $10, $16, $16, $30, $05, $16, $18  ; ............0...
-        .byte $01, $08, $02, $02, $08, $05, $01, $08, $12, $01, $01, $01, $02, $01, $07, $03  ; ................
-        .byte $10, $10, $12, $10, $08, $15, $10, $10, $09, $12, $10, $10, $10, $10, $14, $12  ; ................
-        .byte $04, $05, $07, $05, $20, $06, $06, $05, $01, $08, $04, $06, $30, $01, $10, $08  ; .... .......0...
+
+; -----------------------------------------------------------------------------
+; Unit Stat Tables (BCD encoded, 16 bytes each)
+; Display order: R B A V | Table address order: V R B A
+; -----------------------------------------------------------------------------
+; $1017 - V (Verteidigung/Defense) - stored in unit[2], decreases when hit
+;         Schwert Bogen Adler Lanze Schif Reite Katap Bluts Axtmä Feldh Lindw Rambo Wagen Wolfs Unt14 Unt15
+        .byte $16, $12, $11, $14, $18, $10, $16, $12, $05, $10, $16, $16, $30, $05, $16, $18
+;       BCD:   16   12   11   14   18   10   16   12    5   10   16   16   30    5   16   18
+
+; $1027 - R (Reichweite/Range) - constant, read from table during display
+        .byte $01, $08, $02, $02, $08, $05, $01, $08, $12, $01, $01, $01, $02, $01, $07, $03
+;       BCD:    1    8    2    2    8    5    1    8   12    1    1    1    2    1    7    3
+
+; $1037 - B (Bewegung/Movement) - stored in unit[3] (current) and unit[4] (max)
+        .byte $10, $10, $12, $10, $08, $15, $10, $10, $09, $12, $10, $10, $10, $10, $14, $12
+;       BCD:   10   10   12   10    8   15   10   10    9   12   10   10   10   10   14   12
+
+; $1047 - A (Angriff/Attack) - constant, read from table during display
+        .byte $04, $05, $07, $05, $20, $06, $06, $05, $01, $08, $04, $06, $30, $01, $10, $08
+;       BCD:    4    5    7    5   20    6    6    5    1    8    4    6   30    1   10    8
+
+; -----------------------------------------------------------------------------
+; Unit Placement Data ($1057)
+; -----------------------------------------------------------------------------
         .byte $80, $0C, $08, $0D, $08, $0E, $08, $10, $08, $11, $08, $12, $08, $14, $08, $15  ; ................
         .byte $08, $16, $08, $18, $08, $19, $08, $1A, $08, $0C, $0A, $0D, $0A, $0E, $0A, $0F  ; ................
         .byte $0A, $10, $0A, $11, $0A, $12, $0A, $13, $0A, $14, $0A, $15, $0A, $16, $0A, $17  ; ................

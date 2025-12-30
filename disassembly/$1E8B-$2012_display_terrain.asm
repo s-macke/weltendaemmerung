@@ -251,40 +251,45 @@ L1F9D:
 ; -----------------------------------------------------------------------------
 ; sub_1FAB - Display Unit Information
 ; -----------------------------------------------------------------------------
-; Shows unit stats: R (rank), B (movement), A (attack), V (defense)
+; Shows unit stats in order: R B A V
+;   R = Reichweite (Range) - from $1027 table (constant)
+;   B = Bewegung (Movement) - from unit[3] (current, decreases)
+;   A = Angriff (Attack) - from $1047 table (constant)
+;   V = Verteidigung (Defense) - from unit[2] (can change in combat)
+; All values are BCD encoded.
 ; -----------------------------------------------------------------------------
 sub_1FAB:
-        JSR sub_1F1C
+        JSR sub_1F1C            ; Get terrain/unit index at cursor
         SEC
-        SBC #$0B
-        STA $0346               ; COUNTER (general counter)
+        SBC #$0B                ; Convert to unit type (0-15)
+        STA $0346               ; Store unit type index
         LDX #$18
-        JSR $E9FF
+        JSR $E9FF               ; Position cursor
         LDY #$0A
         JSR $E50C
-        LDA #$52
-        JSR sub_1F88
-        LDX $0346               ; COUNTER (general counter)
-        LDA $1027,X
-        JSR sub_1F90
-        LDA #$42
-        JSR sub_1F88
-        JSR sub_1FF6
+        LDA #$52                ; 'R'
+        JSR sub_1F88            ; Print "R="
+        LDX $0346               ; Get unit type
+        LDA $1027,X             ; Load R (Range) from table
+        JSR sub_1F90            ; Print BCD value
+        LDA #$42                ; 'B'
+        JSR sub_1F88            ; Print "B="
+        JSR sub_1FF6            ; Find unit record at cursor
         LDY #$02
-        LDA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
+        LDA ($F9),Y             ; Load unit[2] = V (save for later)
         PHA
         INY
-        LDA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
-        JSR sub_1F90
-        LDA #$41
-        JSR sub_1F88
-        LDX $0346               ; COUNTER (general counter)
-        LDA $1047,X
-        JSR sub_1F90
-        LDA #$56
-        JSR sub_1F88
-        PLA
-        JMP sub_1F90
+        LDA ($F9),Y             ; Load unit[3] = B (current movement)
+        JSR sub_1F90            ; Print BCD value
+        LDA #$41                ; 'A'
+        JSR sub_1F88            ; Print "A="
+        LDX $0346               ; Get unit type
+        LDA $1047,X             ; Load A (Attack) from table
+        JSR sub_1F90            ; Print BCD value
+        LDA #$56                ; 'V'
+        JSR sub_1F88            ; Print "V="
+        PLA                     ; Restore V value from unit[2]
+        JMP sub_1F90            ; Print BCD value
 
 ; -----------------------------------------------------------------------------
 ; sub_1FF6 - Find Unit at Cursor Position
