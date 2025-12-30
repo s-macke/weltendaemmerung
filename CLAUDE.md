@@ -30,7 +30,11 @@ The disassembly is split into functional modules in `disassembly/`:
 | `$12B1-$15CC_combat_turn.asm`      | $12B1-$15CC | Combat system, turn management        |
 | `$15CD-$1A3E_graphics_data.asm`    | $15CD-$1A3E | Character sprites, graphics patterns  |
 | `$1A3F-$1E8A_utilities_render.asm` | $1A3F-$1E8A | Utilities, rendering, music           |
-| `$1E8B-$2306_sound_effects.asm`    | $1E8B-$2306 | Sound effects, damage calc            |
+| `$1E8B-$2012_display_terrain.asm`  | $1E8B-$2012 | Display utilities, terrain/unit info  |
+| `$2013-$20B6_sound_effects.asm`    | $2013-$20B6 | Sound effects (part 1)                |
+| `$20B7-$20E6_unit_management.asm`  | $20B7-$20E6 | Unit pointer, movement points         |
+| `$20E7-$227D_sound_effects2.asm`   | $20E7-$227D | Sound effects (part 2)                |
+| `$227E-$2306_turn_victory.asm`     | $227E-$2306 | Turn counter, victory check           |
 | `$2307-$23D7_file_io.asm`          | $2307-$23D7 | Save/load game, disk I/O              |
 
 ### Functional Categories
@@ -42,13 +46,13 @@ The disassembly is split into functional modules in `disassembly/`:
 - Sprites ($0E14), Character Graphics ($15CD), Rendering ($1A3F)
 
 **Audio:**
-- Sound Init ($0E14), Victory/Defeat Music ($1C88/$1CBC), Sound Effects ($1E8B)
+- Sound Init ($0E14), Victory/Defeat Music ($1C88/$1CBC), Sound Effects ($2013)
 
 **UI:**
-- Menu/Text ($0BF3)
+- Menu/Text ($0BF3), Display/Terrain Info ($1E8B)
 
 **Game Systems:**
-- Movement/Combat ($0A70), Combat/Turn Management ($12B1)
+- Movement/Combat ($0A70), Combat/Turn Management ($12B1), Unit Management ($20B7), Turn/Victory ($227E)
 
 **I/O:**
 - File I/O ($2307) - Save/Load with KERNAL routines

@@ -1,8 +1,20 @@
 ; =============================================================================
-; Sound Effects and Utility Functions
-; Address range: $1E8B - $2306
+; Display Utilities and Terrain/Unit Info
+; Address range: $1E8B - $2012
+; =============================================================================
+; This module handles:
+
+; - String output routines
+; - Game state/turn management
+; - Terrain and unit information display at cursor position
+; - Cursor position to map coordinate conversion
 ; =============================================================================
 
+; -----------------------------------------------------------------------------
+; sub_1E8B - Print String from $1D54 Table
+; -----------------------------------------------------------------------------
+; Prints characters starting at $1D54+X until $5C terminator is reached
+; -----------------------------------------------------------------------------
 sub_1E8B:
         LDA $1D54,X
         CMP #$5C
@@ -14,6 +26,11 @@ sub_1E8B:
 L1E99:
         RTS
 
+; -----------------------------------------------------------------------------
+; sub_1E9A - Print String from $1DBE Table
+; -----------------------------------------------------------------------------
+; Prints characters starting at $1DBE+X until $5C terminator is reached
+; -----------------------------------------------------------------------------
 sub_1E9A:
         LDA $1DBE,X
         CMP #$5C
@@ -22,6 +39,11 @@ sub_1E9A:
         INX
         JMP sub_1E9A
 
+; -----------------------------------------------------------------------------
+; loc_1EA8 - Game State/Turn Management
+; -----------------------------------------------------------------------------
+; Handles game phase transitions and player turns
+; -----------------------------------------------------------------------------
 loc_1EA8:
         LDA $034A               ; GAME_STATE (game phase)
         ASL A
@@ -165,6 +187,9 @@ L1F65:
         STA $034F               ; ACTION_UNIT (unit in action) - terrain/unit index
         RTS
 
+; -----------------------------------------------------------------------------
+; sub_1F69 - Sound and Display Update
+; -----------------------------------------------------------------------------
 sub_1F69:
         JSR sub_209C
         LDA #$14
@@ -173,6 +198,9 @@ sub_1F69:
         JSR sub_1CE4
         RTS
 
+; -----------------------------------------------------------------------------
+; sub_1F77 - Get Screen Position from Map Coordinates
+; -----------------------------------------------------------------------------
 sub_1F77:
         LDX $A7
         JSR $E9F0
@@ -180,15 +208,26 @@ sub_1F77:
         LDY $A8
         RTS
 
+; -----------------------------------------------------------------------------
+; sub_1F82 - Combined Sound and Display
+; -----------------------------------------------------------------------------
 sub_1F82:
         JSR sub_2263
         JMP loc_2178
 
+; -----------------------------------------------------------------------------
+; sub_1F88 - Print Character with Equals Sign
+; -----------------------------------------------------------------------------
 sub_1F88:
         JSR CHROUT
         LDA #$3D
         JMP CHROUT
 
+; -----------------------------------------------------------------------------
+; sub_1F90 - Print BCD Number
+; -----------------------------------------------------------------------------
+; Prints a BCD number with space padding
+; -----------------------------------------------------------------------------
 sub_1F90:
         TAY
         LSR A
@@ -209,6 +248,11 @@ L1F9D:
         LDA #$20
         JMP CHROUT
 
+; -----------------------------------------------------------------------------
+; sub_1FAB - Display Unit Information
+; -----------------------------------------------------------------------------
+; Shows unit stats: R (rank), B (movement), A (attack), V (defense)
+; -----------------------------------------------------------------------------
 sub_1FAB:
         JSR sub_1F1C
         SEC
@@ -242,6 +286,9 @@ sub_1FAB:
         PLA
         JMP sub_1F90
 
+; -----------------------------------------------------------------------------
+; sub_1FF6 - Find Unit at Cursor Position
+; -----------------------------------------------------------------------------
 sub_1FF6:
         JSR sub_15C2
 
@@ -263,306 +310,4 @@ L200C:
         JMP loc_1FF9
 
 L2012:
-        RTS
-
-sub_2013:
-        LDA #$2F
-        STA SID_VOLUME
-        LDA #$07
-        STA SID_RESFLT
-        LDA #$8C
-        STA SID_FCUTH
-        LDA #$65
-        JSR sub_20E7
-        LDA #$57
-        JSR sub_20F1
-        LDA #$C8
-        STA SID_V1FREQH
-        LSR A
-        STA SID_V2FREQH
-        LSR A
-        STA SID_V3FREQH
-        JSR sub_1CEE
-        LDY #$00
-
-L203E:
-        JSR $EEB3
-        STY SID_FCUTH
-        INY
-        CPY #$C8
-        BNE L203E
-        JMP sub_1CE2
-
-sub_204C:
-        LDA #$CF
-        JSR sub_20E7
-        LDA #$FB
-        JSR sub_20F1
-        LDA #$96
-        STA SID_V1FREQH
-        LSR A
-        STA SID_V2FREQH
-        LSR A
-        STA SID_V3FREQH
-        LDA #$64
-        STA SID_FCUTH
-        LDA #$2F
-        STA SID_VOLUME
-        LDA #$F7
-        STA SID_RESFLT
-        JMP sub_1CEE
-
-sub_2075:
-        LDA #$1F
-        STA SID_VOLUME
-        LDY #$04
-        STY SID_V1FREQH
-        INY
-        STY SID_V2FREQH
-        INY
-        STY SID_V3FREQH
-        LDA #$5A
-        JSR sub_20E7
-        LDA #$FC
-        JSR sub_20F1
-        LDA #$82
-        STA SID_FCUTH
-        LDA #$F7
-        STA SID_RESFLT
-        RTS
-
-sub_209C:
-        JSR sub_2075
-        LDA #$21
-        JMP sub_1CE4
-
-sub_20A4:
-        JSR sub_2075
-        LDA #$0F
-        JSR sub_20E7
-        LDA #$52
-
-loc_20AE:
-        JSR sub_20F1
-        JSR sub_1CEE
-        JMP sub_1CE2
-
-sub_20B7:
-        LDY #$06
-
-L20B9:
-        JSR sub_177A
-        DEY
-        BNE L20B9
-        RTS
-
-sub_20C0:
-        JSR sub_15C2
-
-loc_20C3:
-        LDY #$04
-        LDA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
-        BEQ L20D2
-        DEY
-        STA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
-        JSR sub_20B7
-        JMP loc_20C3
-
-L20D2:
-        RTS
-
-sub_20D3:
-        JSR sub_15C2
-
-loc_20D6:
-        LDY #$04
-        LDA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
-        BEQ L20D2
-        LDA #$01
-        DEY
-        STA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
-        JSR sub_20B7
-        JMP loc_20D6
-
-sub_20E7:
-        STA SID_V1AD
-        STA SID_V2AD
-        STA SID_V3AD
-        RTS
-
-sub_20F1:
-        STA SID_V1SR
-        STA SID_V2SR
-        STA SID_V3SR
-        RTS
-
-sub_20FB:
-        JSR sub_209C
-        LDA #$2F
-        STA SID_VOLUME
-        LDA #$CF
-        JSR sub_20E7
-        LDA #$FC
-        JSR sub_20F1
-        LDA #$23
-        JSR sub_1CE4
-        LDX #$0A
-
-L2114:
-        LDY #$6E
-        JSR sub_1CF3
-        TXA
-        ASL A
-        ASL A
-        ASL A
-        ASL A
-        STA SID_FCUTH
-        DEX
-        BNE L2114
-        LDA #$21
-        JMP sub_1CE4
-
-sub_2129:
-        JSR sub_2075
-        LDA #$05
-        JSR sub_20E7
-        LDA #$69
-        JSR sub_20F1
-        LDA #$15
-        JSR sub_1CE4
-        LDA #$2F
-        STA SID_VOLUME
-        LDA $A000
-        AND #$3F
-        INC $2141
-        STA SID_V1FREQH
-        LDA #$C8
-        STA SID_V2FREQH
-        LDA #$B4
-        STA SID_V3FREQH
-        LDA #$14
-        JSR sub_1CE4
-        RTS
-        .byte $20, $75, $20, $A9, $7C, $20, $E7, $20, $8D, $01, $D4, $A9, $55, $20, $F1, $20  ;  u .| . ..T.u .
-        .byte $20, $EE, $1C, $A2, $04, $20, $81, $15, $A9, $82, $4C, $E4, $1C  ;  .... ....l..
-
-loc_2178:
-        JSR sub_1CEE
-        JSR sub_2075
-        LDA #$0A
-        JSR sub_20E7
-        LDA #$57
-        JSR sub_20F1
-        LDA #$32
-        STA SID_FCUTH
-        LDY #$50
-        JSR sub_1CF3
-        LDA #$14
-        JMP sub_1CE4
-
-sub_2197:
-        JSR sub_209C
-        LDA #$A0
-        STA SID_V3FREQH
-        LDA #$FA
-        JMP loc_20AE
-        .byte $20, $75, $20, $A9, $1F, $8D, $18, $D4, $A9, $F7, $8D, $17, $D4, $A9, $C8, $8D  ;  u ....T....T.H.
-        .byte $01, $D4, $8D, $08, $D4, $8D, $0F, $D4, $A9, $77, $20, $E7, $20, $A9, $79, $20  ; .T..T..T.w . .y
-        .byte $F1, $20, $20, $EE, $1C, $A0, $00, $20, $F3, $1C, $4C, $E2, $1C, $20, $75, $20  ; .  .... ..l.. u
-        .byte $A9, $77, $20, $F1, $20, $A9, $2F, $8D, $18, $D4, $20, $EE, $1C, $A2, $FF, $8A  ; .w . ./..T .....
-        .byte $4A, $6A, $6A, $8D, $01, $D4, $8D, $08, $D4, $8D, $0F, $D4, $A0, $01, $20, $F3  ; jjj..T..T..T.. .
-        .byte $1C, $CA, $E0, $64, $D0, $E9, $4C, $E2, $1C, $20, $75, $20, $A2, $0F, $20, $A4  ; .J.dP.l.. u .. .
-        .byte $20, $8A, $4A, $6A, $6A, $6A, $6A, $A8, $20, $F3, $1C, $CA, $D0, $F0, $4C, $E2  ;  .jjjjj. ..JP.l.
-        .byte $1C, $20, $75, $20, $20, $EE, $1C, $A2, $00, $8E, $01, $D4, $8E, $08, $D4, $8E  ; . u  ......T..T.
-        .byte $0F, $D4, $A0, $01, $20, $F3, $1C, $E8, $D0, $EF, $4C, $E2, $1C, $20, $75, $20  ; .T.. ...P.l.. u
-        .byte $A9, $00, $20, $E4, $1C, $A0, $21, $8C, $12, $D4, $A9, $F9, $20, $F1, $20, $A2  ; .. ...!..T.. . .
-        .byte $02, $8E, $0F, $D4, $8E, $0E, $D4, $A0, $01, $20, $F3, $1C, $E8, $D0, $F5, $8E  ; ...T..T.. ...P..
-        .byte $0E, $D4, $A0, $01, $20, $F3, $1C, $CA, $D0, $F5, $A9, $20, $4C, $E4, $1C  ; .T.. ..JP.. l..
-
-sub_2263:
-        JSR sub_2075
-        LDA #$1F
-        STA SID_FCUTH
-        STA SID_VOLUME
-        LDA #$FF
-        JSR sub_20F1
-        JSR sub_1CEE
-        LDY #$00
-        JSR sub_1CF3
-        JMP sub_1CE2
-
-sub_227E:
-        LDA $4FFF
-        SED
-        CLC
-        ADC #$01
-        STA $4FFF
-        CLD
-        PHA
-        LDX #$16
-
-L228C:
-        JSR $E9FF
-        INX
-        CPX #$19
-        BNE L228C
-        LDX #$16
-        LDY #$10
-        JSR $E50C
-        LDA $4FFF
-        JSR sub_1F90
-        LDX #$63
-        JSR sub_1E8B
-        PLA
-        CMP #$15
-        BNE L22B1
-        STA $034F               ; ACTION_UNIT (unit in action)
-        JMP loc_1456
-
-L22B1:
-        LDX #$17
-        LDY #$10
-        JSR $E50C
-        LDX #$36
-        JSR sub_1E8B
-        LDX #$18
-        LDY #$0E
-        JSR $E50C
-        LDX #$3D
-        JSR sub_1E8B
-
-L22C9:
-        LDA #$3E
-        STA $C3A4
-        LDA #$01
-        STA $DBA4
-        LDA #$20
-        STA $C3CC
-
-loc_22D8:
-        LDA CIA1_PRB
-        TAX
-        AND #$01
-        BEQ L22C9
-        TXA
-        AND #$02
-        BEQ L22ED
-        TXA
-        AND #$10
-        BEQ L22FF
-        JMP loc_22D8
-
-L22ED:
-        LDA #$3E
-        STA $C3CC
-        LDA #$01
-        STA $DBCC
-        LDA #$20
-        STA $C3A4
-        JMP loc_22D8
-
-L22FF:
-        LDA $C3A4
-        CMP #$3E
-        BNE loc_2307
         RTS

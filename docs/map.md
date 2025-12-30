@@ -26,7 +26,7 @@ The game uses German terrain names found in the text data at `$1A3F-$1E8A_utilit
 
 ## Terrain-Tile Correlation
 
-The terrain display index is calculated in `sub_1F1C` (`$1E8B-$2306_sound_effects.asm:127-131`):
+The terrain display index is calculated in `sub_1F1C` (`$1E8B-$2012_display_terrain.asm:108-131`):
 
 ```
 terrain_index = char_code - $69
