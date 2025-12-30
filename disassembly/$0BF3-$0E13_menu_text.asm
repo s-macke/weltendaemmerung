@@ -68,18 +68,26 @@ L0C19:
         LDX #$13
 
 L0C49:
-        JSR $E9F0
-        JSR $EA24
-        LDY #$26
+        JSR $E9F0               ; KERNAL: Set cursor row
+        JSR $EA24               ; KERNAL: Calculate screen pointer
+        LDY #$26                ; Column counter (38 columns)
 
+; -----------------------------------------------------------------------------
+; L0C51 - Fill Screen with Varied Terrain (Self-Modifying Code)
+; -----------------------------------------------------------------------------
+; Creates visual variation in terrain by reading from BASIC header memory.
+; INC $0C52 modifies the LDA operand to cycle through memory addresses.
+; ANDing with $01 produces alternating 0/1, added to $69 gives $69/$6A.
+; This creates a checkerboard-like pattern of Meadow/River tiles.
+; -----------------------------------------------------------------------------
 L0C51:
-        LDA $0801
-        INC $0C52
-        AND #$01
+        LDA $0801               ; Read byte from BASIC header (address modified below)
+        INC $0C52               ; Self-modify: increment address low byte ($0801→$0802→...)
+        AND #$01                ; Mask to 0 or 1
         CLC
-        ADC #$69
+        ADC #$69                ; Result: $69 (Meadow) or $6A (River)
         STA ($D1),Y             ; SCREEN_PTR (screen line ptr lo)
-        LDA #$0B
+        LDA #$0B                ; Dark Gray color
         STA ($F3),Y             ; COLOR_PTR (color RAM ptr lo)
         DEY
         BNE L0C51

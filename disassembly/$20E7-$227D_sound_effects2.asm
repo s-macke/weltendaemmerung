@@ -65,31 +65,34 @@ L2114:
         JMP sub_1CE4
 
 ; -----------------------------------------------------------------------------
-; sub_2129 - Random Noise Sound
+; sub_2129 - Varied Pitch Sound Effect (Self-Modifying Code)
 ; -----------------------------------------------------------------------------
-; Uses ROM value at $A000 for randomized pitch.
-; Creates varied sound effects.
+; Creates varied sound effects by reading from BASIC ROM ($A000+).
+; Uses self-modifying code to cycle through ROM addresses, producing
+; a deterministic but varied sequence of pitch values.
+; Input: None
+; Output: Plays sound with frequency based on ROM byte
 ; -----------------------------------------------------------------------------
 sub_2129:
-        JSR sub_2075
+        JSR sub_2075            ; Initialize SID
         LDA #$05
-        JSR sub_20E7
+        JSR sub_20E7            ; Set Attack/Decay
         LDA #$69
-        JSR sub_20F1
+        JSR sub_20F1            ; Set Sustain/Release
         LDA #$15
-        JSR sub_1CE4
+        JSR sub_1CE4            ; Short delay
         LDA #$2F
-        STA SID_VOLUME
-        LDA $A000               ; Read ROM for pseudo-random value
-        AND #$3F
-        INC $2141               ; Self-modifying: increment instruction operand
-        STA SID_V1FREQH
+        STA SID_VOLUME          ; Set volume
+        LDA $A000               ; Read byte from BASIC ROM (address modified below)
+        AND #$3F                ; Mask to 0-63 for frequency range
+        INC $2141               ; Self-modify: increment address low byte ($A000→$A001→...)
+        STA SID_V1FREQH         ; Set voice 1 frequency high byte
         LDA #$C8
-        STA SID_V2FREQH
+        STA SID_V2FREQH         ; Set voice 2 frequency
         LDA #$B4
-        STA SID_V3FREQH
+        STA SID_V3FREQH         ; Set voice 3 frequency
         LDA #$14
-        JSR sub_1CE4
+        JSR sub_1CE4            ; Delay for sound duration
         RTS
 
 ; -----------------------------------------------------------------------------

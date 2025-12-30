@@ -90,14 +90,20 @@ sub_0AEB:
         PLA
         JMP loc_0985
 
+; -----------------------------------------------------------------------------
+; L0B01 - Deduct Movement Points from Unit
+; -----------------------------------------------------------------------------
+; Loads current movement (unit[3]), subtracts terrain cost via sub_0B82,
+; stores result back. Uses decimal mode so SBC operates in BCD.
+; -----------------------------------------------------------------------------
 L0B01:
-        JSR sub_1FF6
+        JSR sub_1FF6            ; Find unit record at cursor
         LDY #$03
-        LDA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
-        SED
-        JSR sub_0B82
-        STA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
-        CLD
+        LDA ($F9),Y             ; Load unit[3] = current movement points
+        SED                     ; Enable decimal mode (affects SBC in sub_0B82)
+        JSR sub_0B82            ; Subtract movement cost - SBC uses BCD arithmetic
+        STA ($F9),Y             ; Store updated movement points
+        CLD                     ; Disable decimal mode
         RTS
 
 sub_0B10:
@@ -169,28 +175,36 @@ L0B78:
         CLC
         RTS
 
+; -----------------------------------------------------------------------------
+; sub_0B82 - Calculate and Subtract Movement Cost
+; -----------------------------------------------------------------------------
+; Called with decimal mode ON. Determines movement cost based on terrain
+; under unit, then subtracts from current movement points using BCD SBC.
+; Input: A = current movement points (on stack after PHA)
+; Output: A = movement points after terrain cost subtracted (BCD)
+; -----------------------------------------------------------------------------
 sub_0B82:
-        PHA
+        PHA                     ; Save current movement points
         LDY #$05
-        LDA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
-        TAY
-        LDA $034F               ; ACTION_UNIT (unit in action)
-        CLD
+        LDA ($F9),Y             ; Load unit[5] = terrain under unit
+        TAY                     ; Y = terrain type
+        LDA $034F               ; Load unit tile code on map
+        CLD                     ; Disable decimal mode for binary arithmetic
         SEC
-        SBC #$0B
-        SED
-        TAX
-        TYA
+        SBC #$0B                ; Convert tile to unit type index (binary SBC)
+        SED                     ; Re-enable decimal mode for movement calc
+        TAX                     ; X = unit type index
+        TYA                     ; A = terrain type
         LDY #$03
-        CMP #$6B
+        CMP #$6B                ; Forest terrain?
         BEQ L0BA5
-        CMP #$6C
+        CMP #$6C                ; Edge terrain?
         BEQ L0BAB
-        CMP #$6E
+        CMP #$6E                ; Gate terrain?
         BEQ L0BB1
-        PLA
+        PLA                     ; Default: cost = 1
         SEC
-        SBC #$01
+        SBC #$01                ; BCD subtract 1 movement point
         RTS
 
 L0BA5:

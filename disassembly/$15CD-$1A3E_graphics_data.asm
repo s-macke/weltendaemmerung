@@ -185,18 +185,28 @@ loc_1759:
         BNE loc_1759
         BEQ L1731
 
+; -----------------------------------------------------------------------------
+; sub_1766 - Vary Meadow/River Tile During Map Decompression
+; -----------------------------------------------------------------------------
+; Adds visual variation to terrain by alternating between two tiles.
+; If input is $69 (Meadow) or $6A (River), reads from BASIC header ($0801+),
+; masks to 0-1, and adds to $69 to produce either $69 or $6A.
+; Uses self-modifying code to cycle through memory addresses.
+; Input: A = terrain character code
+; Output: A = possibly modified terrain code ($69 or $6A)
+; -----------------------------------------------------------------------------
 sub_1766:
-        CMP #$69
-        BEQ L176E
-        CMP #$6A
-        BNE L1779
+        CMP #$69                ; Is it Meadow ($69)?
+        BEQ L176E               ; Yes, apply variation
+        CMP #$6A                ; Is it River ($6A)?
+        BNE L1779               ; No, return unchanged
 
 L176E:
-        LDA $0801
-        INC $176F
-        AND #$01
+        LDA $0801               ; Read byte from BASIC header (address modified below)
+        INC $176F               ; Self-modify: increment address low byte ($0801→$0802→...)
+        AND #$01                ; Mask to 0 or 1
         CLC
-        ADC #$69
+        ADC #$69                ; Result: $69 (Meadow) or $6A (River)
 
 L1779:
         RTS

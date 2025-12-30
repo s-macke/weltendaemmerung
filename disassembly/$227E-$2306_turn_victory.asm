@@ -19,13 +19,13 @@
 ; Game ends when turn reaches $15 (15 decimal).
 ; -----------------------------------------------------------------------------
 sub_227E:
-        LDA $4FFF               ; Load current turn (BCD)
-        SED                     ; Set decimal mode
+        LDA $4FFF               ; Load current turn counter
+        SED                     ; Enable decimal mode
         CLC
-        ADC #$01                ; Increment turn
-        STA $4FFF               ; Store new turn
-        CLD                     ; Clear decimal mode
-        PHA                     ; Save turn for later check
+        ADC #$01                ; BCD add: turn = turn + 1 (e.g., $09 + $01 = $10)
+        STA $4FFF               ; Store incremented turn
+        CLD                     ; Disable decimal mode
+        PHA                     ; Save turn for victory check
         LDX #$16                ; Screen column for turn display
 
 L228C:

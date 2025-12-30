@@ -137,17 +137,17 @@ L1373:
         LDA $1047,X
         JSR sub_1567
         STA $035C               ; SAVE_LETTER (save filename)
-        JSR sub_1FF6
+        JSR sub_1FF6            ; Find defender's unit record
         LDY #$02
-        LDA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
-        SED
+        LDA ($F9),Y             ; Load unit[2] = defender's defense (V)
+        SED                     ; Enable decimal mode for damage calc
         SEC
-        SBC $035C               ; SAVE_LETTER (save filename)
-        CLD
-        BEQ L13FD
-        CMP #$5A
-        BCS L13FD
-        STA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
+        SBC $035C               ; BCD subtract: defense = defense - attack damage
+        CLD                     ; Disable decimal mode
+        BEQ L13FD               ; If result = 0, unit destroyed
+        CMP #$5A                ; Check for underflow (BCD: $5A = negative)
+        BCS L13FD               ; If underflow, unit destroyed
+        STA ($F9),Y             ; Store reduced defense back to unit[2]
 
 loc_13A6:
         LDA #$01
@@ -338,19 +338,29 @@ L1504:
         .byte $54, $48, $41, $49, $4E, $46, $41, $4C, $20, $53, $49, $4E, $44, $20, $4E, $55  ; thainfal sind nu
         .byte $4E, $20, $44, $49, $45  ; n die
 
+; -----------------------------------------------------------------------------
+; sub_1567 - Add Combat Modifier from ROM Sequence
+; -----------------------------------------------------------------------------
+; Adds a modifier (0-4) to attack value using BCD arithmetic.
+; Uses self-modifying code to read successive bytes from KERNAL ROM ($E000+),
+; creating a deterministic but varied sequence.
+; Input: A = base attack value
+; Output: A = attack value + modifier (BCD)
+; -----------------------------------------------------------------------------
 sub_1567:
         PHA
-        LDA $E000
-        AND #$07
-        INC $1569
-        TAX
-        PLA
+        LDA $E000               ; Read byte from KERNAL ROM (address modified below)
+        AND #$07                ; Mask to 0-7 for table index
+        INC $1569               ; Self-modify: increment address low byte ($E000→$E001→...)
+        TAX                     ; X = index into modifier table
+        PLA                     ; Restore attack value
         CLC
-        SED
-        ADC $1579,X
-        CLD
+        SED                     ; Enable decimal mode
+        ADC $1579,X             ; BCD add: attack = attack + modifier
+        CLD                     ; Disable decimal mode
         RTS
-        .byte $00, $01, $01, $02, $02, $03, $03, $04  ; ........
+; Modifier table indexed by (ROM byte & 7): values 0,1,1,2,2,3,3,4
+        .byte $00, $01, $01, $02, $02, $03, $03, $04
 
 sub_1581:
         LDY #$00
