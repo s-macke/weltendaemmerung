@@ -57,19 +57,27 @@ loc_1ECE:
         JSR sub_1C35
         JMP sub_1D0E
 
+; -----------------------------------------------------------------------------
+; sub_1EE2 - Display Terrain/Unit Info at Cursor Position
+; -----------------------------------------------------------------------------
+; Reads the tile at cursor position and displays its name.
+; If terrain_index < 11 ($0B): displays terrain name (Wiese, Fluss, etc.)
+; If terrain_index >= 11: displays unit type name
+; Uses lookup table at $1D39 for string offsets
+; -----------------------------------------------------------------------------
 sub_1EE2:
-        JSR sub_1F1C
+        JSR sub_1F1C            ; Get terrain/unit index from cursor
         PHA
-        CMP #$0B
-        BCS L1F14
+        CMP #$0B                ; Is it a terrain type (< 11)?
+        BCS L1F14               ; No, it's a unit - handle separately
         PHA
         LDX #$18
-        JSR $E9FF
+        JSR $E9FF               ; KERNAL: set cursor position
         PLA
 
 loc_1EF1:
         TAX
-        LDA $1D39,X
+        LDA $1D39,X             ; Load string offset for terrain index X
         PHA
         LDX #$17
         JSR $E9FF
@@ -92,22 +100,45 @@ L1F14:
         PLA
         JMP loc_1EF1
 
+; -----------------------------------------------------------------------------
+; sub_1F1C - Get Terrain/Unit Index from Cursor Position
+; -----------------------------------------------------------------------------
+; Converts sprite cursor position to map coordinates, reads the tile,
+; and calculates the terrain index using: terrain_index = char_code - $69
+;
+; TERRAIN INDEX MAPPING:
+;   Char $69 -> Index 0 -> Wiese (Meadow)
+;   Char $6A -> Index 1 -> Fluss (River)
+;   Char $6B -> Index 2 -> Wald (Forest)
+;   Char $6C -> Index 3 -> Ende (Edge)
+;   Char $6D -> Index 4 -> Sumpf (Swamp)
+;   Char $6E -> Index 5 -> Tor (Gate)
+;   Char $6F -> Index 6 -> Gebirge (Mountains)
+;   Char $70 -> Index 7 -> Pflaster (Pavement)
+;   Char $71 -> Index 8 -> Mauer (Wall)
+;   Char $72 -> Index 9 -> (additional terrain)
+;   Char $73 -> Index 10 -> (additional terrain)
+;   Char < $69 -> Index 9 (default: Mauer/Wall)
+;   Char >= $74 -> Unit types (unit_type = char - $74)
+;
+; Output: A = terrain/unit index, stored in $034F
+; -----------------------------------------------------------------------------
 sub_1F1C:
-        LDA VIC_SP0Y
+        LDA VIC_SP0Y            ; Get sprite Y position
         SEC
-        SBC #$30
+        SBC #$30                ; Subtract screen offset
         LSR A
         LSR A
-        LSR A
+        LSR A                   ; Divide by 8 for tile row
         STA $A7
-        LDA VIC_SP0X
+        LDA VIC_SP0X            ; Get sprite X position (low byte)
         STA $A8
-        LDA VIC_SPXMSB
+        LDA VIC_SPXMSB          ; Get sprite X MSB
         AND #$01
         STA $A9
         LDA $A8
         SEC
-        SBC #$16
+        SBC #$16                ; Subtract screen offset
         STA $A8
         LDA $A9
         SBC #$00
@@ -115,7 +146,7 @@ sub_1F1C:
         LSR $A9
         ROR $A8
         LSR $A8
-        LSR $A8
+        LSR $A8                 ; Divide by 8 for tile column
         LDA $A7
         CLC
         ADC $0341               ; SCROLL_Y (map scroll Y)
@@ -124,14 +155,14 @@ sub_1F1C:
         ADC $0340               ; SCROLL_X (map scroll X)
         STA $034B               ; CURSOR_MAP_Y (cursor Y on map)
         JSR sub_1F77
-        LDA ($D1),Y             ; SCREEN_PTR (screen line ptr lo)
+        LDA ($D1),Y             ; SCREEN_PTR (screen line ptr lo) - read char code
         SEC
-        SBC #$69
-        BCS L1F65
-        LDA #$09
+        SBC #$69                ; Calculate terrain index = char - $69
+        BCS L1F65               ; If char >= $69, use calculated index
+        LDA #$09                ; If char < $69, default to index 9 (Mauer)
 
 L1F65:
-        STA $034F               ; ACTION_UNIT (unit in action)
+        STA $034F               ; ACTION_UNIT (unit in action) - terrain/unit index
         RTS
 
 sub_1F69:

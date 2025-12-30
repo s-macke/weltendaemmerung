@@ -12,6 +12,7 @@ A Commodore 64 fantasy strategy game for two players.
 - `assets/tiles/` - Extracted 8x8 PNG tiles (38 tiles with authentic colors)
 - `docs/memory_layout.md` - Memory Map
 - `docs/variables.md` - Game State Variables
+- `docs/map.md` - Terrain types, tile mappings, movement mechanics
 
 ## Module Structure
 

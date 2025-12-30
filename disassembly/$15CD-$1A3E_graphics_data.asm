@@ -7,17 +7,34 @@
 ; ---------------------------
 ; 38 custom 8x8 pixel tiles are stored here and copied to $E2F0 at runtime.
 ; Since character set base is at $E000, these tiles map to character codes:
-;   - Tile 0-10  -> Char $5E-$68 (94-104)  -> Color: Dark Gray ($0B)
-;   - Tile 11-12 -> Char $69-$6A (105-106) -> Color: Black ($00)
-;   - Tile 13    -> Char $6B (107)         -> Color: Blue ($06)
-;   - Tile 14    -> Char $6C (108)         -> Color: Red ($02)
-;   - Tile 15    -> Char $6D (109)         -> Color: White ($01)
-;   - Tile 16    -> Char $6E (110)         -> Color: Blue ($06)
-;   - Tile 17-21 -> Char $6F-$73 (111-115) -> Color: Dark Gray ($0B)
-;   - Tile 22-28 -> Char $74-$7A (116-122) -> Color: Yellow ($07)
-;   - Tile 29-37 -> Char $7B-$83 (123-131) -> Color: Black ($00)
+;   - Tile 0-10  -> Char $5E-$68 (94-104)  -> Color: Dark Gray ($0B) -> UI/Border
+;   - Tile 11-12 -> Char $69-$6A (105-106) -> Color: Black ($00)     -> Terrain
+;   - Tile 13    -> Char $6B (107)         -> Color: Blue ($06)      -> Terrain
+;   - Tile 14    -> Char $6C (108)         -> Color: Red ($02)       -> Terrain
+;   - Tile 15    -> Char $6D (109)         -> Color: White ($01)     -> Terrain
+;   - Tile 16    -> Char $6E (110)         -> Color: Blue ($06)      -> Terrain
+;   - Tile 17-21 -> Char $6F-$73 (111-115) -> Color: Dark Gray ($0B) -> Terrain
+;   - Tile 22-28 -> Char $74-$7A (116-122) -> Color: Yellow ($07)    -> Unit icons
+;   - Tile 29-37 -> Char $7B-$83 (123-131) -> Color: Black ($00)     -> Unit icons
+;
+; TERRAIN TYPE MAPPING (terrain_index = char_code - $69):
+; -------------------------------------------------------
+;   Tile 11 -> Char $69 -> Index 0 -> Wiese (Meadow)
+;   Tile 12 -> Char $6A -> Index 1 -> Fluss (River)
+;   Tile 13 -> Char $6B -> Index 2 -> Wald (Forest)
+;   Tile 14 -> Char $6C -> Index 3 -> Ende (Edge)
+;   Tile 15 -> Char $6D -> Index 4 -> Sumpf (Swamp)
+;   Tile 16 -> Char $6E -> Index 5 -> Tor (Gate)
+;   Tile 17 -> Char $6F -> Index 6 -> Gebirge (Mountains)
+;   Tile 18 -> Char $70 -> Index 7 -> Pflaster (Pavement)
+;   Tile 19 -> Char $71 -> Index 8 -> Mauer (Wall)
+;   Tile 20 -> Char $72 -> Index 9 -> (additional terrain)
+;   Tile 21 -> Char $73 -> Index 10 -> (additional terrain)
+;
+; Units on map are stored as: unit_type + $74 (Char $74-$83)
 ;
 ; Color mapping is handled by sub_1C01 in utilities_render.asm
+; Terrain index calculation is in sub_1F1C in sound_effects.asm
 ; Background color: Black ($00), Border: Blue ($06)
 ; =============================================================================
 
@@ -55,6 +72,21 @@ L15E5:
 ; Format: 8 bytes per tile, 1 byte per row (top to bottom)
 ; Bit 7 = leftmost pixel, Bit 0 = rightmost pixel
 ; Bit value 1 = foreground color, 0 = background color
+;
+; TILE LAYOUT:
+;   Tiles 0-10  ($5E-$68): UI border/frame elements
+;   Tile 11 ($69): Wiese (Meadow) - sparse dot pattern
+;   Tile 12 ($6A): Fluss (River) - water pattern
+;   Tile 13 ($6B): Wald (Forest) - tree pattern
+;   Tile 14 ($6C): Ende (Edge) - boundary marker
+;   Tile 15 ($6D): Sumpf (Swamp) - marshy pattern
+;   Tile 16 ($6E): Tor (Gate) - gate structure
+;   Tile 17 ($6F): Gebirge (Mountains) - mountain pattern
+;   Tile 18 ($70): Pflaster (Pavement) - road pattern
+;   Tile 19 ($71): Mauer (Wall) - wall structure
+;   Tiles 20-21 ($72-$73): Additional terrain patterns
+;   Tiles 22-28 ($74-$7A): Unit type icons (Yellow)
+;   Tiles 29-37 ($7B-$83): Additional unit icons (Black)
 ; -----------------------------------------------------------------------------
 ; Tile 0-1 (Char $5E-$5F): Dark Gray - Border/frame characters
         .byte $66, $00, $66, $66, $66, $66, $3C, $00, $DB, $3C, $66, $7E, $66, $66, $66, $00  ; f.ffff<..<f~fff.

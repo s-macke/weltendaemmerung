@@ -464,18 +464,50 @@ sub_1D0E:
         LDX #$29
         JSR sub_1E8B
         JMP sub_1EE2
+
+; -----------------------------------------------------------------------------
+; String Offset Lookup Tables and Game Text Data
+; -----------------------------------------------------------------------------
+; $1D34: Player name offsets (2 bytes)
+; $1D36: Game phase name offsets (3 bytes)
+; $1D39: Terrain/Unit name offsets (used by sub_1EE2)
+;
+; TERRAIN NAME OFFSETS ($1D39+):
+;   Index 0: Wiese (Meadow)      - Char $69
+;   Index 1: Fluss (River)       - Char $6A
+;   Index 2: Wald (Forest)       - Char $6B
+;   Index 3: Ende (Edge)         - Char $6C
+;   Index 4: Sumpf (Swamp)       - Char $6D
+;   Index 5: Tor (Gate)          - Char $6E
+;   Index 6: Gebirge (Mountains) - Char $6F
+;   Index 7: Pflaster (Pavement) - Char $70
+;   Index 8: Mauer (Wall)        - Char $71
+;
+; UNIT TYPE NAME OFFSETS ($1D39+11):
+;   Index 11+: Unit type names (Schwertträger, Bogenschützen, etc.)
+; -----------------------------------------------------------------------------
         .byte $00, $09, $12, $1C, $25, $00, $00, $06, $0C, $11, $16, $1C, $20, $28, $31, $31  ; ....%....... (11
         .byte $37, $45, $53, $59, $66, $73, $9A, $45, $7C, $85, $90, $9A, $A3, $AC, $B5, $C1  ; 7esyfs.e|......A
+
+; Game text strings (PETSCII encoded, $5C = backslash separator)
         .byte $05, $45, $4C, $44, $4F, $49, $4E, $20, $5C, $05, $44, $41, $49, $4C, $4F, $52  ; .eldoin \.dailor
         .byte $20, $5C, $42, $45, $57, $45, $47, $55, $4E, $47, $53, $5C, $41, $4E, $47, $52  ;  \bewegungs\angr
         .byte $49, $46, $46, $53, $5C, $54, $4F, $52, $5C, $50, $48, $41, $53, $45, $5C, $20  ; iffs\tor\phase\
         .byte $28, $54, $4F, $52, $29, $5C, $57, $45, $49, $54, $45, $52, $5C, $53, $41, $56  ; (tor)\weiter\sav
         .byte $45, $20, $47, $41, $4D, $45, $5C, $05, $46, $49, $4C, $45, $1D, $28, $41, $2D  ; e game\.file.(a-
         .byte $5A, $29, $3F, $1D, $5C, $05, $44, $49, $53, $4B, $2D, $45, $52, $52, $4F, $52  ; z)?.\.disk-error
+
+; Terrain type names (German)
+; zug\wiese\fluss\wald\ende\sumpf\tor\gebirge\pflaster\mauer\
         .byte $21, $21, $5C, $9D, $2E, $20, $5A, $55, $47, $5C, $57, $49, $45, $53, $45, $5C  ; !!\.. zug\wiese\
         .byte $46, $4C, $55, $53, $53, $5C, $57, $41, $4C, $44, $5C, $45, $4E, $44, $45, $5C  ; fluss\wald\ende\
         .byte $53, $55, $4D, $50, $46, $5C, $54, $4F, $52, $5C, $47, $45, $42, $49, $52, $47  ; sumpf\tor\gebirg
-        .byte $45, $5C, $50, $46, $4C, $41, $53, $54, $45, $52, $5C, $4D, $41, $55, $45, $52  ; e\pflaster\mauer
+        .byte $45, $5C, $50, $46, $4C, $41, $53, $54, $45, $52, $5C, $4D, $41, $55, $45, $52  ; e\pflaster\mauer\
+
+; Unit type names (German)
+; schwertträger\bogenschützen\adler\lanzenträger\kriegsschiff\
+; reiterei\katapult\blutsauger\axtmänner\feldherr\lindwurm\
+; rammbock\wagenfahrer\wolfsreiter\
         .byte $5C, $53, $43, $48, $57, $45, $52, $54, $54, $52, $DF, $47, $45, $52, $5C, $42  ; \schwerttr.ger\b
         .byte $4F, $47, $45, $4E, $53, $43, $48, $FF, $54, $5A, $45, $4E, $5C, $41, $44, $4C  ; ogensch.tzen\adl
         .byte $45, $52, $5C, $4C, $41, $4E, $5A, $45, $4E, $54, $52, $DF, $47, $45, $52, $5C  ; er\lanzentr.ger\
