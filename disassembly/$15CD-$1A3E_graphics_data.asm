@@ -2,27 +2,61 @@
 ; Character Graphics and Pattern Data
 ; Address range: $15CD - $1A3E
 ; =============================================================================
+;
+; CUSTOM CHARACTER SET LAYOUT:
+; ---------------------------
+; 38 custom 8x8 pixel tiles are stored here and copied to $E2F0 at runtime.
+; Since character set base is at $E000, these tiles map to character codes:
+;   - Tile 0-10  -> Char $5E-$68 (94-104)  -> Color: Dark Gray ($0B)
+;   - Tile 11-12 -> Char $69-$6A (105-106) -> Color: Black ($00)
+;   - Tile 13    -> Char $6B (107)         -> Color: Blue ($06)
+;   - Tile 14    -> Char $6C (108)         -> Color: Red ($02)
+;   - Tile 15    -> Char $6D (109)         -> Color: White ($01)
+;   - Tile 16    -> Char $6E (110)         -> Color: Blue ($06)
+;   - Tile 17-21 -> Char $6F-$73 (111-115) -> Color: Dark Gray ($0B)
+;   - Tile 22-28 -> Char $74-$7A (116-122) -> Color: Yellow ($07)
+;   - Tile 29-37 -> Char $7B-$83 (123-131) -> Color: Black ($00)
+;
+; Color mapping is handled by sub_1C01 in utilities_render.asm
+; Background color: Black ($00), Border: Blue ($06)
+; =============================================================================
 
+; -----------------------------------------------------------------------------
+; sub_15CD - Copy Custom Character Patterns to Character RAM
+; -----------------------------------------------------------------------------
+; Copies 38 custom 8x8 character patterns from $15F0 to $E2F0.
+; Data is terminated by $AB byte.
+; Destination $E2F0 = character codes $5E-$83 (94-131) in the charset.
+; -----------------------------------------------------------------------------
 sub_15CD:
         LDX #$00
 
 loc_15CF:
-        LDA $15F0,X
-        CMP #$AB
-        BEQ L15E5
-        STA $E2F0,X
+        LDA $15F0,X             ; Load pattern byte from source
+        CMP #$AB                ; Check for terminator
+        BEQ L15E5               ; Exit if terminator found
+        STA $E2F0,X             ; Store to character RAM
         INX
         BNE loc_15CF
-        INC $15D1
-        INC $15D8
+        INC $15D1               ; Self-modifying: increment source address high byte
+        INC $15D8               ; Self-modifying: increment dest address high byte
         JMP loc_15CF
 
 L15E5:
-        LDA #$15
+        LDA #$15                ; Reset source address to $15F0
         STA $15D1
-        LDA #$E2
+        LDA #$E2                ; Reset dest address to $E2F0
         STA $15D8
         RTS
+
+; -----------------------------------------------------------------------------
+; Custom Character Pattern Data (38 tiles, 8 bytes each = 304 bytes)
+; -----------------------------------------------------------------------------
+; Format: 8 bytes per tile, 1 byte per row (top to bottom)
+; Bit 7 = leftmost pixel, Bit 0 = rightmost pixel
+; Bit value 1 = foreground color, 0 = background color
+; -----------------------------------------------------------------------------
+; Tile 0-1 (Char $5E-$5F): Dark Gray - Border/frame characters
         .byte $66, $00, $66, $66, $66, $66, $3C, $00, $DB, $3C, $66, $7E, $66, $66, $66, $00  ; f.ffff<..<f~fff.
         .byte $00, $00, $00, $00, $00, $00, $00, $00, $7F, $FF, $C0, $DF, $DF, $D8, $DB, $DA  ; .............X.Z
         .byte $FE, $FF, $03, $FB, $FB, $1B, $DB, $5B, $DA, $DB, $D8, $DF, $DF, $C0, $FF, $7F  ; .......[Z.X.....

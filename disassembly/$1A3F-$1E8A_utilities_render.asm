@@ -272,35 +272,64 @@ sub_1BF0:
         JSR sub_1B64
         RTS
 
+; -----------------------------------------------------------------------------
+; sub_1C01 - Get Foreground Color for Character Code
+; -----------------------------------------------------------------------------
+; Input:  A = character code (tile index as used on screen)
+; Output: A = C64 color code for foreground
+; Preserves: X register
+;
+; COLOR MAPPING TABLE:
+; -------------------
+; Char Code Range     | Color Code | Color Name  | Used For
+; --------------------|------------|-------------|------------------
+; $00-$68 (0-104)     | $0B        | Dark Gray   | Terrain, borders
+; $69     (105)       | $00        | Black       | (lookup table)
+; $6A     (106)       | $00        | Black       | (lookup table)
+; $6B     (107)       | $06        | Blue        | Player 1 units
+; $6C     (108)       | $02        | Red         | Player 2 units
+; $6D     (109)       | $01        | White       | Neutral/UI
+; $6E     (110)       | $06        | Blue        | Player 1 units
+; $6F-$73 (111-115)   | $0B        | Dark Gray   | (lookup table)
+; $74-$7A (116-122)   | $07        | Yellow      | Special items/UI
+; $7B+    (123+)      | $00        | Black       | Invisible/unused
+;
+; Background color is Black ($00), set via VIC_BGCOL0 in sub_0BF3
+; -----------------------------------------------------------------------------
 sub_1C01:
-        STX $0346               ; COUNTER (general counter)
-        CMP #$69
-        BCC L1C1F
-        CMP #$74
-        BCC L1C15
-        CMP #$7B
-        BCC L1C25
-        LDA #$00
+        STX $0346               ; Save X register
+        CMP #$69                ; Check if < $69
+        BCC L1C1F               ; Yes: use Dark Gray ($0B)
+        CMP #$74                ; Check if < $74
+        BCC L1C15               ; Yes: use lookup table ($69-$73)
+        CMP #$7B                ; Check if < $7B
+        BCC L1C25               ; Yes: use Yellow ($07)
+        LDA #$00                ; >= $7B: use Black
         JMP loc_1C21
 
-L1C15:
+L1C15:                          ; Lookup table for $69-$73
         SEC
-        SBC #$69
+        SBC #$69                ; Convert to table index (0-10)
         TAX
-        LDA $1C2A,X
+        LDA $1C2A,X             ; Load color from lookup table
         JMP loc_1C21
 
-L1C1F:
-        LDA #$0B
+L1C1F:                          ; Default for $00-$68
+        LDA #$0B                ; Dark Gray
 
 loc_1C21:
-        LDX $0346               ; COUNTER (general counter)
+        LDX $0346               ; Restore X register
         RTS
 
-L1C25:
-        LDA #$07
+L1C25:                          ; Yellow for $74-$7A
+        LDA #$07                ; Yellow
         JMP loc_1C21
-        .byte $00, $00, $06, $02, $01, $06, $0B, $0B, $0B, $0B, $0B  ; ...........
+
+; Color lookup table for character codes $69-$73 (11 entries)
+; Index: char_code - $69 -> color
+; $69=Black, $6A=Black, $6B=Blue, $6C=Red, $6D=White, $6E=Blue, $6F-$73=Dark Gray
+color_lookup_table:
+        .byte $00, $00, $06, $02, $01, $06, $0B, $0B, $0B, $0B, $0B
 
 sub_1C35:
         LDX #$23

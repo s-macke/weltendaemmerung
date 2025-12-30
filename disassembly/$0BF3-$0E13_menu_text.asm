@@ -3,12 +3,28 @@
 ; Address range: $0BF3 - $0E13
 ; =============================================================================
 
+; -----------------------------------------------------------------------------
+; sub_0BF3 - Initialize Screen and Set VIC-II Colors
+; -----------------------------------------------------------------------------
+; Sets up the game's color scheme:
+;   - VIC_EXTCOL ($D020): Border color = $06 (Blue)
+;   - VIC_BGCOL0 ($D021): Background color = $00 (Black)
+;
+; This establishes the base colors for the map display. Individual character
+; foreground colors are set per-tile via Color RAM ($D800-$DBE7) using the
+; color mapping in sub_1C01 (utilities_render.asm).
+;
+; C64 Color Palette Reference:
+;   $00=Black, $01=White, $02=Red, $03=Cyan, $04=Purple, $05=Green,
+;   $06=Blue, $07=Yellow, $08=Orange, $09=Brown, $0A=Light Red,
+;   $0B=Dark Gray, $0C=Gray, $0D=Light Green, $0E=Light Blue, $0F=Light Gray
+; -----------------------------------------------------------------------------
 sub_0BF3:
-        JSR BASIC_CLRSCR
-        LDA #$06
-        STA VIC_EXTCOL
-        LDA #$00
-        STA VIC_BGCOL0
+        JSR BASIC_CLRSCR        ; Clear screen
+        LDA #$06                ; Blue
+        STA VIC_EXTCOL          ; Set border color
+        LDA #$00                ; Black
+        STA VIC_BGCOL0          ; Set background color
         LDX #$27
 
 L0C02:
