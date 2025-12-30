@@ -448,28 +448,41 @@ L1D02:
         BPL L1D02
         RTS
 
+; -----------------------------------------------------------------------------
+; sub_1D0E - Display Current Phase and Player
+; -----------------------------------------------------------------------------
+; Displays "[PLAYER] [PHASE]PHASE" on screen, e.g. "FELDOIN BEWEGUNGSPHASE"
+; Uses lookup tables at $1D34 (player names) and $1D36 (phase names)
+; -----------------------------------------------------------------------------
 sub_1D0E:
         LDX #$16
-        JSR $E9FF
+        JSR $E9FF               ; Set cursor row
         LDY #$0A
-        JSR $E50C
-        LDX $0347               ; CURRENT_PLAYER (active player)
-        LDA $1D34,X
+        JSR $E50C               ; Clear line area
+        LDX $0347               ; CURRENT_PLAYER (0=Feldoin, 1=Dailor)
+        LDA $1D34,X             ; Get player name string offset
         TAX
-        JSR sub_1E8B
-        LDX $034A               ; GAME_STATE (game phase)
-        LDA $1D36,X
+        JSR sub_1E8B            ; Print player name
+        LDX $034A               ; GAME_STATE (0=Bewegung, 1=Angriff, 2=Tor)
+        LDA $1D36,X             ; Get phase name string offset
         TAX
-        JSR sub_1E8B
-        LDX #$29
-        JSR sub_1E8B
-        JMP sub_1EE2
+        JSR sub_1E8B            ; Print phase name prefix
+        LDX #$29                ; "PHASE" suffix offset
+        JSR sub_1E8B            ; Print "PHASE"
+        JMP sub_1EE2            ; Update terrain display
 
 ; -----------------------------------------------------------------------------
 ; String Offset Lookup Tables and Game Text Data
 ; -----------------------------------------------------------------------------
 ; $1D34: Player name offsets (2 bytes)
+;   [0] = "FELDOIN " (offset $00)
+;   [1] = "DAILOR "  (offset $09)
+;
 ; $1D36: Game phase name offsets (3 bytes)
+;   [0] = "BEWEGUNGS" (Movement phase)   - offset $12
+;   [1] = "ANGRIFFS"  (Attack phase)     - offset $1C
+;   [2] = "TOR"       (Gate/Fort phase)  - offset $25
+;
 ; $1D39: Terrain/Unit name offsets (used by sub_1EE2)
 ;
 ; TERRAIN NAME OFFSETS ($1D39+):

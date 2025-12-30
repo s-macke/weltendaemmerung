@@ -17,6 +17,7 @@ A Commodore 64 fantasy strategy game for two players.
 - `docs/variables.md` - Game State Variables
 - `docs/map.md` - Terrain types, tile mappings, movement mechanics
 - `docs/units.md` - Unit types, statistics, initial placement (292 units total)
+- `docs/program_flow.md` - Program flow, turn structure, state machine diagrams
 
 ## Module Structure
 
@@ -29,12 +30,12 @@ The disassembly is split into functional modules in `disassembly/`:
 | `$0885-$0A6F_main_loop_input.asm`  | $0885-$0A6F | Main game loop, joystick input        |
 | `$0A70-$0BF2_movement_combat.asm`  | $0A70-$0BF2 | Movement validation, combat           |
 | `$0BF3-$0E13_menu_text.asm`        | $0BF3-$0E13 | Menu system, text output, interrupts  |
-| `$0E14-$0FAB_sound_sprites.asm`    | $0E14-$0FAB | SID init, IRQ, sprite handling        |
+| `$0E14-$0FAB_sound_sprites.asm`    | $0E14-$0FAB | SID init, IRQ, fire button handler, Torphase |
 | `$0FAC-$12B0_game_logic.asm`       | $0FAC-$12B0 | Core game state, data tables          |
 | `$12B1-$15CC_combat_turn.asm`      | $12B1-$15CC | Combat system, turn management        |
 | `$15CD-$1A3E_graphics_data.asm`    | $15CD-$1A3E | Character sprites, graphics patterns  |
 | `$1A3F-$1E8A_utilities_render.asm` | $1A3F-$1E8A | Utilities, rendering, music           |
-| `$1E8B-$2012_display_terrain.asm`  | $1E8B-$2012 | Display utilities, terrain/unit info  |
+| `$1E8B-$2012_display_terrain.asm`  | $1E8B-$2012 | Display, terrain info, phase transitions |
 | `$2013-$20B6_sound_effects.asm`    | $2013-$20B6 | Sound effects (part 1)                |
 | `$20B7-$20E6_unit_management.asm`  | $20B7-$20E6 | Unit pointer, movement points         |
 | `$20E7-$227D_sound_effects2.asm`   | $20E7-$227D | Sound effects (part 2)                |
@@ -60,3 +61,30 @@ The disassembly is split into functional modules in `disassembly/`:
 
 **I/O:**
 - File I/O ($2307) - Save/Load with KERNAL routines
+
+## Turn Structure
+
+The game uses a 6-state turn system with 3 phases per round, alternating between players:
+
+| Phase | German Name      | Description                                    |
+|-------|------------------|------------------------------------------------|
+| 0     | Bewegungsphase   | Movement phase - full movement points          |
+| 1     | Angriffsphase    | Attack phase - movement restricted to 1        |
+| 2     | Torphase         | Gate/Fortification phase - build on own territory |
+
+**State Machine:** Combined state = `(GAME_STATE * 2) + CURRENT_PLAYER + 1`
+
+| State | Phase | Player  | Action                              |
+|-------|-------|---------|-------------------------------------|
+| 1     | 0     | Feldoin | Movement                            |
+| 2     | 0     | Dailor  | Movement                            |
+| 3     | 1     | Feldoin | Attack (movement=1)                 |
+| 4     | 1     | Dailor  | Attack (movement=1)                 |
+| 5     | 2     | Feldoin | Fortification (Y < 60)              |
+| 6     | 2     | Dailor  | Fortification (Y >= 60), end round  |
+
+**Key Variables:**
+- `$034A` - GAME_STATE (phase: 0, 1, 2)
+- `$0347` - CURRENT_PLAYER (0=Feldoin, 1=Dailor)
+- `$4FFF` - Turn counter (BCD, game ends at turn 15)
+

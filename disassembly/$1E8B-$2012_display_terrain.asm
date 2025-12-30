@@ -40,44 +40,62 @@ sub_1E9A:
         JMP sub_1E9A
 
 ; -----------------------------------------------------------------------------
-; loc_1EA8 - Game State/Turn Management
+; loc_1EA8 - Game Phase and Turn Transition
 ; -----------------------------------------------------------------------------
-; Handles game phase transitions and player turns
+; Manages the 6-state turn system. Each round has 3 phases x 2 players:
+;
+; Combined State = (GAME_STATE * 2) + CURRENT_PLAYER + 1
+;
+; | State | Phase | Player  | German Name      | Description                    |
+; |-------|-------|---------|------------------|--------------------------------|
+; |   1   |   0   | Feldoin | Bewegungsphase   | Movement, full points          |
+; |   2   |   0   | Dailor  | Bewegungsphase   | Movement, then restrict to 1   |
+; |   3   |   1   | Feldoin | Angriffsphase    | Attack phase, movement = 1     |
+; |   4   |   1   | Dailor  | Angriffsphase    | Attack phase                   |
+; |   5   |   2   | Feldoin | Torphase         | Fortification phase            |
+; |   6   |   2   | Dailor  | Torphase         | End round, reset, inc turn     |
+;
+; State 6 triggers: Reset all movement points, increment turn counter
+; States 2,3 trigger: Set all movement points to 1 (attack restriction)
 ; -----------------------------------------------------------------------------
 loc_1EA8:
-        LDA $034A               ; GAME_STATE (game phase)
-        ASL A
+        LDA $034A               ; GAME_STATE (game phase: 0, 1, or 2)
+        ASL A                   ; phase * 2
         CLC
-        ADC $0347               ; CURRENT_PLAYER (active player)
-        ADC #$01
-        CMP #$06
+        ADC $0347               ; + player (0 or 1)
+        ADC #$01                ; + 1 = combined state (1-6)
+        CMP #$06                ; End of round (State 6)?
         BNE L1EC1
-        JSR sub_20C0
-        JSR sub_227E
-        LDA #$00
+        ; State 6: End of round - reset movement and increment turn
+        JSR sub_20C0            ; Reset all units' movement (B = B_max)
+        JSR sub_227E            ; Increment turn counter, check victory
+        LDA #$00                ; Reset to state 0
         JMP loc_1ECE
 
 L1EC1:
-        CMP #$02
+        ; Check for attack phase transitions (states 2 and 3)
+        CMP #$02                ; Entering Angriffsphase from Feldoin?
         BEQ L1EC9
-        CMP #$03
+        CMP #$03                ; Entering Angriffsphase from Dailor?
         BNE loc_1ECE
 
 L1EC9:
+        ; States 2,3: Restrict movement to 1 for attack phase
         PHA
-        JSR sub_20D3
+        JSR sub_20D3            ; Set all units' movement to 1
         PLA
 
 loc_1ECE:
+        ; Decode combined state back to phase and player
         TAX
-        AND #$01
-        STA $0347               ; CURRENT_PLAYER (active player)
+        AND #$01                ; Extract player (bit 0)
+        STA $0347               ; CURRENT_PLAYER (0=Feldoin, 1=Dailor)
         TXA
-        LSR A
-        STA $034A               ; GAME_STATE (game phase)
-        JSR sub_1F69
-        JSR sub_1C35
-        JMP sub_1D0E
+        LSR A                   ; Extract phase (bits 1-2)
+        STA $034A               ; GAME_STATE (0=Bewegung, 1=Angriff, 2=Tor)
+        JSR sub_1F69            ; Play phase transition sound
+        JSR sub_1C35            ; Update display
+        JMP sub_1D0E            ; Display phase/player info
 
 ; -----------------------------------------------------------------------------
 ; sub_1EE2 - Display Terrain/Unit Info at Cursor Position

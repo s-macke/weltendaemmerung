@@ -3,14 +3,26 @@
 ; Address range: $0A70 - $0BF2
 ; =============================================================================
 
+; -----------------------------------------------------------------------------
+; sub_0A70 - Check if Movement is Allowed in Current Phase
+; -----------------------------------------------------------------------------
+; Returns Z=1 (equal) if movement should be skipped/restricted.
+; In Angriffsphase (Phase 1) and Torphase (Phase 2), certain movement
+; checks are bypassed (combat/fortification actions take priority).
+;
+; Phase 0 (Bewegungsphase): Full movement validation
+; Phase 1 (Angriffsphase): Movement restricted, returns Z=1
+; Phase 2 (Torphase): Fortification mode, returns Z=1
+; -----------------------------------------------------------------------------
 sub_0A70:
         LDA $034A               ; GAME_STATE (game phase)
-        CMP #$01
-        BEQ L0A80
-        CMP #$02
-        BEQ L0A80
+        CMP #$01                ; Angriffsphase?
+        BEQ L0A80               ; Yes, skip movement (Z=1)
+        CMP #$02                ; Torphase?
+        BEQ L0A80               ; Yes, skip movement (Z=1)
+        ; Phase 0: Check sprite color for movement state
         LDA VIC_SP0COL
-        CMP #$F1
+        CMP #$F1                ; Compare with movement indicator color
 
 L0A80:
         RTS

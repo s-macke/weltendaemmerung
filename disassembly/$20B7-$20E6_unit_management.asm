@@ -38,8 +38,10 @@ L20B9:
 ; sub_20C0 - Reset Unit Movement Points (B current = B max)
 ; -----------------------------------------------------------------------------
 ; Copies B max (unit[4]) to B current (unit[3]) for all units.
-; Called at the start of a new turn to restore movement points.
-; Iterates through all units until finding one with B max = 0.
+; Called at STATE 6 transition (end of Torphase for Dailor) to restore
+; all units' movement points for the new round.
+;
+; CALLED FROM: loc_1EA8 when combined state = 6 (end of round)
 ; -----------------------------------------------------------------------------
 sub_20C0:
         JSR sub_15C2            ; Initialize unit pointer ($F9 = $5FA0)
@@ -57,10 +59,15 @@ L20D2:
         RTS
 
 ; -----------------------------------------------------------------------------
-; sub_20D3 - Set Unit Movement to 1 (B current = 1)
+; sub_20D3 - Restrict Unit Movement to 1 (B current = 1)
 ; -----------------------------------------------------------------------------
 ; Sets B current (unit[3]) to 1 for all units.
-; Used for restricted movement phases (e.g., attack phase).
+; Called at STATES 2,3 transition (entering Angriffsphase) to restrict
+; movement during the attack phase - units can only move 1 tile.
+;
+; CALLED FROM: loc_1EA8 when combined state = 2 or 3
+;   State 2: Dailor finishes Bewegungsphase, Feldoin enters Angriffsphase
+;   State 3: Feldoin finishes Angriffsphase, Dailor enters Angriffsphase
 ; -----------------------------------------------------------------------------
 sub_20D3:
         JSR sub_15C2            ; Initialize unit pointer ($F9 = $5FA0)
