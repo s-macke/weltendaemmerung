@@ -9,10 +9,14 @@ A Commodore 64 fantasy strategy game for two players.
 - `disassembly/archive/weltendaemmerung.asm` - Original disassembled 6502 assembly (archived)
 - `tools/c64_disasm.py` - Disassembler with flow analysis to distinguish code from data
 - `tools/extract_tiles.py` - Extract character tiles to PNG with C64 color support
+- `tools/extract_map.py` - Extract map and render with terrain/units
 - `assets/tiles/` - Extracted 8x8 PNG tiles (38 tiles with authentic colors)
+- `assets/map.png` - Rendered terrain map (640x320)
+- `assets/map_with_units.png` - Rendered map with initial unit placement
 - `docs/memory_layout.md` - Memory Map
 - `docs/variables.md` - Game State Variables
 - `docs/map.md` - Terrain types, tile mappings, movement mechanics
+- `docs/units.md` - Unit types, statistics, initial placement (292 units total)
 
 ## Module Structure
 

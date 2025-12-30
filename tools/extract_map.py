@@ -19,6 +19,7 @@ BINARY_PATH = Path(__file__).parent.parent / "disassembly" / "archive" / "welten
 # Output paths
 OUTPUT_DIR = Path(__file__).parent.parent / "assets"
 MAP_OUTPUT = OUTPUT_DIR / "map.png"
+MAP_WITH_UNITS_OUTPUT = OUTPUT_DIR / "map_with_units.png"
 
 # Map dimensions
 MAP_WIDTH = 80
@@ -30,9 +31,30 @@ TILE_SIZE = 8
 # File offsets (accounting for 2-byte PRG load address header)
 TILE_DATA_OFFSET = 0x0DF1   # $15F0 - $0801 + 2
 MAP_DATA_OFFSET = 0x0F89    # $1788 - $0801 + 2
+UNIT_DATA_OFFSET = 0x0858   # $1057 - $0801 + 2 (unit placement table)
 
 # Number of tiles
 NUM_TILES = 38
+
+# Unit type names (German/English)
+UNIT_NAMES = [
+    ("Schwertträger", "Swordsmen"),      # 0
+    ("Bogenschützen", "Archers"),        # 1
+    ("Adler", "Eagles"),                 # 2
+    ("Lanzenträger", "Lancers"),         # 3
+    ("Kriegsschiff", "Warship"),         # 4
+    ("Reiterei", "Cavalry"),             # 5
+    ("Katapult", "Catapult"),            # 6
+    ("Blutsauger", "Bloodsucker"),       # 7
+    ("Axtmänner", "Axemen"),             # 8
+    ("Feldherr", "Commander"),           # 9
+    ("Lindwurm", "Dragon/Wyrm"),         # 10
+    ("Rammbock", "Battering Ram"),       # 11
+    ("Wagenfahrer", "Wagon Driver"),     # 12
+    ("Wolfsreiter", "Wolf Riders"),      # 13
+    ("Unit14", "Unit14"),                # 14
+    ("Unit15", "Unit15"),                # 15
+]
 
 # C64 Color Palette (RGB tuples)
 C64_PALETTE = {
@@ -146,6 +168,41 @@ def decompress_map(binary_data: bytes) -> list:
     return map_data
 
 
+def parse_unit_placement(binary_data: bytes) -> dict:
+    """
+    Parse the unit placement data from the binary.
+
+    Format:
+    - $8X: Unit type marker (X = 0-15)
+    - X, Y pairs: Coordinates for each unit
+    - $FF: End of data
+
+    Returns dict mapping unit_type -> list of (x, y) positions
+    """
+    units = {i: [] for i in range(16)}
+    offset = UNIT_DATA_OFFSET
+    current_type = None
+
+    while offset < len(binary_data):
+        byte = binary_data[offset]
+
+        if byte == 0xFF:
+            break
+        elif byte >= 0x80:
+            current_type = byte - 0x80
+            offset += 1
+        else:
+            if current_type is not None and offset + 1 < len(binary_data):
+                x = binary_data[offset]
+                y = binary_data[offset + 1]
+                units[current_type].append((x, y))
+                offset += 2
+            else:
+                offset += 1
+
+    return units
+
+
 def render_tile(img: Image.Image, tiles: dict, char_code: int, x: int, y: int):
     """Render a single tile at the given position with correct color."""
     # Get tile graphics (default to char $69/meadow if not found)
@@ -239,10 +296,52 @@ def main():
                 char_code = map_data[idx]
                 render_tile(img, tiles, char_code, x, y)
 
-    # Save output
+    # Save terrain-only map
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     img.save(MAP_OUTPUT)
-    print(f"\nMap saved to: {MAP_OUTPUT}")
+    print(f"\nTerrain map saved to: {MAP_OUTPUT}")
+
+    # Parse unit placement
+    print("\nParsing unit placement data...")
+    units = parse_unit_placement(binary_data)
+
+    # Count and display unit distribution
+    total_units = 0
+    feldoin_count = 0
+    dailor_count = 0
+
+    print("\nUnit distribution:")
+    for unit_type in range(16):
+        if units[unit_type]:
+            count = len(units[unit_type])
+            total_units += count
+            german, english = UNIT_NAMES[unit_type]
+
+            # Count by faction (X < 40 = Feldoin, X >= 40 = Dailor)
+            left = sum(1 for x, y in units[unit_type] if x < 40)
+            right = count - left
+            feldoin_count += left
+            dailor_count += right
+
+            print(f"  Type {unit_type:2d} ({english:15s}): {count:3d} units "
+                  f"(Feldoin: {left:3d}, Dailor: {right:3d})")
+
+    print(f"\nTotal: {total_units} units (Feldoin: {feldoin_count}, Dailor: {dailor_count})")
+
+    # Create map with units
+    print(f"\nRendering map with units...")
+    img_with_units = img.copy()
+
+    # Render units on top of terrain
+    for unit_type in range(16):
+        char_code = 0x74 + unit_type  # Unit tiles are $74-$83
+        for x, y in units[unit_type]:
+            if 0 <= x < MAP_WIDTH and 0 <= y < MAP_HEIGHT:
+                render_tile(img_with_units, tiles, char_code, x, y)
+
+    # Save map with units
+    img_with_units.save(MAP_WITH_UNITS_OUTPUT)
+    print(f"Map with units saved to: {MAP_WITH_UNITS_OUTPUT}")
 
     return 0
 

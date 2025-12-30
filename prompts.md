@@ -83,7 +83,12 @@ The tiles are used in different contextes. So, make one assumption.
 
 `Now, update the tiles color with this new information.`
 
+# Initial placing of units
 Parallel I did:
-`display all tiles*.png in a 8*x grid. 8 columns` 
+`display all tiles*.png in a 8-column grid`
 
-# Initial 
+# Initial placing of units
+/clear
+`Look at map.md and determine the initial placing of units of the map. Document inside units.md.`
+I removed around 80% of useless information from the unit.md file.
+`Update claude.md`
