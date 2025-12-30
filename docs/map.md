@@ -4,9 +4,34 @@ This document describes the terrain types, tile mappings, and movement mechanics
 
 ## Map Structure
 
-- **Map Size**: 80 x 40 tiles (stored at $5000-$5FA0)
+- **Map Size**: 80 x 40 tiles (3200 tiles total)
+- **Runtime Location**: Decompressed to $5000-$5FA0
+- **Compressed Data**: Stored at $1788 in the binary (RLE encoded)
 - **Tile Size**: 8x8 pixels
 - **Character Set**: Custom tiles loaded at $E2F0 (character codes $5E-$83)
+- **Background Color**: Green ($05) - set via raster interrupt during map display
+- **Border Color**: Blue ($06)
+
+## Map Compression
+
+The map data is stored in a custom RLE (Run-Length Encoding) format, decompressed by `sub_1721` in `$15CD-$1A3E_graphics_data.asm`.
+
+### Compression Algorithm
+
+For each byte in the compressed stream:
+- `$FF`: End of data
+- `$00-$03`: Output character code `(byte + $72)` once
+- `$04-$FE`: RLE encoded
+  - High nibble = repeat count
+  - Low nibble = terrain code:
+    - If < 8: terrain = `nibble + $6A`
+    - If >= 8: terrain = `(nibble - $11) + $6A` (with 8-bit wraparound)
+
+### Extracted Map
+
+The full map can be extracted using `tools/extract_map.py`, which outputs to `assets/map.png` (640x320 pixels).
+
+![Game Map](../assets/map.png)
 
 ## Terrain Types
 
@@ -73,18 +98,21 @@ Tiles are stored at $E2F0, making tile 0 = character code $5E (94 decimal).
 
 ## Color Mapping
 
-Colors are determined by the `sub_1C01` function in `$1A3F-$1E8A_utilities_render.asm`:
+Colors are determined by the `sub_1C01` function in `$1A3F-$1E8A_utilities_render.asm`.
 
-| Char Code Range | Color Code | C64 Color |
-|-----------------|------------|-----------|
-| $00-$68        | $0B        | Dark Gray    |
-| $69            | $00        | Black        |
-| $6A            | $00        | Black        |
-| $6B            | $06        | Blue         |
-| $6C            | $02        | Red          |
-| $6D            | $01        | White        |
-| $6E            | $06        | Blue         |
-| $6F-$73        | $0B        | Dark Gray    |
-| $74-$7A        | $07        | Yellow       |
-| $7B+           | $00        | Black        |
+The foreground colors are rendered against the **Green ($05) background**:
+
+| Char Code Range | Color Code | C64 Color  | Visual Result                   |
+|-----------------|------------|------------|---------------------------------|
+| $00-$68         | $0B        | Dark Gray  | Gray on green                   |
+| $69             | $00        | Black      | Black pattern on green (Meadow) |
+| $6A             | $00        | Black      | Black pattern on green (River)  |
+| $6B             | $06        | Blue       | Blue trees on green             |
+| $6C             | $02        | Red        | Red edge markers                |
+| $6D             | $01        | White      | White swamp pattern             |
+| $6E             | $06        | Blue       | Blue gate structure             |
+| $6F-$73         | $0B        | Dark Gray  | Gray terrain features           |
+| $74-$7A         | $07        | Yellow     | Yellow unit icons               |
+| $7B+            | $00        | Black      | Black unit icons                |
+
 

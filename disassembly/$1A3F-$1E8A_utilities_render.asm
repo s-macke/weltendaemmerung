@@ -294,7 +294,7 @@ sub_1BF0:
 ; $74-$7A (116-122)   | $07        | Yellow      | Special items/UI
 ; $7B+    (123+)      | $00        | Black       | Invisible/unused
 ;
-; Background color is Black ($00), set via VIC_BGCOL0 in sub_0BF3
+; Background color: Green ($05) during map display (via raster interrupt in $0E14)
 ; -----------------------------------------------------------------------------
 sub_1C01:
         STX $0346               ; Save X register

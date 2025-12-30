@@ -6,13 +6,16 @@
 ; -----------------------------------------------------------------------------
 ; sub_0BF3 - Initialize Screen and Set VIC-II Colors
 ; -----------------------------------------------------------------------------
-; Sets up the game's color scheme:
+; Sets up the game's initial color scheme:
 ;   - VIC_EXTCOL ($D020): Border color = $06 (Blue)
-;   - VIC_BGCOL0 ($D021): Background color = $00 (Black)
+;   - VIC_BGCOL0 ($D021): Background color = $00 (Black) - initial value
 ;
-; This establishes the base colors for the map display. Individual character
-; foreground colors are set per-tile via Color RAM ($D800-$DBE7) using the
-; color mapping in sub_1C01 (utilities_render.asm).
+; NOTE: During map display, a raster interrupt in $0E14-$0FAB_sound_sprites.asm
+; changes the background color to Green ($05) for the map area. This creates
+; the green meadow background visible in gameplay.
+;
+; Individual character foreground colors are set per-tile via Color RAM
+; ($D800-$DBE7) using the color mapping in sub_1C01 (utilities_render.asm).
 ;
 ; C64 Color Palette Reference:
 ;   $00=Black, $01=White, $02=Red, $03=Cyan, $04=Purple, $05=Green,

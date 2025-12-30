@@ -53,8 +53,8 @@ C64_PALETTE = {
 # Maps (tile_index - 0x69) -> color code
 COLOR_LOOKUP_TABLE = [0x00, 0x00, 0x06, 0x02, 0x01, 0x06, 0x0B, 0x0B, 0x0B, 0x0B, 0x0B]
 
-# Default background color (black)
-BACKGROUND_COLOR = 0x00
+# Background color (Green - set via raster interrupt during map display)
+BACKGROUND_COLOR = 0x05
 
 # Character set base offset: tiles are loaded at $E2F0, charset base at $E000
 # So tile 0 = character code ($E2F0 - $E000) / 8 = $5E = 94

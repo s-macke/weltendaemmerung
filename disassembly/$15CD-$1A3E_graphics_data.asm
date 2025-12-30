@@ -34,8 +34,9 @@
 ; Units on map are stored as: unit_type + $74 (Char $74-$83)
 ;
 ; Color mapping is handled by sub_1C01 in utilities_render.asm
-; Terrain index calculation is in sub_1F1C in sound_effects.asm
-; Background color: Black ($00), Border: Blue ($06)
+; Terrain index calculation is in sub_1F1C in display_terrain.asm
+; Background color: Green ($05) during map display (via raster interrupt)
+; Border color: Blue ($06)
 ; =============================================================================
 
 ; -----------------------------------------------------------------------------
