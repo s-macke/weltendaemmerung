@@ -47,7 +47,7 @@ The game uses German terrain names found in the text data at `$1A3F-$1E8A_utilit
 | Pflaster    | Pavement      | Road/path, fast movement       |
 | Mauer       | Wall          | Defensive structure            |
 | Tor         | Gate          | Passable structure             |
-| Ende        | Edge          | Map boundary                   |
+| Ende        | End-marker    | Map boundary                   |
 
 ## Terrain-Tile Correlation
 
@@ -65,7 +65,7 @@ This maps each character code to a terrain type name via the lookup table at `$1
 | $6A       | 12   | 1     | Wiese     | Meadow    | `tile_12.png`   |
 | $6B       | 13   | 2     | Fluss     | River     | `tile_13.png`   |
 | $6C       | 14   | 3     | Wald      | Forest    | `tile_14.png`   |
-| $6D       | 15   | 4     | Ende      | Edge      | `tile_15.png`   |
+| $6D       | 15   | 4     | Ende      | End-marker| `tile_15.png`   |
 | $6E       | 16   | 5     | Sumpf     | Swamp     | `tile_16.png`   |
 | $6F       | 17   | 6     | Tor       | Gate      | `tile_17.png`   |
 | $70       | 18   | 7     | Gebirge   | Mountains | `tile_18.png`   |
@@ -87,7 +87,7 @@ Tiles are stored at $E2F0, making tile 0 = character code $5E (94 decimal).
 | 12         | $6A       | Black      | Wiese (Meadow) - variant 2         |
 | 13         | $6B       | Blue       | Fluss (River)                      |
 | 14         | $6C       | Red        | Wald (Forest)                      |
-| 15         | $6D       | White      | Ende (Edge)                        |
+| 15         | $6D       | White      | Ende (End-marker)                  |
 | 16         | $6E       | Blue       | Sumpf (Swamp)                      |
 | 17         | $6F       | Dark Gray  | Tor (Gate)                         |
 | 18         | $70       | Dark Gray  | Gebirge (Mountains)                |
@@ -109,7 +109,7 @@ The foreground colors are rendered against the **Green ($05) background**:
 | $6A             | $00        | Black      | Black pattern on green (Meadow) |
 | $6B             | $06        | Blue       | Blue waves on green (River)     |
 | $6C             | $02        | Red        | Red trees on green (Forest)     |
-| $6D             | $01        | White      | White markers (Edge)            |
+| $6D             | $01        | White      | White markers (End-marker)      |
 | $6E             | $06        | Blue       | Blue pattern (Swamp)            |
 | $6F-$73         | $0B        | Dark Gray  | Gray terrain (Tor/Gebirge/etc)  |
 | $74-$7A         | $07        | Yellow     | Yellow unit icons               |

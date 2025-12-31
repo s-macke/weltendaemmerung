@@ -15,7 +15,8 @@ A Commodore 64 fantasy strategy game for two players.
 - `assets/map_with_units.png` - Rendered map with initial unit placement
 - `docs/memory_layout.md` - Memory Map
 - `docs/variables.md` - Game State Variables
-- `docs/map.md` - Terrain types, tile mappings, movement mechanics
+- `docs/map.md` - Terrain types, tile mappings, color system
+- `docs/movement.md` - Movement system, terrain costs, unit-specific movement tables
 - `docs/units.md` - Unit types, statistics, initial placement (292 units total)
 - `docs/victory_conditions.md` - Victory conditions, win states, game balance
 - `docs/program_flow.md` - Program flow, turn structure, state machine diagrams

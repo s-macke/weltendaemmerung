@@ -23,7 +23,7 @@
 ;   Tile 12 -> Char $6A -> Index 1 -> Wiese (Meadow) variant 2
 ;   Tile 13 -> Char $6B -> Index 2 -> Fluss (River)
 ;   Tile 14 -> Char $6C -> Index 3 -> Wald (Forest)
-;   Tile 15 -> Char $6D -> Index 4 -> Ende (Edge)
+;   Tile 15 -> Char $6D -> Index 4 -> Ende (End-Marker)
 ;   Tile 16 -> Char $6E -> Index 5 -> Sumpf (Swamp)
 ;   Tile 17 -> Char $6F -> Index 6 -> Tor (Gate)
 ;   Tile 18 -> Char $70 -> Index 7 -> Gebirge (Mountains)
@@ -80,7 +80,7 @@ L15E5:
 ;   Tile 12 ($6A): Wiese (Meadow) - sparse dot pattern (variant 2)
 ;   Tile 13 ($6B): Fluss (River) - water/wave pattern
 ;   Tile 14 ($6C): Wald (Forest) - tree shape
-;   Tile 15 ($6D): Ende (Edge) - boundary marker
+;   Tile 15 ($6D): Ende (End-Marker) - boundary marker
 ;   Tile 16 ($6E): Sumpf (Swamp) - marshy pattern
 ;   Tile 17 ($6F): Tor (Gate) - gate structure
 ;   Tile 18 ($70): Gebirge (Mountains) - mountain pattern
@@ -132,7 +132,7 @@ L15E5:
 ;   $6A: Wiese (Meadow)      $70: Gebirge (Mountains)
 ;   $6B: Fluss (River)       $71: Pflaster (Pavement)
 ;   $6C: Wald (Forest)       $72: Mauer (Wall)
-;   $6D: Ende (Edge)         $73: Mauer (Wall)
+;   $6D: Ende (End-Marker)   $73: Mauer (Wall)
 ;   $6E: Sumpf (Swamp)
 ;
 ; Source: $1788 (compressed map data, ~700 bytes)
@@ -187,19 +187,19 @@ loc_1759:
         BEQ L1731
 
 ; -----------------------------------------------------------------------------
-; sub_1766 - Vary Meadow/River Tile During Map Decompression
+; sub_1766 - Vary Meadow Tile During Map Decompression
 ; -----------------------------------------------------------------------------
-; Adds visual variation to terrain by alternating between two tiles.
-; If input is $69 (Meadow) or $6A (River), reads from BASIC header ($0801+),
+; Adds visual variation to terrain by alternating between two meadow variants.
+; If input is $69 or $6A (both Meadow variants), reads from BASIC header ($0801+),
 ; masks to 0-1, and adds to $69 to produce either $69 or $6A.
 ; Uses self-modifying code to cycle through memory addresses.
 ; Input: A = terrain character code
-; Output: A = possibly modified terrain code ($69 or $6A)
+; Output: A = possibly modified terrain code ($69 or $6A, both Meadow)
 ; -----------------------------------------------------------------------------
 sub_1766:
-        CMP #$69                ; Is it Meadow ($69)?
+        CMP #$69                ; Is it Meadow variant 1 ($69)?
         BEQ L176E               ; Yes, apply variation
-        CMP #$6A                ; Is it River ($6A)?
+        CMP #$6A                ; Is it Meadow variant 2 ($6A)?
         BNE L1779               ; No, return unchanged
 
 L176E:
@@ -207,7 +207,7 @@ L176E:
         INC $176F               ; Self-modify: increment address low byte ($0801→$0802→...)
         AND #$01                ; Mask to 0 or 1
         CLC
-        ADC #$69                ; Result: $69 (Meadow) or $6A (River)
+        ADC #$69                ; Result: $69 or $6A (both Meadow variants)
 
 L1779:
         RTS

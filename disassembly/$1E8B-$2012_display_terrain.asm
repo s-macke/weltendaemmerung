@@ -151,7 +151,7 @@ L1F14:
 ;   Char $6A -> Index 1 -> Wiese (Meadow) variant 2
 ;   Char $6B -> Index 2 -> Fluss (River)
 ;   Char $6C -> Index 3 -> Wald (Forest)
-;   Char $6D -> Index 4 -> Ende (Edge)
+;   Char $6D -> Index 4 -> Ende (End Marker)
 ;   Char $6E -> Index 5 -> Sumpf (Swamp)
 ;   Char $6F -> Index 6 -> Tor (Gate)
 ;   Char $70 -> Index 7 -> Gebirge (Mountains)
@@ -310,27 +310,47 @@ sub_1FAB:
         JMP sub_1F90            ; Print BCD value
 
 ; -----------------------------------------------------------------------------
-; sub_1FF6 - Find Unit at Cursor Position
+; sub_1FF6 - Find Unit Record at Cursor Position
+; -----------------------------------------------------------------------------
+; Searches through unit records at $5FA0 to find the unit at the current
+; cursor position (CURSOR_MAP_X, CURSOR_MAP_Y).
+;
+; INPUT:
+;   $034B = CURSOR_MAP_X (target X coordinate)
+;   $034C = CURSOR_MAP_Y (target Y coordinate)
+;
+; OUTPUT:
+;   $F9-$FA = Pointer to the 6-byte unit record matching cursor position
+;
+; Unit record structure at ($F9):
+;   [0] X coordinate    [3] B_current (movement points)
+;   [1] Y coordinate    [4] B_max (movement reset value)
+;   [2] V (defense)     [5] Original terrain under unit
+;
+; Note: Unit coordinates are stored as (value - 1), so we INX after loading
+;       to convert to map coordinates for comparison.
+;
+; CALLED FROM: L0B01 (movement cost), sub_1FAB (display unit stats)
 ; -----------------------------------------------------------------------------
 sub_1FF6:
-        JSR sub_15C2
+        JSR sub_15C2            ; Init pointer $F9 = $5FA0 (unit data start)
 
 loc_1FF9:
-        LDA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
+        LDA ($F9),Y             ; Load unit[0] = X coordinate (Y=0)
         TAX
-        INX
-        CPX $034B               ; CURSOR_MAP_X (cursor X on map)
-        BNE L200C
+        INX                     ; Convert stored X to map X
+        CPX $034B               ; Compare with cursor X
+        BNE L200C               ; No match, try next unit
         INY
-        LDA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
+        LDA ($F9),Y             ; Load unit[1] = Y coordinate (Y=1)
         TAX
-        INX
-        CPX $034C               ; CURSOR_MAP_Y (cursor Y on map)
-        BEQ L2012
+        INX                     ; Convert stored Y to map Y
+        CPX $034C               ; Compare with cursor Y
+        BEQ L2012               ; Match found, return with $F9 pointing to unit
 
 L200C:
-        JSR sub_20B7
-        JMP loc_1FF9
+        JSR sub_20B7            ; Advance $F9 by 6 bytes (next unit)
+        JMP loc_1FF9            ; Continue search
 
 L2012:
         RTS

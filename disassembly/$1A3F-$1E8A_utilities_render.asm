@@ -288,7 +288,7 @@ sub_1BF0:
 ; $6A     (106)       | $00        | Black       | Wiese (Meadow) var 2
 ; $6B     (107)       | $06        | Blue        | Fluss (River)
 ; $6C     (108)       | $02        | Red         | Wald (Forest)
-; $6D     (109)       | $01        | White       | Ende (Edge)
+; $6D     (109)       | $01        | White       | Ende (End-Marker)
 ; $6E     (110)       | $06        | Blue        | Sumpf (Swamp)
 ; $6F-$73 (111-115)   | $0B        | Dark Gray   | Tor/Gebirge/Pflaster/Mauer
 ; $74-$7A (116-122)   | $07        | Yellow      | Unit icons
@@ -490,7 +490,7 @@ sub_1D0E:
 ;   Index 1: Wiese (Meadow)      - Char $6A (variant 2)
 ;   Index 2: Fluss (River)       - Char $6B
 ;   Index 3: Wald (Forest)       - Char $6C
-;   Index 4: Ende (Edge)         - Char $6D
+;   Index 4: Ende (End-Marker)   - Char $6D
 ;   Index 5: Sumpf (Swamp)       - Char $6E
 ;   Index 6: Tor (Gate)          - Char $6F
 ;   Index 7: Gebirge (Mountains) - Char $70
