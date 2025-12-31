@@ -8,7 +8,7 @@ This document describes the memory layout used by the C64 game "Weltendaemmerung
 |--------------------|---------------|------------|--------------------------------------------|
 | Program Code       | $0801-$23D7   | 7126 bytes | Main program (BASIC header + machine code) |
 | Game Variables     | $0340-$035F   | 32 bytes   | Runtime game state                         |
-| Extended Variables | $4FF0-$500A   | 27 bytes   | Unit counters and town flags               |
+| Extended Variables | $4FF0-$500A   | 27 bytes   | Unit counters and gate flags               |
 | Map Data           | $5000-$5FA0   | 4000 bytes | Game map (80x40 tiles)                     |
 | Screen RAM         | $C000-$C3E7   | 1000 bytes | VIC-II screen memory                       |
 | Sprite Pointers    | $C3F8-$C3FF   | 8 bytes    | Sprite block pointers                      |

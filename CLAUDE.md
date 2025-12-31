@@ -17,6 +17,7 @@ A Commodore 64 fantasy strategy game for two players.
 - `docs/variables.md` - Game State Variables
 - `docs/map.md` - Terrain types, tile mappings, movement mechanics
 - `docs/units.md` - Unit types, statistics, initial placement (292 units total)
+- `docs/victory_conditions.md` - Victory conditions, win states, game balance
 - `docs/program_flow.md` - Program flow, turn structure, state machine diagrams
 
 ## Module Structure
@@ -30,7 +31,8 @@ The disassembly is split into functional modules in `disassembly/`:
 | `$0885-$0A6F_main_loop_input.asm`  | $0885-$0A6F | Main game loop, joystick input        |
 | `$0A70-$0BF2_movement_combat.asm`  | $0A70-$0BF2 | Movement validation, combat           |
 | `$0BF3-$0E13_menu_text.asm`        | $0BF3-$0E13 | Menu system, text output, interrupts  |
-| `$0E14-$0FAB_sound_sprites.asm`    | $0E14-$0FAB | SID init, IRQ, fire button handler, Torphase |
+| `$0E14-$0F05_sound_sprites.asm`    | $0E14-$0F05 | SID init, IRQ, fire button handler    |
+| `$0F06-$0FAB_torphase.asm`         | $0F06-$0FAB | Torphase fortification building       |
 | `$0FAC-$12B0_game_logic.asm`       | $0FAC-$12B0 | Core game state, data tables          |
 | `$12B1-$15CC_combat_turn.asm`      | $12B1-$15CC | Combat system, turn management        |
 | `$15CD-$1A3E_graphics_data.asm`    | $15CD-$1A3E | Character sprites, graphics patterns  |
@@ -57,7 +59,7 @@ The disassembly is split into functional modules in `disassembly/`:
 - Menu/Text ($0BF3), Display/Terrain Info ($1E8B)
 
 **Game Systems:**
-- Movement/Combat ($0A70), Combat/Turn Management ($12B1), Unit Management ($20B7), Turn/Victory ($227E)
+- Movement/Combat ($0A70), Torphase ($0F06), Combat/Turn Management ($12B1), Unit Management ($20B7), Turn/Victory ($227E)
 
 **I/O:**
 - File I/O ($2307) - Save/Load with KERNAL routines

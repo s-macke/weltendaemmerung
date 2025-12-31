@@ -60,8 +60,8 @@ VARIABLES = {
     "035D": ("MENU_SELECT", "menu selection"),
     # High memory
     "4FF0": ("ELDOIN_UNITS", "Eldoin unit count"),
-    # Town flags $4FF2-$4FFE
-    "4FF2": ("TOWN_FLAGS", "town capture flags"),
+    # Gate/build location flags $4FF2-$4FFE
+    "4FF2": ("GATE_FLAGS", "gate/build location flags"),
     # Sprite pointers
     "C3F8": ("SPRITE_PTRS", "sprite pointers"),
     "C3F9": ("SPRITE_PTRS", "sprite pointers"),

@@ -13,7 +13,7 @@ L0816:
         STA SID_V1FREQL,X
         STA $0340,X             ; SCROLL_X (map scroll X)
         STA $0359,X             ; ATTACKER_PTR (attacker data ptr hi)
-        STA $4FF2,X             ; TOWN_FLAGS (town capture flags)
+        STA $4FF2,X             ; GATE_FLAGS (gate/build location flags)
         DEX
         BPL L0816
         JSR sub_1B22

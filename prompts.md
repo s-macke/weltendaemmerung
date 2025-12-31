@@ -92,3 +92,8 @@ Parallel I did:
 `Look at map.md and determine the initial placing of units of the map. Document inside units.md.`
 I removed around 80% of useless information from the unit.md file.
 `Update claude.md`
+
+At this time I realized, that sometimes TOWN is used as term. But there are no towns in the game.
+`To my knowledge, there are no towns in the game. Why now?`
+
+It fixes all towns to gates.

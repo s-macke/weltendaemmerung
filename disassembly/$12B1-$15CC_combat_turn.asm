@@ -114,7 +114,7 @@ L1350:
         CMP #$3C
         BCS L1349
         JSR sub_0F8C
-        DEC $4FF2,X             ; TOWN_FLAGS (town capture flags)
+        DEC $4FF2,X             ; GATE_FLAGS (gate/build location flags)
 
 L1361:
         LDA $0357               ; ATTACKER_TYPE (attacker type)

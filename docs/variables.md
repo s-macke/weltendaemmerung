@@ -38,6 +38,6 @@
 | $035C       | SAVE_LETTER    | Save game filename letter (A-Z)                  |
 | $035D       | MENU_SELECT    | Menu selection state                             |
 | $4FF0       | ELDOIN_UNITS   | Unit counter for Eldoin player                  |
-| $4FF2-$4FFE | TOWN_FLAGS     | Town capture flags (13 towns)                    |
+| $4FF2-$4FFE | GATE_FLAGS     | Gate/build location flags (13 locations)         |
 | $5000-$5FA0 | MAP_DATA       | Game map data (80x40 tiles)                      |
 | $C3F8-$C3FF | SPRITE_PTRS    | Sprite block pointers                            |
