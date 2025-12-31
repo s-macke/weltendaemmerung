@@ -318,7 +318,7 @@ L13FC:
 ;   1. Play destruction sound effect
 ;   2. Mark unit as dead (Y coordinate = $FF)
 ;   3. Get original terrain from unit[5]
-;   4. Check victory conditions
+;   4. Play high pitch sound effect
 ;   5. Update map display (restore terrain)
 ; -----------------------------------------------------------------------------
 L13FD:
@@ -329,7 +329,7 @@ L13FD:
         LDY #$05
         LDA ($F9),Y             ; Load unit[5] = original terrain
         PHA                     ; Save terrain for map restore
-        JSR sub_2197            ; Check victory conditions
+        JSR sub_2197            ; Play high pitch sound effect
 
 ; -----------------------------------------------------------------------------
 ; loc_140E - Update Map After Unit Removal

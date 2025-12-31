@@ -74,9 +74,9 @@ loc_1EA8:
 
 L1EC1:
         ; Check for attack phase transitions (states 2 and 3)
-        CMP #$02                ; Entering Angriffsphase from Eldoin?
+        CMP #$02                ; Dailor finished Bewegungsphase? (next: Eldoin Angriffsphase)
         BEQ L1EC9
-        CMP #$03                ; Entering Angriffsphase from Dailor?
+        CMP #$03                ; Eldoin finished Angriffsphase? (next: Dailor Angriffsphase)
         BNE loc_1ECE
 
 L1EC9:

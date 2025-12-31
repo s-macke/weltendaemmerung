@@ -123,12 +123,16 @@ loc_2178:
 ; -----------------------------------------------------------------------------
 ; sub_2197 - High Pitch Sound
 ; -----------------------------------------------------------------------------
+; Plays a high-pitched beep using voice 3.
+; Shares tail code (loc_20AE) with sub_20A4 to save bytes.
+; Flow: sub_209C -> set high freq -> loc_20AE (sustain/release + trigger)
+; -----------------------------------------------------------------------------
 sub_2197:
-        JSR sub_209C
-        LDA #$A0
-        STA SID_V3FREQH
-        LDA #$FA
-        JMP loc_20AE
+        JSR sub_209C            ; Initialize SID voices + short click delay
+        LDA #$A0                ; High frequency value (160 decimal)
+        STA SID_V3FREQH         ; Set voice 3 frequency high byte -> high pitch
+        LDA #$FA                ; Sustain/Release: $F=max sustain, $A=fast release
+        JMP loc_20AE            ; -> sub_20F1 (set S/R) -> sub_1CEE (trigger) -> sub_1CE2 (cleanup)
 
 ; -----------------------------------------------------------------------------
 ; More Unreferenced Sound Data/Routines

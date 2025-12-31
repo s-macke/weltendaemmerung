@@ -50,7 +50,7 @@ flowchart TD
 When the fire button is pressed on an owned unit during attack phase:
 
 1. **Sprite Color Check**: If sprite color is not $FA (attack mode), enter attack mode
-2. **Unit OwnershipOk, whre  Validation** (`sub_12D4`): Verify the unit belongs to current player
+2. **Unit Ownership Validation** (`sub_12D4`): Verify the unit belongs to current player
 3. **Store Attack Context**:
    - `$0355` (ATTACK_SRC_X): Attacker's X coordinate
    - `$0356` (ATTACK_SRC_Y): Attacker's Y coordinate

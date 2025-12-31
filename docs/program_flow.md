@@ -38,10 +38,10 @@ flowchart TD
     COMBAT --> RESOLVE[Resolve Combat<br/>$1328-13FD]
 
     RESOLVE --> DESTROYED{Unit Destroyed?}
-    DESTROYED -->|Yes| CHECKWIN[Check Victory<br/>sub_2197]
+    DESTROYED -->|Yes| CHECKWIN[Check Victory]
     DESTROYED -->|No| GAMELOOP
 
-    CHECKWIN --> VICTORY{All Enemy<br/>Units Gone?}
+    CHECKWIN --> VICTORY{Victory<br/>Condition Met?}
     VICTORY -->|Yes| ENDGAME[Victory Screen<br/>loc_1456]
     VICTORY -->|No| GAMELOOP
 
@@ -69,11 +69,11 @@ Combined state = `(GAME_STATE * 2) + CURRENT_PLAYER + 1`
    - Movement restricted to 1 point per unit
    - Combat actions enabled
 
-3. **Torphase** (Gate/Fortification Phase) - Phase 2
-   - Players can build fortifications on their territory
-   - Eldoin (Y < 60): Can place walls ($71) or mountains ($6F)
-   - Dailor (Y >= 60): Can place walls ($71) or mountains ($6F)
-   - Gates ($6E) can be converted: Eldoin→Wall, Dailor→Meadow
+3. **Torphase** (Gate Phase) - Phase 2
+   - Players can toggle gates at 13 fixed positions on the map
+   - Eldoin (X < 60): Closes gates → Wall ($71)
+   - Dailor (X >= 60): Opens gates → Meadow ($69)
+   - 10 gate positions in Eldoin's territory, 3 in Dailor's
 
 ```mermaid
 stateDiagram-v2
@@ -92,10 +92,10 @@ stateDiagram-v2
     P2_Attack: Movement = 1, Combat enabled
 
     P1_Gate: Torphase - Eldoin
-    P1_Gate: Build fortifications (Y < 60)
+    P1_Gate: Close gates (X < 60)
 
     P2_Gate: Torphase - Dailor
-    P2_Gate: Build fortifications (Y >= 60)
+    P2_Gate: Open gates (X >= 60)
 
     P1_Move --> P2_Move: End Turn
     P2_Move --> P1_Attack: End Turn
@@ -115,14 +115,14 @@ stateDiagram-v2
 
 ### State Transitions (loc_1EA8)
 
-| Combined State | Phase | Player | German Name | Action |
-|----------------|-------|--------|-------------|--------|
-| 1 | 0 | 0 (Eldoin) | Bewegungsphase | Movement phase, full points |
-| 2 | 0 | 1 (Dailor) | Bewegungsphase | Movement phase, set movement=1 for next |
-| 3 | 1 | 0 (Eldoin) | Angriffsphase | Attack phase, movement=1 |
-| 4 | 1 | 1 (Dailor) | Angriffsphase | Attack phase |
-| 5 | 2 | 0 (Eldoin) | Torphase | Fortification phase |
-| 6 | 2 | 1 (Dailor) | Torphase | End round, reset, increment turn |
+| Combined State | Phase | Player     | German Name    | Action                                  |
+|----------------|-------|------------|----------------|-----------------------------------------|
+| 1              | 0     | 0 (Eldoin) | Bewegungsphase | Movement phase, full points             |
+| 2              | 0     | 1 (Dailor) | Bewegungsphase | Movement phase, set movement=1 for next |
+| 3              | 1     | 0 (Eldoin) | Angriffsphase  | Attack phase, movement=1                |
+| 4              | 1     | 1 (Dailor) | Angriffsphase  | Attack phase                            |
+| 5              | 2     | 0 (Eldoin) | Torphase       | Fortification phase                     |
+| 6              | 2     | 1 (Dailor) | Torphase       | End round, reset, increment turn        |
 
 ### Movement Point Reset
 
@@ -134,40 +134,52 @@ At the end of each round (state 6 → 1), the game:
 
 When entering states 2 or 3, `sub_20D3` sets all units' movement points to 1, limiting movement during attack phases.
 
-### Fortification Phase (Torphase) Details
+### Gate Phase (Torphase) Details
 
-The Torphase (`L0ED9` in `$0E14-$0FAB_sound_sprites.asm`) allows terrain modification:
+Players can toggle gates at 13 fixed positions. Code at `L0F06` in `$0F06-$0FAB_torphase.asm`.
 
 ```mermaid
 flowchart TD
-    START[Fire Button in Phase 2] --> CHECKSIDE{Check Map Position}
+    START[Fire Button in Phase 2] --> CHECKSIDE{Check Territory}
 
-    CHECKSIDE -->|Eldoin & Y < 60| ALLOWED1[Allowed - Own Territory]
-    CHECKSIDE -->|Dailor & Y >= 60| ALLOWED2[Allowed - Own Territory]
-    CHECKSIDE -->|Wrong Side| DENIED[Action Denied]
+    CHECKSIDE -->|Eldoin & X < 60| CHECKPOS1[Check Position]
+    CHECKSIDE -->|Dailor & X >= 60| CHECKPOS2[Check Position]
+    CHECKSIDE -->|Wrong Territory| DENIED[Action Denied]
 
-    ALLOWED1 --> CHECKUNIT{Unit on Tile?}
-    ALLOWED2 --> CHECKUNIT
+    CHECKPOS1 --> VALIDPOS{Fixed Gate Position?}
+    CHECKPOS2 --> VALIDPOS
 
-    CHECKUNIT -->|Yes| UPDATETERRAIN[Update Terrain Under Unit<br/>stores in unit record]
-    CHECKUNIT -->|No| PLACETERRAIN[Place Terrain on Map]
+    VALIDPOS -->|No| DENIED
+    VALIDPOS -->|Yes| CHECKGATE{Current Terrain}
 
-    PLACETERRAIN --> CHECKGATE{Is it a Gate?}
-    CHECKGATE -->|Yes, Eldoin| WALL[Place Wall $71]
-    CHECKGATE -->|Yes, Dailor| MEADOW[Place Meadow $69]
-    CHECKGATE -->|No| MOUNTAIN[Place Mountain $6F]
+    CHECKGATE -->|Gate| TOGGLE[Toggle Gate]
+    CHECKGATE -->|Other| MOUNTAIN[Place Mountain $6F]
 
-    UPDATETERRAIN --> DONE[Update Display]
-    WALL --> DONE
+    TOGGLE --> PLAYER{Player}
+    PLAYER -->|Eldoin| WALL[Close: Wall $71]
+    PLAYER -->|Dailor| MEADOW[Open: Meadow $69]
+
+    WALL --> DONE[Update Display]
     MEADOW --> DONE
     MOUNTAIN --> DONE
 ```
 
-**Territory Boundary:** Y coordinate $3C (60) divides the map:
-- Eldoin territory: Y < 60 (northern half)
-- Dailor territory: Y >= 60 (southern half)
+**Fixed Gate Positions:** 13 predefined locations (coordinates at $0F5D/$0F6A)
+- 10 gates in Eldoin's territory (X < 60)
+- 3 gates in Dailor's territory (X >= 60)
 
-**Buildable Terrain:**
-- Mountains ($6F / "Gebirge") - Default fortification
-- Walls ($71 / "Mauer") - When building on gates (Eldoin only)
-- Meadow ($69 / "Wiese") - When Dailor destroys a gate
+**Gate Actions:**
+- Eldoin closes gates: Gate ($6F) → Wall ($71)
+- Dailor opens gates: Gate ($6F) → Meadow ($69)
+
+## Victory Conditions
+
+The game can end in three ways (see `docs/victory_conditions.md` for details):
+
+| Condition           | Winner | Trigger                            |
+|---------------------|--------|------------------------------------|
+| Turn Limit          | Eldoin | Turn counter reaches 15            |
+| Commander Destroyed | Dailor | Eldoin's Feldherr unit eliminated  |
+| Army Annihilation   | Eldoin | All Dailor units destroyed         |
+
+This creates an asymmetric game: Eldoin can win by surviving or eliminating all enemies, while Dailor must eliminate Eldoin's commander before turn 15.

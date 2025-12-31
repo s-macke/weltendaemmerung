@@ -90,10 +90,13 @@ sub_2075:
 ; -----------------------------------------------------------------------------
 ; sub_209C - UI Click/Beep Sound
 ; -----------------------------------------------------------------------------
+; Initializes SID chip and plays a short click sound.
+; Used for UI feedback and as setup for other sound effects (e.g., sub_2197).
+; -----------------------------------------------------------------------------
 sub_209C:
-        JSR sub_2075
-        LDA #$21
-        JMP sub_1CE4
+        JSR sub_2075            ; Initialize all 3 SID voices (vol=$1F, freq=$04/$05/$06, ADSR=$5A/$FC, filter=$82/$F7)
+        LDA #$21                ; Delay parameter ($21 = 33 cycles)
+        JMP sub_1CE4            ; Execute short delay and return
 
 ; -----------------------------------------------------------------------------
 ; sub_20A4 - Short Confirmation Sound

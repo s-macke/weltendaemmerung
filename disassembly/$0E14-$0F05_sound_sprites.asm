@@ -72,9 +72,9 @@ sub_0E56:
 ; -----------------------------------------------------------------------------
 sub_0ECF:
         JSR sub_1F1C            ; Get terrain/unit index at cursor
-        CMP #$04                ; Index 4 = Sumpf (char $6D)?
+        CMP #$04                ; Index 4 = Ende (End Marker, char $6D)?
         BNE L0ED9               ; No, continue to phase dispatch
-        JMP loc_1EA8            ; Yes, end turn/phase (skip mechanism?)
+        JMP loc_1EA8            ; Yes, end turn/phase
 
 ; -----------------------------------------------------------------------------
 ; L0ED9 - Phase 2 (Torphase) Territory Validation
