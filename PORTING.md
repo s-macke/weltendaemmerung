@@ -78,6 +78,7 @@ web/
     │   ├── initialUnits.ts       # 292 units placement (auto-generated)
     │   └── gates.ts              # 13 gate positions
     ├── game/
+    │   ├── index.ts              # Module exports
     │   ├── GameState.ts          # Core state management
     │   ├── TurnManager.ts        # 6-state turn machine
     │   ├── MovementSystem.ts     # Movement validation & costs
@@ -130,6 +131,15 @@ Tiles use character codes `$5E-$83`:
 
 ## Core Type Definitions
 
+### Coordinate Type
+
+```typescript
+interface Coord {
+  x: number;  // Map X (0-79)
+  y: number;  // Map Y (0-39)
+}
+```
+
 ### Player and Phase Enums
 
 ```typescript
@@ -166,12 +176,38 @@ interface Unit {
   y: number;           // Map Y (0-39), 255 = destroyed
   type: number;        // Unit type (0-15)
   owner: Player;       // Eldoin (0) or Dailor (1)
-  defense: number;     // V - current (decreases in combat)
-  movement: number;    // B_current - remaining this phase
-  maxMovement: number; // B_max - reset each round
-  terrain: TerrainType; // Original terrain under unit
+  defense: number;     // Current defense (decreases in combat)
+  movement: number;    // Remaining movement this phase
+  maxMovement: number; // Max movement (reset each round)
 }
 ```
+
+### Gate Position Interface
+
+```typescript
+interface GatePosition {
+  index: number;       // Gate index (0-12)
+  pos: Coord;          // Position on map
+  territory: Player;   // Which player's territory
+}
+```
+
+### Gate State Tracking
+
+Instead of storing a mutable copy of the map terrain, gate modifications are tracked via a `GateState` enum:
+
+```typescript
+enum GateState {
+  Original = 0,    // Gate as placed on original map
+  Wall = 1,        // Converted to wall by Eldoin
+  Meadow = 2,      // Converted to meadow by Dailor
+  Destroyed = 3,   // Destroyed by combat (becomes Pavement)
+}
+```
+
+The `GameState` class stores `gateStates: GateState[]` (13 entries) and derives current terrain by checking:
+1. Original `MAP_TERRAIN` at position
+2. If position is a gate location, apply the `GateState` override
 
 ---
 
@@ -336,14 +372,22 @@ From [docs/torphase.md](docs/torphase.md):
 ### 13 Fixed Gate Positions
 
 ```typescript
-const GATE_POSITIONS = [
+const GATE_POSITIONS: GatePosition[] = [
   // Eldoin territory (X < 60) - 10 gates
-  { x: 5, y: 6 },   { x: 17, y: 5 },  { x: 29, y: 10 },
-  { x: 14, y: 21 }, { x: 42, y: 21 }, { x: 47, y: 21 },
-  { x: 52, y: 21 }, { x: 25, y: 25 }, { x: 5, y: 35 },
-  { x: 11, y: 34 },
+  { index: 0,  pos: { x: 5,  y: 6 },  territory: Player.Eldoin },
+  { index: 1,  pos: { x: 17, y: 5 },  territory: Player.Eldoin },
+  { index: 2,  pos: { x: 29, y: 10 }, territory: Player.Eldoin },
+  { index: 3,  pos: { x: 14, y: 21 }, territory: Player.Eldoin },
+  { index: 4,  pos: { x: 42, y: 21 }, territory: Player.Eldoin },
+  { index: 5,  pos: { x: 47, y: 21 }, territory: Player.Eldoin },
+  { index: 6,  pos: { x: 52, y: 21 }, territory: Player.Eldoin },
+  { index: 7,  pos: { x: 25, y: 25 }, territory: Player.Eldoin },
+  { index: 8,  pos: { x: 5,  y: 35 }, territory: Player.Eldoin },
+  { index: 9,  pos: { x: 11, y: 34 }, territory: Player.Eldoin },
   // Dailor territory (X >= 60) - 3 gates
-  { x: 70, y: 7 },  { x: 69, y: 17 }, { x: 75, y: 34 },
+  { index: 10, pos: { x: 70, y: 7 },  territory: Player.Dailor },
+  { index: 11, pos: { x: 69, y: 17 }, territory: Player.Dailor },
+  { index: 12, pos: { x: 75, y: 34 }, territory: Player.Dailor },
 ];
 ```
 
@@ -354,32 +398,32 @@ const GATE_POSITIONS = [
 ### Gate Conversion Logic
 
 ```typescript
-function performTorphase(state: GameState, x: number, y: number): boolean {
+function performTorphase(state: GameState, pos: Coord): boolean {
   // Validate territory
   const inTerritory = state.currentPlayer === Player.Eldoin
-    ? x < 60
-    : x >= 60;
+    ? pos.x < 60
+    : pos.x >= 60;
   if (!inTerritory) return false;
 
   // Validate gate position
-  const gateIndex = GATE_POSITIONS.findIndex(g => g.x === x && g.y === y);
-  if (gateIndex === -1) return false;
+  const gate = GATE_POSITIONS.find(g => g.pos.x === pos.x && g.pos.y === pos.y);
+  if (!gate) return false;
 
   // Check if destroyed
-  if (state.gateFlags[gateIndex]) return false;
+  if (state.gateFlags[gate.index]) return false;
 
-  const terrain = getTerrainAt(state, x, y);
+  const terrain = getTerrainAt(state, pos);
 
   if (terrain === TerrainType.Gate) {
     // Convert gate
     if (state.currentPlayer === Player.Eldoin) {
-      setTerrainAt(state, x, y, TerrainType.Wall);   // Eldoin: Gate → Wall
+      setTerrainAt(state, pos, TerrainType.Wall);   // Eldoin: Gate → Wall
     } else {
-      setTerrainAt(state, x, y, TerrainType.Meadow); // Dailor: Gate → Meadow
+      setTerrainAt(state, pos, TerrainType.Meadow); // Dailor: Gate → Meadow
     }
   } else {
     // Place new gate
-    setTerrainAt(state, x, y, TerrainType.Gate);
+    setTerrainAt(state, pos, TerrainType.Gate);
   }
 
   return true;
@@ -526,24 +570,24 @@ Deselect current unit / cancel action.
 - [x] Copy tile assets to `public/tiles/`
 - [x] Run `extract_map_data.py` to generate data files
 
-### Phase 2: Core Types & Data
+### Phase 2: Core Types & Data ✅
 **Read:** [docs/units.md](docs/units.md), [docs/movement.md](docs/movement.md), [docs/torphase.md](docs/torphase.md)
 
 - [x] Define enums (Player, Phase, TerrainType)
 - [x] Define interfaces (Unit, GameState)
-- [ ] Create unit statistics table
-- [ ] Create terrain cost tables
-- [ ] Create gate positions array
+- [x] Create unit statistics table
+- [x] Create terrain cost tables
+- [x] Create gate positions array
 
-### Phase 3: Game Logic
+### Phase 3: Game Logic ✅
 **Read:** [docs/program_flow.md](docs/program_flow.md) (turn system), [docs/movement.md](docs/movement.md), [docs/attack.md](docs/attack.md), [docs/torphase.md](docs/torphase.md), [docs/victory_conditions.md](docs/victory_conditions.md)
 
-- [ ] Implement GameState class
-- [ ] Implement TurnManager (6-state machine)
-- [ ] Implement MovementSystem (validation, costs)
-- [ ] Implement CombatSystem (range, damage)
-- [ ] Implement FortificationSystem (gates, walls)
-- [ ] Implement VictoryChecker (3 conditions)
+- [x] Implement GameState class
+- [x] Implement TurnManager (6-state machine)
+- [x] Implement MovementSystem (validation, costs)
+- [x] Implement CombatSystem (range, damage)
+- [x] Implement FortificationSystem (gates, walls)
+- [x] Implement VictoryChecker (3 conditions)
 
 ### Phase 4: Rendering
 **Read:** [docs/screen_display.md](docs/screen_display.md), [docs/map.md](docs/map.md)

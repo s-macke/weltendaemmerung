@@ -1,5 +1,11 @@
 // Core game types for Weltendaemmerung
 
+// Map coordinates
+export interface Coord {
+  x: number;
+  y: number;
+}
+
 // Player factions
 export enum Player {
   Eldoin = 0,  // Western faction (defender)
@@ -33,10 +39,9 @@ export interface Unit {
   y: number;           // Map Y position (0-39), 255 = destroyed
   type: number;        // Unit type (0-15)
   owner: Player;       // Eldoin (0) or Dailor (1)
-  defense: number;     // V - current defense (decreases in combat)
-  movement: number;    // B_current - remaining movement this phase
-  maxMovement: number; // B_max - reset each round
-  terrain: TerrainType; // Original terrain under unit
+  defense: number;     // Current defense (decreases in combat)
+  movement: number;    // Remaining movement this phase
+  maxMovement: number; // Max movement (reset each round)
 }
 
 // Complete game state
