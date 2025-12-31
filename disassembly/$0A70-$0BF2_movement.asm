@@ -2,17 +2,31 @@
 ; Movement Validation and Combat Logic
 ; Address range: $0A70 - $0BF2
 ; =============================================================================
+;
+; MAP BOUNDARIES:
+; The map is 80 tiles wide (X: 0-79) and 40 tiles tall (Y: 0-39).
+; Boundary checks prevent cursor from going off-map:
+;   - Left boundary: Y < 0 (handled by BMI in sub_0AA3)
+;   - Right boundary: Y >= $50 (80) (handled by CPY #$50 in sub_0ABB)
+;   - Top/Bottom: Handled by scroll routines in main loop
+;
+; PHASE-SPECIFIC BEHAVIOR:
+;   Phase 0 (Bewegungsphase): Full movement with terrain cost deduction
+;   Phase 1 (Angriffsphase): MAP SCROLLING DISABLED - cursor moves but no scroll
+;   Phase 2 (Torphase): MAP SCROLLING DISABLED - fortification mode only
+;
+; =============================================================================
 
 ; -----------------------------------------------------------------------------
 ; sub_0A70 - Check if Movement is Allowed in Current Phase
 ; -----------------------------------------------------------------------------
 ; Returns Z=1 (equal) if movement should be skipped/restricted.
-; In Angriffsphase (Phase 1) and Torphase (Phase 2), certain movement
-; checks are bypassed (combat/fortification actions take priority).
+; In Angriffsphase (Phase 1) and Torphase (Phase 2), map scrolling is disabled
+; but cursor movement within the current view is allowed.
 ;
-; Phase 0 (Bewegungsphase): Full movement validation
-; Phase 1 (Angriffsphase): Movement restricted, returns Z=1
-; Phase 2 (Torphase): Fortification mode, returns Z=1
+; Phase 0 (Bewegungsphase): Full movement validation with map scrolling
+; Phase 1 (Angriffsphase): Cursor moves, but map does NOT scroll (Z=1)
+; Phase 2 (Torphase): Fortification mode, map does NOT scroll (Z=1)
 ; -----------------------------------------------------------------------------
 sub_0A70:
         LDA $034A               ; GAME_STATE (game phase)

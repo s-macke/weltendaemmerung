@@ -18,9 +18,26 @@
 ; -----------------------------------------------------------------------------
 ; loc_080D - Main Entry Point (called via SYS 2061 from BASIC header)
 ; -----------------------------------------------------------------------------
+; ASYMMETRIC UNIT TRACKING:
+; The game only tracks Dailor's unit count ($4FF0), NOT Eldoin's.
+; Victory conditions:
+;   - Eldoin wins by reducing $4FF0 to zero (all Dailor units destroyed)
+;   - Dailor wins by killing Eldoin's Feldherr (commander unit $11)
+; This is an intentional asymmetry - Dailor has numerical advantage (164 units)
+; but Eldoin's Feldherr is a high-value target.
+;
+; UNIT COUNT VALUE:
+; Initialized to $9F (159 decimal), NOT $A4 (164).
+; The docs state Dailor has 164 units, but counter starts at 159.
+; Possible explanations:
+;   1. Some units are not counted (structures, special units)
+;   2. Counter was manually tuned for game balance
+;   3. Documentation error (actual unit count may be 159)
+; The exact reason is unclear from the code alone.
+; -----------------------------------------------------------------------------
 loc_080D:
-        LDA #$9F
-        STA $4FF0               ; STATE_DAILOR_UNITS (Dailor unit count)
+        LDA #$9F                ; Initialize Dailor unit counter (159 units)
+        STA $4FF0               ; STATE_DAILOR_UNITS (decremented on kill)
         LDA #$00
         LDX #$18
 

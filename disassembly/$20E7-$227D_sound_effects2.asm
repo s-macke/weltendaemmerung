@@ -2,66 +2,96 @@
 ; Sound Effects - Part 2
 ; Address range: $20E7 - $227D
 ; =============================================================================
-; SID voice helpers and additional sound effects:
-; - ADSR envelope helpers
-; - Combat sounds
-; - Notification sounds
+;
+; SOUND EFFECT USAGE IN GAME:
+;   sub_20E7: Helper - Set Attack/Decay for all voices
+;   sub_20F1: Helper - Set Sustain/Release for all voices
+;   sub_20FB: Combat hit impact sound (damage taken)
+;   sub_2129: Varied pitch - uses ROM reading for pseudo-random pitch
+;   loc_2178: Low tone notification
+;   sub_2197: High pitch beep - unit destroyed notification
+;   sub_2263: Noise burst
+;
 ; =============================================================================
 
 ; -----------------------------------------------------------------------------
 ; sub_20E7 - Set Attack/Decay for All Voices
 ; -----------------------------------------------------------------------------
-; Sets the same Attack/Decay value for all three SID voices.
-; Input: A = Attack/Decay value (high nibble=attack, low nibble=decay)
+; Convenience routine to set ADSR Attack/Decay on all three SID voices.
+;
+; Input: A = Attack/Decay value
+;   High nibble (bits 7-4) = Attack time (0=2ms, F=8s)
+;   Low nibble (bits 3-0)  = Decay time (0=6ms, F=2.4s)
+;
+; Example values:
+;   $8F = 100ms attack, 2.4s decay (slow swell)
+;   $0F = 2ms attack, 2.4s decay (sharp hit with long fade)
+;   $55 = 16ms attack, 188ms decay (medium)
 ; -----------------------------------------------------------------------------
 sub_20E7:
-        STA SID_V1AD
-        STA SID_V2AD
-        STA SID_V3AD
+        STA SID_V1AD            ; Voice 1 Attack/Decay
+        STA SID_V2AD            ; Voice 2 Attack/Decay
+        STA SID_V3AD            ; Voice 3 Attack/Decay
         RTS
 
 ; -----------------------------------------------------------------------------
 ; sub_20F1 - Set Sustain/Release for All Voices
 ; -----------------------------------------------------------------------------
-; Sets the same Sustain/Release value for all three SID voices.
-; Input: A = Sustain/Release value (high nibble=sustain, low nibble=release)
+; Convenience routine to set ADSR Sustain/Release on all three SID voices.
+;
+; Input: A = Sustain/Release value
+;   High nibble (bits 7-4) = Sustain level (0=off, F=max volume)
+;   Low nibble (bits 3-0)  = Release time (0=6ms, F=2.4s)
+;
+; Example values:
+;   $F7 = Max sustain, 300ms release (full sound, quick fade)
+;   $FC = Max sustain, 1s release (sustained with slow fade)
+;   $00 = No sustain, instant release (very short pluck)
 ; -----------------------------------------------------------------------------
 sub_20F1:
-        STA SID_V1SR
-        STA SID_V2SR
-        STA SID_V3SR
+        STA SID_V1SR            ; Voice 1 Sustain/Release
+        STA SID_V2SR            ; Voice 2 Sustain/Release
+        STA SID_V3SR            ; Voice 3 Sustain/Release
         RTS
 
 ; -----------------------------------------------------------------------------
-; sub_20FB - Combat Hit Sound
+; sub_20FB - Combat Hit Sound (Damage Impact)
 ; -----------------------------------------------------------------------------
 ; Creates a descending filter sweep for impact effect.
-; Used when units take damage in combat.
+; Called when a unit takes damage in combat.
+;
+; Technique: Sweeps filter cutoff from $A0 down to $10 in 10 steps,
+; creating a "thump" that fades from bright to muffled.
+;
+; SID Configuration:
+;   Volume: $2F (max + bandpass)
+;   ADSR: Attack=$C (1s), Decay=$F (2.4s), Sustain=$F, Release=$C (1s)
+;   Filter: Sweeps downward through 10 steps (X*16 = $A0 to $10)
 ; -----------------------------------------------------------------------------
 sub_20FB:
-        JSR sub_209C
-        LDA #$2F
+        JSR sub_209C            ; Initialize SID (click sound)
+        LDA #$2F                ; Volume=$F, filter mode=$2 (bandpass)
         STA SID_VOLUME
-        LDA #$CF
+        LDA #$CF                ; Attack=$C (1s), Decay=$F (2.4s)
         JSR sub_20E7
-        LDA #$FC
+        LDA #$FC                ; Sustain=$F, Release=$C (1s)
         JSR sub_20F1
-        LDA #$23
+        LDA #$23                ; Initial delay
         JSR sub_1CE4
-        LDX #$0A
+        LDX #$0A                ; 10 filter sweep steps
 
 L2114:
-        LDY #$6E
+        LDY #$6E                ; Delay between steps
         JSR sub_1CF3
-        TXA
-        ASL A
-        ASL A
-        ASL A
-        ASL A
-        STA SID_FCUTH
+        TXA                     ; X = 10, 9, 8, ... 1
+        ASL A                   ; X * 2
+        ASL A                   ; X * 4
+        ASL A                   ; X * 8
+        ASL A                   ; X * 16 (= $A0, $90, $80, ... $10)
+        STA SID_FCUTH           ; Descending filter cutoff
         DEX
-        BNE L2114
-        LDA #$21
+        BNE L2114               ; Loop until X = 0
+        LDA #$21                ; Final delay
         JMP sub_1CE4
 
 ; -----------------------------------------------------------------------------

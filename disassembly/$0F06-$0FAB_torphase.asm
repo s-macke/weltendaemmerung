@@ -82,12 +82,38 @@ L0F58:
         JMP loc_0F2D
 
 ; -----------------------------------------------------------------------------
-; Gate position coordinate data (13 fixed locations)
-; $0F5D: X coordinates, $0F6A: Y coordinates
-; 10 gates in Eldoin territory (X < 60), 3 in Dailor territory (X >= 60)
+; Gate Position Coordinate Data (13 Fixed Locations)
 ; -----------------------------------------------------------------------------
-        .byte $05, $11, $1D, $0E, $2A, $2F, $34, $19, $05, $0B, $46, $45, $4B, $06, $05, $0A  ; ....*/4...fek...
-        .byte $15, $15, $15, $15, $19, $23, $22, $07, $11, $22  ; .....#".."
+; $0F5D: X coordinates (13 bytes)
+; $0F6A: Y coordinates (13 bytes)
+;
+; POSITION TABLE (index, X, Y, territory):
+;   0: ( 5,  6) - Eldoin (far west, upper)
+;   1: (17,  5) - Eldoin (west, upper)
+;   2: (29, 10) - Eldoin (west-central, upper)
+;   3: (14, 21) - Eldoin (west, middle)
+;   4: (42, 21) - Eldoin (central, middle)
+;   5: (47, 21) - Eldoin (central, middle)
+;   6: (52, 21) - Eldoin (central, middle)
+;   7: (25, 25) - Eldoin (west-central, lower-middle)
+;   8: ( 5, 35) - Eldoin (far west, lower)
+;   9: (11, 34) - Eldoin (west, lower)
+;  10: (70,  7) - DAILOR (east, upper)
+;  11: (69, 17) - DAILOR (east, middle)
+;  12: (75, 34) - DAILOR (east, lower)
+;
+; Territory boundary at X=60 ($3C):
+;   Positions 0-9:  Eldoin territory (X < 60)
+;   Positions 10-12: Dailor territory (X >= 60)
+;
+; GATE DESTRUCTION:
+; When a gate is destroyed in combat (e.g., by Rammbock attack), the gate
+; counter at $4FF2,X is decremented. When it goes from $00 to $FF, bit 7
+; becomes set. The BMI at L0FA5 then blocks all torphase actions at that
+; position permanently - the gate cannot be rebuilt.
+; -----------------------------------------------------------------------------
+        .byte $05, $11, $1D, $0E, $2A, $2F, $34, $19, $05, $0B, $46, $45, $4B, $06, $05, $0A
+        .byte $15, $15, $15, $15, $19, $23, $22, $07, $11, $22
 
 ; -----------------------------------------------------------------------------
 ; L0F77 - Update terrain stored in unit record

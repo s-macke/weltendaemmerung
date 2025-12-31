@@ -496,28 +496,50 @@ L1504:  ; Wait for keypress
         .byte $4E, $20, $44, $49, $45  ; n die
 
 ; -----------------------------------------------------------------------------
-; sub_1567 - Add Combat Modifier from ROM Sequence
+; sub_1567 - Add Combat Modifier from ROM Sequence (Pseudo-RNG)
 ; -----------------------------------------------------------------------------
 ; Adds a modifier (0-4) to attack value using BCD arithmetic.
-; Uses self-modifying code to read successive bytes from KERNAL ROM ($E000+),
-; creating a deterministic but varied sequence.
-; Input: A = base attack value
+;
+; PSEUDO-RANDOM NUMBER GENERATION:
+; The game uses a deterministic "random" sequence by reading bytes from the
+; C64 KERNAL ROM ($E000-$E0FF). Self-modifying code increments the address
+; after each read, cycling through ROM bytes in order:
+;   $E000, $E001, $E002, ... $E0FF, $E000, $E001, ...
+;
+; Each ROM byte is masked to 3 bits (0-7) to index into the modifier table.
+; The actual KERNAL code at $E000 produces a varied but fixed sequence.
+; This is NOT true randomness - the same sequence repeats every 256 attacks.
+;
+; MODIFIER DISTRIBUTION TABLE (at $1579):
+;   Index: 0  1  2  3  4  5  6  7
+;   Value: 0  1  1  2  2  3  3  4
+;
+; Probability of each modifier (assuming uniform ROM byte distribution):
+;   Modifier 0: 1/8 = 12.5%
+;   Modifier 1: 2/8 = 25.0%
+;   Modifier 2: 2/8 = 25.0%
+;   Modifier 3: 2/8 = 25.0%
+;   Modifier 4: 1/8 = 12.5%
+;   Expected average modifier: 2.0
+;
+; Input: A = base attack value (BCD)
 ; Output: A = attack value + modifier (BCD)
 ; -----------------------------------------------------------------------------
 sub_1567:
-        PHA
-        LDA $E000               ; Read byte from KERNAL ROM (address modified below)
+        PHA                     ; Save base attack value
+        LDA $E000               ; Read byte from KERNAL ROM (address self-modified)
         AND #$07                ; Mask to 0-7 for table index
         INC $1569               ; Self-modify: increment address low byte ($E000→$E001→...)
         TAX                     ; X = index into modifier table
-        PLA                     ; Restore attack value
+        PLA                     ; Restore base attack value
         CLC
-        SED                     ; Enable decimal mode
-        ADC $1579,X             ; BCD add: attack = attack + modifier
+        SED                     ; Enable decimal mode for BCD addition
+        ADC $1579,X             ; BCD add: attack = attack + modifier[X]
         CLD                     ; Disable decimal mode
         RTS
-; Modifier table indexed by (ROM byte & 7): values 0,1,1,2,2,3,3,4
-; Distribution: 0=12.5%, 1=25%, 2=25%, 3=25%, 4=12.5%  Average=2.0
+
+; Combat Modifier Lookup Table
+; Indexed by (ROM_byte & 7): produces weighted distribution favoring middle values
         .byte $00, $01, $01, $02, $02, $03, $03, $04
 
 ; -----------------------------------------------------------------------------
