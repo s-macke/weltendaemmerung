@@ -518,19 +518,19 @@ Deselect current unit / cancel action.
 
 ## Implementation Checklist
 
-### Phase 1: Project Setup
+### Phase 1: Project Setup ✅
 **Read:** [docs/screen_display.md](docs/screen_display.md) (C64 colors), [docs/map.md](docs/map.md) (tile info)
 
-- [ ] Initialize Vite + TypeScript + Tailwind
-- [ ] Configure C64 color palette in Tailwind
-- [ ] Copy tile assets to `public/tiles/`
-- [ ] Run `extract_map_data.py` to generate data files
+- [x] Initialize Vite + TypeScript + Tailwind
+- [x] Configure C64 color palette in Tailwind
+- [x] Copy tile assets to `public/tiles/`
+- [x] Run `extract_map_data.py` to generate data files
 
 ### Phase 2: Core Types & Data
 **Read:** [docs/units.md](docs/units.md), [docs/movement.md](docs/movement.md), [docs/torphase.md](docs/torphase.md)
 
-- [ ] Define enums (Player, Phase, TerrainType)
-- [ ] Define interfaces (Unit, GameState)
+- [x] Define enums (Player, Phase, TerrainType)
+- [x] Define interfaces (Unit, GameState)
 - [ ] Create unit statistics table
 - [ ] Create terrain cost tables
 - [ ] Create gate positions array
@@ -548,8 +548,8 @@ Deselect current unit / cancel action.
 ### Phase 4: Rendering
 **Read:** [docs/screen_display.md](docs/screen_display.md), [docs/map.md](docs/map.md)
 
-- [ ] Implement TileRenderer (load PNG tiles)
-- [ ] Implement MapRenderer (Canvas, viewport scrolling)
+- [x] Implement TileRenderer (load PNG tiles)
+- [x] Implement MapRenderer (Canvas, viewport scrolling)
 - [ ] Implement CursorRenderer (phase-based styling)
 - [ ] Implement UIRenderer (status bar)
 

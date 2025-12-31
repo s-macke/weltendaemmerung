@@ -1,0 +1,34 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Pixel-perfect rendering for canvas */
+canvas {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* Responsive scaling container */
+#app {
+  --base-width: 320px;
+  --base-height: 152px;
+  width: 90vw;
+  max-width: calc(90vh * 320 / 152);
+  aspect-ratio: 320 / 152;
+}
+
+/* Canvas fills container and scales smoothly */
+#game-canvas {
+  width: 100%;
+  height: 100%;
+  border: 4px solid theme('colors.c64.blue');
+  display: block;
+  box-sizing: border-box;
+}
+
+#status-bar {
+  border: 4px solid theme('colors.c64.blue');
+  border-top: none;
+  padding: 0.5em;
+  font-size: clamp(12px, 2vw, 16px);
+}
