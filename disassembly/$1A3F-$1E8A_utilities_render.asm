@@ -283,16 +283,16 @@ sub_1BF0:
 ; -------------------
 ; Char Code Range     | Color Code | Color Name  | Used For
 ; --------------------|------------|-------------|------------------
-; $00-$68 (0-104)     | $0B        | Dark Gray   | Terrain, borders
-; $69     (105)       | $00        | Black       | (lookup table)
-; $6A     (106)       | $00        | Black       | (lookup table)
-; $6B     (107)       | $06        | Blue        | Player 1 units
-; $6C     (108)       | $02        | Red         | Player 2 units
-; $6D     (109)       | $01        | White       | Neutral/UI
-; $6E     (110)       | $06        | Blue        | Player 1 units
-; $6F-$73 (111-115)   | $0B        | Dark Gray   | (lookup table)
-; $74-$7A (116-122)   | $07        | Yellow      | Special items/UI
-; $7B+    (123+)      | $00        | Black       | Invisible/unused
+; $00-$68 (0-104)     | $0B        | Dark Gray   | UI borders, frame
+; $69     (105)       | $00        | Black       | Wiese (Meadow) var 1
+; $6A     (106)       | $00        | Black       | Wiese (Meadow) var 2
+; $6B     (107)       | $06        | Blue        | Fluss (River)
+; $6C     (108)       | $02        | Red         | Wald (Forest)
+; $6D     (109)       | $01        | White       | Ende (Edge)
+; $6E     (110)       | $06        | Blue        | Sumpf (Swamp)
+; $6F-$73 (111-115)   | $0B        | Dark Gray   | Tor/Gebirge/Pflaster/Mauer
+; $74-$7A (116-122)   | $07        | Yellow      | Unit icons
+; $7B+    (123+)      | $00        | Black       | Unit icons
 ;
 ; Background color: Green ($05) during map display (via raster interrupt in $0E14)
 ; -----------------------------------------------------------------------------
@@ -486,15 +486,16 @@ sub_1D0E:
 ; $1D39: Terrain/Unit name offsets (used by sub_1EE2)
 ;
 ; TERRAIN NAME OFFSETS ($1D39+):
-;   Index 0: Wiese (Meadow)      - Char $69
-;   Index 1: Fluss (River)       - Char $6A
-;   Index 2: Wald (Forest)       - Char $6B
-;   Index 3: Ende (Edge)         - Char $6C
-;   Index 4: Sumpf (Swamp)       - Char $6D
-;   Index 5: Tor (Gate)          - Char $6E
-;   Index 6: Gebirge (Mountains) - Char $6F
-;   Index 7: Pflaster (Pavement) - Char $70
-;   Index 8: Mauer (Wall)        - Char $71
+;   Index 0: Wiese (Meadow)      - Char $69 (variant 1)
+;   Index 1: Wiese (Meadow)      - Char $6A (variant 2)
+;   Index 2: Fluss (River)       - Char $6B
+;   Index 3: Wald (Forest)       - Char $6C
+;   Index 4: Ende (Edge)         - Char $6D
+;   Index 5: Sumpf (Swamp)       - Char $6E
+;   Index 6: Tor (Gate)          - Char $6F
+;   Index 7: Gebirge (Mountains) - Char $70
+;   Index 8: Pflaster (Pavement) - Char $71
+;   Index 9-10: Mauer (Wall)     - Char $72-$73
 ;
 ; UNIT TYPE NAME OFFSETS ($1D39+11):
 ;   Index 11+: Unit type names (Schwertträger, Bogenschützen, etc.)

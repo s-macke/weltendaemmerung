@@ -263,17 +263,17 @@ def main():
         terrain_counts[char_code] = terrain_counts.get(char_code, 0) + 1
 
     terrain_names = {
-        0x69: "Wiese (Meadow)",
-        0x6A: "Fluss (River)",
-        0x6B: "Wald (Forest)",
-        0x6C: "Ende (Edge)",
-        0x6D: "Sumpf (Swamp)",
-        0x6E: "Tor (Gate)",
-        0x6F: "Gebirge (Mountains)",
-        0x70: "Pflaster (Pavement)",
-        0x71: "Mauer (Wall)",
-        0x72: "Terrain variant 1",
-        0x73: "Terrain variant 2",
+        0x69: "Wiese (Meadow) var 1",
+        0x6A: "Wiese (Meadow) var 2",
+        0x6B: "Fluss (River)",
+        0x6C: "Wald (Forest)",
+        0x6D: "Ende (Edge)",
+        0x6E: "Sumpf (Swamp)",
+        0x6F: "Tor (Gate)",
+        0x70: "Gebirge (Mountains)",
+        0x71: "Pflaster (Pavement)",
+        0x72: "Mauer (Wall)",
+        0x73: "Mauer (Wall)",
     }
 
     print("\nTerrain distribution:")

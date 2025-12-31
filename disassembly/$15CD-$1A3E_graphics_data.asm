@@ -19,17 +19,17 @@
 ;
 ; TERRAIN TYPE MAPPING (terrain_index = char_code - $69):
 ; -------------------------------------------------------
-;   Tile 11 -> Char $69 -> Index 0 -> Wiese (Meadow)
-;   Tile 12 -> Char $6A -> Index 1 -> Fluss (River)
-;   Tile 13 -> Char $6B -> Index 2 -> Wald (Forest)
-;   Tile 14 -> Char $6C -> Index 3 -> Ende (Edge)
-;   Tile 15 -> Char $6D -> Index 4 -> Sumpf (Swamp)
-;   Tile 16 -> Char $6E -> Index 5 -> Tor (Gate)
-;   Tile 17 -> Char $6F -> Index 6 -> Gebirge (Mountains)
-;   Tile 18 -> Char $70 -> Index 7 -> Pflaster (Pavement)
-;   Tile 19 -> Char $71 -> Index 8 -> Mauer (Wall)
-;   Tile 20 -> Char $72 -> Index 9 -> (additional terrain)
-;   Tile 21 -> Char $73 -> Index 10 -> (additional terrain)
+;   Tile 11 -> Char $69 -> Index 0 -> Wiese (Meadow) variant 1
+;   Tile 12 -> Char $6A -> Index 1 -> Wiese (Meadow) variant 2
+;   Tile 13 -> Char $6B -> Index 2 -> Fluss (River)
+;   Tile 14 -> Char $6C -> Index 3 -> Wald (Forest)
+;   Tile 15 -> Char $6D -> Index 4 -> Ende (Edge)
+;   Tile 16 -> Char $6E -> Index 5 -> Sumpf (Swamp)
+;   Tile 17 -> Char $6F -> Index 6 -> Tor (Gate)
+;   Tile 18 -> Char $70 -> Index 7 -> Gebirge (Mountains)
+;   Tile 19 -> Char $71 -> Index 8 -> Pflaster (Pavement)
+;   Tile 20 -> Char $72 -> Index 9 -> Mauer (Wall)
+;   Tile 21 -> Char $73 -> Index 10 -> Mauer (Wall)
 ;
 ; Units on map are stored as: unit_type + $74 (Char $74-$83)
 ;
@@ -76,15 +76,15 @@ L15E5:
 ;
 ; TILE LAYOUT:
 ;   Tiles 0-10  ($5E-$68): UI border/frame elements
-;   Tile 11 ($69): Wiese (Meadow) - sparse dot pattern
-;   Tile 12 ($6A): Fluss (River) - water pattern
-;   Tile 13 ($6B): Wald (Forest) - tree pattern
-;   Tile 14 ($6C): Ende (Edge) - boundary marker
-;   Tile 15 ($6D): Sumpf (Swamp) - marshy pattern
-;   Tile 16 ($6E): Tor (Gate) - gate structure
-;   Tile 17 ($6F): Gebirge (Mountains) - mountain pattern
-;   Tile 18 ($70): Pflaster (Pavement) - road pattern
-;   Tile 19 ($71): Mauer (Wall) - wall structure
+;   Tile 11 ($69): Wiese (Meadow) - sparse dot pattern (variant 1)
+;   Tile 12 ($6A): Wiese (Meadow) - sparse dot pattern (variant 2)
+;   Tile 13 ($6B): Fluss (River) - water/wave pattern
+;   Tile 14 ($6C): Wald (Forest) - tree shape
+;   Tile 15 ($6D): Ende (Edge) - boundary marker
+;   Tile 16 ($6E): Sumpf (Swamp) - marshy pattern
+;   Tile 17 ($6F): Tor (Gate) - gate structure
+;   Tile 18 ($70): Gebirge (Mountains) - mountain pattern
+;   Tile 19 ($71): Pflaster (Pavement) - road pattern
 ;   Tiles 20-21 ($72-$73): Additional terrain patterns
 ;   Tiles 22-28 ($74-$7A): Unit type icons (Yellow)
 ;   Tiles 29-37 ($7B-$83): Additional unit icons (Black)
@@ -128,11 +128,12 @@ L15E5:
 ;                 - If >= 8: terrain = (nibble - $11) + $6A
 ;
 ; TERRAIN CHARACTER CODES:
-;   $69: Wiese (Meadow)      $6E: Tor (Gate)
-;   $6A: Fluss (River)       $6F: Gebirge (Mountains)
-;   $6B: Wald (Forest)       $70: Pflaster (Pavement)
-;   $6C: Ende (Edge)         $71: Mauer (Wall)
-;   $6D: Sumpf (Swamp)       $72-$73: Additional terrain
+;   $69: Wiese (Meadow)      $6F: Tor (Gate)
+;   $6A: Wiese (Meadow)      $70: Gebirge (Mountains)
+;   $6B: Fluss (River)       $71: Pflaster (Pavement)
+;   $6C: Wald (Forest)       $72: Mauer (Wall)
+;   $6D: Ende (Edge)         $73: Mauer (Wall)
+;   $6E: Sumpf (Swamp)
 ;
 ; Source: $1788 (compressed map data, ~700 bytes)
 ; Dest:   $5000 (decompressed map, 3200 bytes)

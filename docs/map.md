@@ -62,19 +62,19 @@ This maps each character code to a terrain type name via the lookup table at `$1
 | Char Code | Tile | Index | German    | English   | Tile File       |
 |-----------|------|-------|-----------|-----------|-----------------|
 | $69       | 11   | 0     | Wiese     | Meadow    | `tile_11.png`   |
-| $6A       | 12   | 1     | Fluss     | River     | `tile_12.png`   |
-| $6B       | 13   | 2     | Wald      | Forest    | `tile_13.png`   |
-| $6C       | 14   | 3     | Ende      | Edge      | `tile_14.png`   |
-| $6D       | 15   | 4     | Sumpf     | Swamp     | `tile_15.png`   |
-| $6E       | 16   | 5     | Tor       | Gate      | `tile_16.png`   |
-| $6F       | 17   | 6     | Gebirge   | Mountains | `tile_17.png`   |
-| $70       | 18   | 7     | Pflaster  | Pavement  | `tile_18.png`   |
-| $71       | 19   | 8     | Mauer     | Wall      | `tile_19.png`   |
-| $72       | 20   | 9     | -         | (terrain) | `tile_20.png`   |
-| $73       | 21   | 10    | -         | (terrain) | `tile_21.png`   |
+| $6A       | 12   | 1     | Wiese     | Meadow    | `tile_12.png`   |
+| $6B       | 13   | 2     | Fluss     | River     | `tile_13.png`   |
+| $6C       | 14   | 3     | Wald      | Forest    | `tile_14.png`   |
+| $6D       | 15   | 4     | Ende      | Edge      | `tile_15.png`   |
+| $6E       | 16   | 5     | Sumpf     | Swamp     | `tile_16.png`   |
+| $6F       | 17   | 6     | Tor       | Gate      | `tile_17.png`   |
+| $70       | 18   | 7     | Gebirge   | Mountains | `tile_18.png`   |
+| $71       | 19   | 8     | Pflaster  | Pavement  | `tile_19.png`   |
+| $72       | 20   | 9     | Mauer     | Wall      | `tile_20.png`   |
+| $73       | 21   | 10    | Mauer     | Wall      | `tile_21.png`   |
 | < $69     | 0-10 | 9     | Mauer     | Wall      | (default)       |
 
-**Note**: Units on the map are stored as `unit_type + $74` (character codes $74-$83), which is why tiles 22-37 contain unit type icons rather than terrain.
+**Note**: Char codes $69 and $6A both display as "Wiese" (Meadow) - they are visual variants created by `sub_1766` during map decompression. Units on the map are stored as `unit_type + $74` (character codes $74-$83), which is why tiles 22-37 contain unit type icons rather than terrain.
 
 ## Tile Index to Character Code Mapping
 
@@ -83,16 +83,16 @@ Tiles are stored at $E2F0, making tile 0 = character code $5E (94 decimal).
 | Tile Index | Char Code | Color      | Terrain/Purpose                    |
 |------------|-----------|------------|------------------------------------|
 | 0-10       | $5E-$68   | Dark Gray  | UI borders, frame elements         |
-| 11         | $69       | Black      | Wiese (Meadow)                     |
-| 12         | $6A       | Black      | Fluss (River)                      |
-| 13         | $6B       | Blue       | Wald (Forest)                      |
-| 14         | $6C       | Red        | Ende (Edge)                        |
-| 15         | $6D       | White      | Sumpf (Swamp)                      |
-| 16         | $6E       | Blue       | Tor (Gate)                         |
-| 17         | $6F       | Dark Gray  | Gebirge (Mountains)                |
-| 18         | $70       | Dark Gray  | Pflaster (Pavement)                |
-| 19         | $71       | Dark Gray  | Mauer (Wall)                       |
-| 20-21      | $72-$73   | Dark Gray  | Additional terrain                 |
+| 11         | $69       | Black      | Wiese (Meadow) - variant 1         |
+| 12         | $6A       | Black      | Wiese (Meadow) - variant 2         |
+| 13         | $6B       | Blue       | Fluss (River)                      |
+| 14         | $6C       | Red        | Wald (Forest)                      |
+| 15         | $6D       | White      | Ende (Edge)                        |
+| 16         | $6E       | Blue       | Sumpf (Swamp)                      |
+| 17         | $6F       | Dark Gray  | Tor (Gate)                         |
+| 18         | $70       | Dark Gray  | Gebirge (Mountains)                |
+| 19         | $71       | Dark Gray  | Pflaster (Pavement)                |
+| 20-21      | $72-$73   | Dark Gray  | Mauer (Wall)                       |
 | 22-28      | $74-$7A   | Yellow     | Unit type icons                    |
 | 29-37      | $7B-$83   | Black      | Additional unit icons              |
 
@@ -104,14 +104,14 @@ The foreground colors are rendered against the **Green ($05) background**:
 
 | Char Code Range | Color Code | C64 Color  | Visual Result                   |
 |-----------------|------------|------------|---------------------------------|
-| $00-$68         | $0B        | Dark Gray  | Gray on green                   |
+| $00-$68         | $0B        | Dark Gray  | Gray on green (UI elements)     |
 | $69             | $00        | Black      | Black pattern on green (Meadow) |
-| $6A             | $00        | Black      | Black pattern on green (River)  |
-| $6B             | $06        | Blue       | Blue trees on green             |
-| $6C             | $02        | Red        | Red edge markers                |
-| $6D             | $01        | White      | White swamp pattern             |
-| $6E             | $06        | Blue       | Blue gate structure             |
-| $6F-$73         | $0B        | Dark Gray  | Gray terrain features           |
+| $6A             | $00        | Black      | Black pattern on green (Meadow) |
+| $6B             | $06        | Blue       | Blue waves on green (River)     |
+| $6C             | $02        | Red        | Red trees on green (Forest)     |
+| $6D             | $01        | White      | White markers (Edge)            |
+| $6E             | $06        | Blue       | Blue pattern (Swamp)            |
+| $6F-$73         | $0B        | Dark Gray  | Gray terrain (Tor/Gebirge/etc)  |
 | $74-$7A         | $07        | Yellow     | Yellow unit icons               |
 | $7B+            | $00        | Black      | Black unit icons                |
 

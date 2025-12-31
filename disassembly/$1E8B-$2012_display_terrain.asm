@@ -147,17 +147,17 @@ L1F14:
 ; and calculates the terrain index using: terrain_index = char_code - $69
 ;
 ; TERRAIN INDEX MAPPING:
-;   Char $69 -> Index 0 -> Wiese (Meadow)
-;   Char $6A -> Index 1 -> Fluss (River)
-;   Char $6B -> Index 2 -> Wald (Forest)
-;   Char $6C -> Index 3 -> Ende (Edge)
-;   Char $6D -> Index 4 -> Sumpf (Swamp)
-;   Char $6E -> Index 5 -> Tor (Gate)
-;   Char $6F -> Index 6 -> Gebirge (Mountains)
-;   Char $70 -> Index 7 -> Pflaster (Pavement)
-;   Char $71 -> Index 8 -> Mauer (Wall)
-;   Char $72 -> Index 9 -> (additional terrain)
-;   Char $73 -> Index 10 -> (additional terrain)
+;   Char $69 -> Index 0 -> Wiese (Meadow) variant 1
+;   Char $6A -> Index 1 -> Wiese (Meadow) variant 2
+;   Char $6B -> Index 2 -> Fluss (River)
+;   Char $6C -> Index 3 -> Wald (Forest)
+;   Char $6D -> Index 4 -> Ende (Edge)
+;   Char $6E -> Index 5 -> Sumpf (Swamp)
+;   Char $6F -> Index 6 -> Tor (Gate)
+;   Char $70 -> Index 7 -> Gebirge (Mountains)
+;   Char $71 -> Index 8 -> Pflaster (Pavement)
+;   Char $72 -> Index 9 -> Mauer (Wall)
+;   Char $73 -> Index 10 -> Mauer (Wall)
 ;   Char < $69 -> Index 9 (default: Mauer/Wall)
 ;   Char >= $74 -> Unit types (unit_type = char - $74)
 ;
