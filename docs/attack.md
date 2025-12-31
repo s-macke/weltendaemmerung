@@ -221,18 +221,23 @@ Final Damage = Base Attack + Random Modifier (0-4)
 
 ### Structure Attackers
 
-Certain units can attack and destroy gates/fortifications:
+Only 3 units can attack and destroy structures:
 
-| Unit Type | Can Destroy Structures |
-|-----------|------------------------|
-| Katapult ($08)      | Yes - Gates |
-| Lindwurm ($0C)      | Yes - Gates |
-| Adler ($0D)         | Yes - Gates |
-| Rammbock ($0D)      | Yes - Gates |
+| Unit Type | ATTACKER_TYPE | Can Destroy |
+|-----------|---------------|-------------|
+| Katapult  | $08 (type 8)  | Gates + Walls |
+| Lindwurm  | $0C (type 12) | Gates + Walls |
+| Rammbock  | $0D (type 13) | Gates only |
 
-When these units attack a gate tile:
-1. Gate counter at `$4FF2,X` is decremented
-2. Gate is destroyed (replaced with pavement $71)
+**Note:** Adler (type 2, ATTACKER_TYPE $02) cannot destroy structures despite being a flying unit.
+
+**Structure targets:**
+- Index $06 = Gate (Tor, char $6F) - decrements gate counter, replaced with pavement
+- Index $09 = Wall (Mauer, char $72) - destroyed directly, replaced with pavement
+
+When these units attack a structure:
+1. For gates: Gate counter at `$4FF2,X` is decremented (disables torphase at that position)
+2. Structure is replaced with pavement ($71)
 3. No combat damage calculation occurs
 
 ### Unit Type Checks
@@ -241,11 +246,11 @@ When these units attack a gate tile:
 L1328:
     LDA $0357           ; Attacker type
     CMP #$08            ; Katapult?
-    BEQ structure_attack
+    BEQ structure_attack ; -> can destroy gates + walls
     CMP #$0C            ; Lindwurm?
-    BEQ structure_attack
-    CMP #$0D            ; Adler or Rammbock?
-    BEQ check_target
+    BEQ structure_attack ; -> can destroy gates + walls
+    CMP #$0D            ; Rammbock?
+    BEQ gate_attack     ; -> gates only, not walls
 ```
 
 ## Unit Destruction (L13FD)

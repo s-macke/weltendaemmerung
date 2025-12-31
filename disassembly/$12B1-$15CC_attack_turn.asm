@@ -152,13 +152,13 @@ L1327:
 ; First validates range via sub_13AE, then checks for special attacks:
 ;
 ; STRUCTURE ATTACKERS (can destroy gates/fortifications):
-;   Type $08 = Katapult (Catapult)
-;   Type $0C = Lindwurm (Dragon)
-;   Type $0D = Adler (Eagle) - only vs gates (tile $06)
+;   Type $08 = Katapult (Catapult) - gates + walls
+;   Type $0C = Lindwurm (Dragon) - gates + walls
+;   Type $0D = Rammbock (Battering Ram) - gates only
 ;
 ; STRUCTURE TARGETS:
-;   Tile $09 = Blutsauger -> destroys directly
-;   Tile $06 = Gate -> decrements gate counter, replaces with pavement
+;   Index $09 = Mauer (Wall, char $72) -> destroyed by Katapult/Lindwurm only
+;   Index $06 = Tor (Gate, char $6F) -> decrements gate counter, replaces with pavement
 ;
 ; For normal unit attacks, validates target is enemy unit then jumps to L1373.
 ; -----------------------------------------------------------------------------
@@ -170,7 +170,7 @@ L1328:
         BEQ L134C               ; -> can attack structures
         CMP #$0C                ; Lindwurm?
         BEQ L134C               ; -> can attack structures
-        CMP #$0D                ; Adler?
+        CMP #$0D                ; Rammbock?
         BEQ L1350               ; -> can attack gates only
 
 L133D:  ; Normal attack - verify target is enemy unit
@@ -184,10 +184,10 @@ L1349:
         JMP loc_13A6            ; Invalid target -> reset and return
 
 L134C:  ; Katapult/Lindwurm structure attack
-        CPX #$09                ; Target is Blutsauger tile?
+        CPX #$09                ; Target is Wall (Mauer) tile?
         BEQ L1361               ; -> destroy it directly
 
-L1350:  ; Adler/structure gate attack
+L1350:  ; Rammbock gate attack (gates only, not walls)
         CPX #$06                ; Target is gate tile?
         BNE L133D               ; No -> try normal attack
         LDA $034B               ; CURSOR_MAP_X

@@ -134,7 +134,7 @@ Each gate position has a flag byte at `$4FF2,X`. If bit 7 is set (negative), the
 **How gates become blocked:**
 
 1. All gate flags are initialized to `$00` at game start
-2. When a structure-attacking unit (Katapult, Lindwurm, Adler, Rammbock) destroys a gate in combat, the flag is **decremented**
+2. When a structure-attacking unit (Katapult, Lindwurm, or Rammbock) destroys a gate in combat, the flag is **decremented**
 3. `$00 - 1 = $FF` (8-bit wraparound)
 4. `$FF` has bit 7 set, so `BMI` triggers and blocks torphase at that position
 
@@ -232,4 +232,4 @@ The ability to place new gates on non-gate terrain allows players to set up futu
 
 ### Protecting Gates
 
-Gates destroyed in combat (by Katapult, Lindwurm, Adler, or Rammbock) are permanently lost as fortification points. This makes gate defense strategically important - siege units should be intercepted before they can destroy critical gates.
+Gates destroyed in combat (by Katapult, Lindwurm, or Rammbock) are permanently lost as fortification points. This makes gate defense strategically important - siege units should be intercepted before they can destroy critical gates.
