@@ -24,6 +24,7 @@ A Commodore 64 fantasy strategy game for two players.
 - `docs/program_flow.md` - Program flow, turn structure, state machine diagrams
 - `docs/save_format.md` - Save game file format, memory layout for disk I/O
 - `docs/title_screen.md` - Title screen, startup sequence, menu system, animation
+- `docs/screen_display.md` - Screen layout, phase-specific display, status area, colors
 
 ## Module Structure
 
