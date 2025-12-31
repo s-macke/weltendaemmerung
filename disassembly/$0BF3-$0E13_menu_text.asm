@@ -178,7 +178,7 @@ sub_0DAB:
         LDA #$0D
         STA IRQ_VECTOR_HI
         LDA #$02
-        STA $0346               ; COUNTER (general counter)
+        STA $0346               ; SCRATCH_VAR (general purpose scratch byte)
         LDA #$02
         STA $0342               ; TEMP_CALC (temp calc lo)
         CLI

@@ -2,7 +2,24 @@
 ; Utilities, Rendering, and Music
 ; Address range: $1A3F - $1E8A
 ; =============================================================================
+;
+; This module provides core rendering utilities for map scrolling, terrain
+; color lookup, sprite cursor control, sound effects, and delay routines.
+;
+; KEY FUNCTIONS USED BY COMBAT SYSTEM:
+;   sub_1C01 - Get terrain/unit color for display
+;   sub_1CE2 - Set SID voices to noise waveform (unit animation sound)
+;   sub_1CF3 - Delay loop (used for timing in combat animations)
+;
+; =============================================================================
 
+; -----------------------------------------------------------------------------
+; sub_1A3F - Scroll Screen Left (Shift Characters Right)
+; -----------------------------------------------------------------------------
+; Scrolls the visible map area left by shifting all characters one position
+; to the right. Used when player moves cursor past left edge.
+; Processes 19 rows ($13), columns 2-38.
+; -----------------------------------------------------------------------------
 sub_1A3F:
         LDX #$13
 
@@ -27,6 +44,12 @@ L1A49:
         BNE L1A41
         RTS
 
+; -----------------------------------------------------------------------------
+; sub_1A5E - Scroll Screen Right (Shift Characters Left)
+; -----------------------------------------------------------------------------
+; Scrolls the visible map area right by shifting all characters one position
+; to the left. Used when player moves cursor past right edge.
+; -----------------------------------------------------------------------------
 sub_1A5E:
         LDX #$13
 
@@ -50,6 +73,12 @@ L1A68:
         BNE L1A60
         RTS
 
+; -----------------------------------------------------------------------------
+; sub_1A7B - Scroll Screen Down (Shift Characters Up)
+; -----------------------------------------------------------------------------
+; Scrolls the visible map area down by shifting rows upward.
+; Used when player moves cursor past bottom edge.
+; -----------------------------------------------------------------------------
 sub_1A7B:
         LDX #$01
 
@@ -70,6 +99,12 @@ L1A8F:
         BNE L1A7D
         RTS
 
+; -----------------------------------------------------------------------------
+; sub_1A9A - Save Screen/Color Pointers to Temp
+; -----------------------------------------------------------------------------
+; Copies KERNAL screen ($D1-$D2) and color ($F3-$F4) pointers to temp
+; storage ($F7-$F8 and $F9-$FA) for row copy operations.
+; -----------------------------------------------------------------------------
 sub_1A9A:
         LDA $D1                 ; SCREEN_PTR (screen line ptr lo)
         STA $F7                 ; TEMP_PTR1 (general ptr lo)
@@ -81,6 +116,12 @@ sub_1A9A:
         STA $FA                 ; TEMP_PTR2 (general ptr hi)
         RTS
 
+; -----------------------------------------------------------------------------
+; sub_1AAB - Copy Screen Character and Color
+; -----------------------------------------------------------------------------
+; Copies character and color at offset Y from source to destination pointers.
+; Used during screen scrolling operations.
+; -----------------------------------------------------------------------------
 sub_1AAB:
         LDA ($D1),Y             ; SCREEN_PTR (screen line ptr lo)
         STA ($F7),Y             ; TEMP_PTR1 (general ptr lo)
@@ -88,6 +129,12 @@ sub_1AAB:
         STA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         RTS
 
+; -----------------------------------------------------------------------------
+; sub_1AB4 - Scroll Screen Up (Shift Characters Down)
+; -----------------------------------------------------------------------------
+; Scrolls the visible map area up by shifting rows downward.
+; Used when player moves cursor past top edge.
+; -----------------------------------------------------------------------------
 sub_1AB4:
         LDX #$13
 
@@ -108,8 +155,19 @@ L1AC8:
         BNE L1AB6
         RTS
 
+; -----------------------------------------------------------------------------
+; sub_1AD3 - Calculate Map Data Pointer for Row
+; -----------------------------------------------------------------------------
+; Calculates the pointer to map data for a given Y coordinate (row).
+; Map data is stored at $5000 with 80 ($50) bytes per row.
+;
+; Formula: MAP_PTR = $5000 + (Y * 80)
+;
+; Input:  A = Y coordinate (map row 0-39)
+; Output: $B4-$B5 = pointer to start of that row in map data
+; -----------------------------------------------------------------------------
 sub_1AD3:
-        STA $0346               ; COUNTER (general counter)
+        STA $0346               ; SCRATCH_VAR (general counter)
         STA $B4                 ; MAP_PTR (map data ptr lo)
         LDA #$00
         STA $B5                 ; MAP_PTR (map data ptr hi)
@@ -123,7 +181,7 @@ sub_1AD3:
         STA $0342               ; TEMP_CALC (temp calc lo)
         LDA $B5                 ; MAP_PTR (map data ptr hi)
         STA $0343               ; TEMP_CALC (temp calc hi)
-        LDA $0346               ; COUNTER (general counter)
+        LDA $0346               ; SCRATCH_VAR (general counter)
         STA $B4                 ; MAP_PTR (map data ptr lo)
         LDA #$00
         STA $B5                 ; MAP_PTR (map data ptr hi)
@@ -144,20 +202,33 @@ sub_1AD3:
         ROL $B5                 ; MAP_PTR (map data ptr hi)
         CLC
         LDA $B5                 ; MAP_PTR (map data ptr hi)
-        ADC #$50
-        STA $B5                 ; MAP_PTR (map data ptr hi)
+        ADC #$50                ; Add $50 for base address $5000
+        STA $B5                 ; MAP_PTR hi = $50 + overflow
         RTS
 
+; -----------------------------------------------------------------------------
+; sub_1B22 - Disable BASIC/KERNAL ROMs (Bank Out)
+; -----------------------------------------------------------------------------
+; Switches CPU memory configuration to see RAM at $A000-$BFFF and $E000-$FFFF
+; instead of BASIC and KERNAL ROMs. Disables interrupts during this time.
+; Used to access the copied character ROM or other data in RAM.
+; -----------------------------------------------------------------------------
 sub_1B22:
-        SEI
-        LDA #$31
+        SEI                     ; Disable interrupts
+        LDA #$31                ; Bit pattern: RAM visible at $A000 and $E000
         STA $01                 ; CPU_PORT (memory config)
         RTS
 
+; -----------------------------------------------------------------------------
+; sub_1B28 - Enable BASIC/KERNAL ROMs (Bank In)
+; -----------------------------------------------------------------------------
+; Restores normal memory configuration with BASIC and KERNAL ROMs visible.
+; Re-enables interrupts.
+; -----------------------------------------------------------------------------
 sub_1B28:
-        LDA #$37
+        LDA #$37                ; Bit pattern: Normal ROM configuration
         STA $01                 ; CPU_PORT (memory config)
-        CLI
+        CLI                     ; Re-enable interrupts
         RTS
 
 loc_1B2E:
@@ -331,36 +402,60 @@ L1C25:                          ; Yellow for $74-$7A
 color_lookup_table:
         .byte $00, $00, $06, $02, $01, $06, $0B, $0B, $0B, $0B, $0B
 
+; -----------------------------------------------------------------------------
+; sub_1C35 - Initialize Cursor Sprite
+; -----------------------------------------------------------------------------
+; Sets up Sprite 0 as the game cursor:
+;   - Copies sprite pattern data to VIC bank ($C400)
+;   - Enables Sprite 0 only
+;   - Sets initial color to white ($01 = Normal state)
+;   - Positions sprite at center of map view
+;   - Points sprite to pattern at $C400 (pointer = $10)
+;
+; The cursor sprite color is used as a state machine for combat:
+;   $01 = Normal (white)
+;   $0A = Attack Select (light green)
+;   $FA = Attack Execute
+;   $F1 = Movement mode
+; -----------------------------------------------------------------------------
 sub_1C35:
-        LDX #$23
+        LDX #$23                ; Copy 36 bytes of sprite data
 
 L1C37:
-        LDA $1C65,X
-        STA $C400,X
+        LDA $1C65,X             ; Source: sprite pattern at $1C65
+        STA $C400,X             ; Dest: VIC sprite block at $C400
         DEX
         BPL L1C37
-        LDX #$1C
+        LDX #$1C                ; Clear remaining sprite block
 
 L1C42:
         LDA #$00
         STA $C423,X
         DEX
         BPL L1C42
-        STA VIC_SPXMSB
+        STA VIC_SPXMSB          ; Clear X MSB (all sprites X < 256)
         LDA #$01
-        STA VIC_SPENA
-        STA VIC_SP0COL
+        STA VIC_SPENA           ; Enable Sprite 0 only
+        STA VIC_SP0COL          ; Set color to white (Normal state)
         LDA #$98
-        STA VIC_SP0Y
+        STA VIC_SP0Y            ; Initial Y position
         LDA #$B6
-        STA VIC_SP0X
+        STA VIC_SP0X            ; Initial X position
         LDA #$10
-        STA $C3F8               ; SPRITE_PTRS (sprite pointers)
+        STA $C3F8               ; Sprite 0 pointer = $10 -> $C400
         RTS
-        .byte $1F, $80, $00, $3F, $C0, $00, $60, $60, $00, $C0, $30, $00, $C0, $30, $00, $C0  ; ...?..``..0..0..
-        .byte $30, $00, $C0, $30, $00, $C0, $30, $00, $C0, $30, $00, $60, $60, $00, $3F, $C0  ; 0..0..0..0.``.?.
-        .byte $00, $1F, $80  ; ...
 
+; Cursor sprite pattern data (circle/ring shape, 36 bytes)
+        .byte $1F, $80, $00, $3F, $C0, $00, $60, $60, $00, $C0, $30, $00, $C0, $30, $00, $C0
+        .byte $30, $00, $C0, $30, $00, $C0, $30, $00, $C0, $30, $00, $60, $60, $00, $3F, $C0
+        .byte $00, $1F, $80
+
+; -----------------------------------------------------------------------------
+; sub_1C88 - Victory Music (Scroll Up Effect)
+; -----------------------------------------------------------------------------
+; Plays ascending victory music while scrolling the screen upward.
+; Used when Eldoin wins by eliminating all Dailor units.
+; -----------------------------------------------------------------------------
 sub_1C88:
         JSR sub_0E14
         LDA #$F7
@@ -391,11 +486,17 @@ L1C97:
         STA $1ACF
         RTS
 
+; -----------------------------------------------------------------------------
+; sub_1CBC - Defeat Music (Scroll Down Effect)
+; -----------------------------------------------------------------------------
+; Plays descending defeat music while scrolling the screen downward.
+; Used when a player loses.
+; -----------------------------------------------------------------------------
 sub_1CBC:
-        JSR sub_0E14
+        JSR sub_0E14            ; Initialize SID
         LDX #$4F
-        STA SID_VOLUME
-        LDX #$13
+        STA SID_VOLUME          ; Set volume
+        LDX #$13                ; 19 iterations
 
 L1CC6:
         TXA
@@ -415,34 +516,75 @@ L1CC6:
         BNE L1CC6
         RTS
 
+; -----------------------------------------------------------------------------
+; sub_1CE2 - Set SID Voices to Noise Waveform
+; -----------------------------------------------------------------------------
+; Sets all three SID voices to noise waveform ($80) without gate.
+; Used for unit idle animation sound effect - creates a brief noise burst.
+; Called from attack system's sub_12C0 for unit animation.
+; -----------------------------------------------------------------------------
 sub_1CE2:
-        LDA #$80
+        LDA #$80                ; Noise waveform, gate off
 
+; -----------------------------------------------------------------------------
+; sub_1CE4 - Set SID Voice Control Registers
+; -----------------------------------------------------------------------------
+; Sets all three SID voice control registers to the value in A.
+; Voice control bits: Noise=$80, Pulse=$40, Saw=$20, Triangle=$10, Gate=$01
+;
+; Input: A = voice control byte
+; Common values used:
+;   $80 = Noise waveform, gate off (idle sound)
+;   $81 = Noise waveform, gate on (sustained sound)
+;   $14 = Triangle waveform, gate off (phase transition)
+;   $20 = Sawtooth waveform (used in music)
+; -----------------------------------------------------------------------------
 sub_1CE4:
-        STA SID_V1CTRL
-        STA SID_V2CTRL
-        STA SID_V3CTRL
+        STA SID_V1CTRL          ; Voice 1 control
+        STA SID_V2CTRL          ; Voice 2 control
+        STA SID_V3CTRL          ; Voice 3 control
         RTS
 
+; -----------------------------------------------------------------------------
+; sub_1CEE - Set SID Voices to Noise with Gate On
+; -----------------------------------------------------------------------------
+; Sets all SID voices to noise waveform ($81) with gate on.
+; Creates sustained noise sound.
+; -----------------------------------------------------------------------------
 sub_1CEE:
-        LDA #$81
+        LDA #$81                ; Noise waveform, gate on
         JMP sub_1CE4
 
+; -----------------------------------------------------------------------------
+; sub_1CF3 - Delay Loop
+; -----------------------------------------------------------------------------
+; Creates a delay by calling KERNAL scan keyboard routine multiple times.
+; Uses self-decrementing Y register as iteration counter.
+;
+; Input: Y = number of iterations (decrements to 0)
+; Called from: sub_1581 (combat animations), various sound routines
+; -----------------------------------------------------------------------------
 sub_1CF3:
-        JSR $EEB3
+        JSR $EEB3               ; KERNAL: Scan keyboard matrix
         DEY
         BNE sub_1CF3
         RTS
 
+; -----------------------------------------------------------------------------
+; sub_1CFA - Clear Screen Row
+; -----------------------------------------------------------------------------
+; Fills an entire screen row with spaces ($A0) in blue color ($06).
+; Used to clear status/info lines before redrawing.
+; -----------------------------------------------------------------------------
 sub_1CFA:
-        JSR $E9F0
-        JSR $EA24
-        LDY #$27
+        JSR $E9F0               ; KERNAL: Get screen line address
+        JSR $EA24               ; KERNAL: Set color pointer
+        LDY #$27                ; 40 characters (0-$27)
 
 L1D02:
-        LDA #$A0
+        LDA #$A0                ; Shifted space character
         STA ($D1),Y             ; SCREEN_PTR (screen line ptr lo)
-        LDA #$06
+        LDA #$06                ; Blue color
         STA ($F3),Y             ; COLOR_PTR (color RAM ptr lo)
         DEY
         BPL L1D02

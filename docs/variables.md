@@ -29,7 +29,7 @@
 | $0341       | SCROLL_Y       | Map scroll Y position (0-21)                     |
 | $0342-$0343 | TEMP_CALC      | Temporary calculation storage (LO/HI)            |
 | $0344-$0345 | TEMP_STORE     | Additional temp storage (LO/HI)                  |
-| $0346       | COUNTER        | General counter / temporary                      |
+| $0346       | SCRATCH_VAR    | General purpose scratch byte (temp storage)      |
 | $0347       | CURRENT_PLAYER | Active player (0=Eldoin, 1=Dailor)               |
 | $0348       | IRQ_COUNT      | IRQ countdown timer                              |
 | $034A       | GAME_STATE     | Current game phase (0=Bewegung, 1=Angriff, 2=Tor)|
