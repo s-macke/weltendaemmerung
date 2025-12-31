@@ -19,7 +19,7 @@
 | $0342-$0343 | TEMP_CALC      | Temporary calculation storage                    |
 | $0344-$0345 | TEMP_STORE     | Additional temp storage                          |
 | $0346       | COUNTER        | General counter / temporary                      |
-| $0347       | CURRENT_PLAYER | Active player (0=Feldoin, 1=Dailor)              |
+| $0347       | CURRENT_PLAYER | Active player (0=Eldoin, 1=Dailor)              |
 | $0348       | IRQ_COUNT      | IRQ countdown timer                              |
 | $034A       | GAME_STATE     | Current game phase/mode                          |
 | $034B       | CURSOR_MAP_Y   | Cursor Y position on map                         |
@@ -37,7 +37,7 @@
 | $0358-$0359 | ATTACKER_PTR   | Pointer to attacker data                         |
 | $035C       | SAVE_LETTER    | Save game filename letter (A-Z)                  |
 | $035D       | MENU_SELECT    | Menu selection state                             |
-| $4FF0       | FELDOIN_UNITS  | Unit counter for Feldoin player                  |
+| $4FF0       | ELDOIN_UNITS   | Unit counter for Eldoin player                  |
 | $4FF2-$4FFE | TOWN_FLAGS     | Town capture flags (13 towns)                    |
 | $5000-$5FA0 | MAP_DATA       | Game map data (80x40 tiles)                      |
 | $C3F8-$C3FF | SPRITE_PTRS    | Sprite block pointers                            |

@@ -59,7 +59,7 @@ VARIABLES = {
     "035C": ("SAVE_LETTER", "save filename"),
     "035D": ("MENU_SELECT", "menu selection"),
     # High memory
-    "4FF0": ("FELDOIN_UNITS", "Feldoin unit count"),
+    "4FF0": ("ELDOIN_UNITS", "Eldoin unit count"),
     # Town flags $4FF2-$4FFE
     "4FF2": ("TOWN_FLAGS", "town capture flags"),
     # Sprite pointers

@@ -66,8 +66,8 @@ L20D2:
 ; movement during the attack phase - units can only move 1 tile.
 ;
 ; CALLED FROM: loc_1EA8 when combined state = 2 or 3
-;   State 2: Dailor finishes Bewegungsphase, Feldoin enters Angriffsphase
-;   State 3: Feldoin finishes Angriffsphase, Dailor enters Angriffsphase
+;   State 2: Dailor finishes Bewegungsphase, Eldoin enters Angriffsphase
+;   State 3: Eldoin finishes Angriffsphase, Dailor enters Angriffsphase
 ; -----------------------------------------------------------------------------
 sub_20D3:
         JSR sub_15C2            ; Initialize unit pointer ($F9 = $5FA0)

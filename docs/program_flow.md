@@ -55,7 +55,7 @@ flowchart TD
 
 The game uses a 6-state turn system controlled by two variables:
 - `$034A` - GAME_STATE (phase: 0, 1, or 2)
-- `$0347` - CURRENT_PLAYER (0 = Feldoin, 1 = Dailor)
+- `$0347` - CURRENT_PLAYER (0 = Eldoin, 1 = Dailor)
 
 Combined state = `(GAME_STATE * 2) + CURRENT_PLAYER + 1`
 
@@ -71,27 +71,27 @@ Combined state = `(GAME_STATE * 2) + CURRENT_PLAYER + 1`
 
 3. **Torphase** (Gate/Fortification Phase) - Phase 2
    - Players can build fortifications on their territory
-   - Feldoin (Y < 60): Can place walls ($71) or mountains ($6F)
+   - Eldoin (Y < 60): Can place walls ($71) or mountains ($6F)
    - Dailor (Y >= 60): Can place walls ($71) or mountains ($6F)
-   - Gates ($6E) can be converted: Feldoin→Wall, Dailor→Meadow
+   - Gates ($6E) can be converted: Eldoin→Wall, Dailor→Meadow
 
 ```mermaid
 stateDiagram-v2
     [*] --> P1_Move: Game Start
 
-    P1_Move: Bewegungsphase - Feldoin
+    P1_Move: Bewegungsphase - Eldoin
     P1_Move: Full movement points
 
     P2_Move: Bewegungsphase - Dailor
     P2_Move: Full movement points
 
-    P1_Attack: Angriffsphase - Feldoin
+    P1_Attack: Angriffsphase - Eldoin
     P1_Attack: Movement = 1, Combat enabled
 
     P2_Attack: Angriffsphase - Dailor
     P2_Attack: Movement = 1, Combat enabled
 
-    P1_Gate: Torphase - Feldoin
+    P1_Gate: Torphase - Eldoin
     P1_Gate: Build fortifications (Y < 60)
 
     P2_Gate: Torphase - Dailor
@@ -117,11 +117,11 @@ stateDiagram-v2
 
 | Combined State | Phase | Player | German Name | Action |
 |----------------|-------|--------|-------------|--------|
-| 1 | 0 | 0 (Feldoin) | Bewegungsphase | Movement phase, full points |
+| 1 | 0 | 0 (Eldoin) | Bewegungsphase | Movement phase, full points |
 | 2 | 0 | 1 (Dailor) | Bewegungsphase | Movement phase, set movement=1 for next |
-| 3 | 1 | 0 (Feldoin) | Angriffsphase | Attack phase, movement=1 |
+| 3 | 1 | 0 (Eldoin) | Angriffsphase | Attack phase, movement=1 |
 | 4 | 1 | 1 (Dailor) | Angriffsphase | Attack phase |
-| 5 | 2 | 0 (Feldoin) | Torphase | Fortification phase |
+| 5 | 2 | 0 (Eldoin) | Torphase | Fortification phase |
 | 6 | 2 | 1 (Dailor) | Torphase | End round, reset, increment turn |
 
 ### Movement Point Reset
@@ -142,7 +142,7 @@ The Torphase (`L0ED9` in `$0E14-$0FAB_sound_sprites.asm`) allows terrain modific
 flowchart TD
     START[Fire Button in Phase 2] --> CHECKSIDE{Check Map Position}
 
-    CHECKSIDE -->|Feldoin & Y < 60| ALLOWED1[Allowed - Own Territory]
+    CHECKSIDE -->|Eldoin & Y < 60| ALLOWED1[Allowed - Own Territory]
     CHECKSIDE -->|Dailor & Y >= 60| ALLOWED2[Allowed - Own Territory]
     CHECKSIDE -->|Wrong Side| DENIED[Action Denied]
 
@@ -153,7 +153,7 @@ flowchart TD
     CHECKUNIT -->|No| PLACETERRAIN[Place Terrain on Map]
 
     PLACETERRAIN --> CHECKGATE{Is it a Gate?}
-    CHECKGATE -->|Yes, Feldoin| WALL[Place Wall $71]
+    CHECKGATE -->|Yes, Eldoin| WALL[Place Wall $71]
     CHECKGATE -->|Yes, Dailor| MEADOW[Place Meadow $69]
     CHECKGATE -->|No| MOUNTAIN[Place Mountain $6F]
 
@@ -164,10 +164,10 @@ flowchart TD
 ```
 
 **Territory Boundary:** Y coordinate $3C (60) divides the map:
-- Feldoin territory: Y < 60 (northern half)
+- Eldoin territory: Y < 60 (northern half)
 - Dailor territory: Y >= 60 (southern half)
 
 **Buildable Terrain:**
 - Mountains ($6F / "Gebirge") - Default fortification
-- Walls ($71 / "Mauer") - When building on gates (Feldoin only)
+- Walls ($71 / "Mauer") - When building on gates (Eldoin only)
 - Meadow ($69 / "Wiese") - When Dailor destroys a gate

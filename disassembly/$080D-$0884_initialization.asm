@@ -5,7 +5,7 @@
 
 loc_080D:
         LDA #$9F
-        STA $4FF0               ; FELDOIN_UNITS (Feldoin unit count)
+        STA $4FF0               ; ELDOIN_UNITS (Eldoin unit count)
         LDA #$00
         LDX #$18
 

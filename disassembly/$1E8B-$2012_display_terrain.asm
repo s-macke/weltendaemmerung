@@ -48,11 +48,11 @@ sub_1E9A:
 ;
 ; | State | Phase | Player  | German Name      | Description                    |
 ; |-------|-------|---------|------------------|--------------------------------|
-; |   1   |   0   | Feldoin | Bewegungsphase   | Movement, full points          |
+; |   1   |   0   | Eldoin | Bewegungsphase   | Movement, full points          |
 ; |   2   |   0   | Dailor  | Bewegungsphase   | Movement, then restrict to 1   |
-; |   3   |   1   | Feldoin | Angriffsphase    | Attack phase, movement = 1     |
+; |   3   |   1   | Eldoin | Angriffsphase    | Attack phase, movement = 1     |
 ; |   4   |   1   | Dailor  | Angriffsphase    | Attack phase                   |
-; |   5   |   2   | Feldoin | Torphase         | Fortification phase            |
+; |   5   |   2   | Eldoin | Torphase         | Fortification phase            |
 ; |   6   |   2   | Dailor  | Torphase         | End round, reset, inc turn     |
 ;
 ; State 6 triggers: Reset all movement points, increment turn counter
@@ -74,7 +74,7 @@ loc_1EA8:
 
 L1EC1:
         ; Check for attack phase transitions (states 2 and 3)
-        CMP #$02                ; Entering Angriffsphase from Feldoin?
+        CMP #$02                ; Entering Angriffsphase from Eldoin?
         BEQ L1EC9
         CMP #$03                ; Entering Angriffsphase from Dailor?
         BNE loc_1ECE
@@ -89,7 +89,7 @@ loc_1ECE:
         ; Decode combined state back to phase and player
         TAX
         AND #$01                ; Extract player (bit 0)
-        STA $0347               ; CURRENT_PLAYER (0=Feldoin, 1=Dailor)
+        STA $0347               ; CURRENT_PLAYER (0=Eldoin, 1=Dailor)
         TXA
         LSR A                   ; Extract phase (bits 1-2)
         STA $034A               ; GAME_STATE (0=Bewegung, 1=Angriff, 2=Tor)

@@ -451,7 +451,7 @@ L1D02:
 ; -----------------------------------------------------------------------------
 ; sub_1D0E - Display Current Phase and Player
 ; -----------------------------------------------------------------------------
-; Displays "[PLAYER] [PHASE]PHASE" on screen, e.g. "FELDOIN BEWEGUNGSPHASE"
+; Displays "[PLAYER] [PHASE]PHASE" on screen, e.g. "ELDOIN BEWEGUNGSPHASE"
 ; Uses lookup tables at $1D34 (player names) and $1D36 (phase names)
 ; -----------------------------------------------------------------------------
 sub_1D0E:
@@ -459,7 +459,7 @@ sub_1D0E:
         JSR $E9FF               ; Set cursor row
         LDY #$0A
         JSR $E50C               ; Clear line area
-        LDX $0347               ; CURRENT_PLAYER (0=Feldoin, 1=Dailor)
+        LDX $0347               ; CURRENT_PLAYER (0=Eldoin, 1=Dailor)
         LDA $1D34,X             ; Get player name string offset
         TAX
         JSR sub_1E8B            ; Print player name
@@ -475,7 +475,7 @@ sub_1D0E:
 ; String Offset Lookup Tables and Game Text Data
 ; -----------------------------------------------------------------------------
 ; $1D34: Player name offsets (2 bytes)
-;   [0] = "FELDOIN " (offset $00)
+;   [0] = "ELDOIN " (offset $00)
 ;   [1] = "DAILOR "  (offset $09)
 ;
 ; $1D36: Game phase name offsets (3 bytes)

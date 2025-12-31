@@ -11,14 +11,15 @@
 ; $1047 (16 bytes) - A (Angriff/Attack) - constant, read from table
 ;
 ; Unit types (index 0-15):
-;   0=Schwertträger, 1=Bogenschützen, 2=Adler, 3=Lanzenträger,
-;   4=Kriegsschiff, 5=Reiterei, 6=Katapult, 7=Blutsauger,
-;   8=Axtmänner, 9=Feldherr, 10=Lindwurm, 11=Rammbock,
-;   12=Wagenfahrer, 13=Wolfsreiter, 14=Unit14, 15=Unit15
+;   ELDOIN (0-6): 0=Schwertträger, 1=Bogenschützen, 2=Adler, 3=Lanzenträger,
+;                  4=Kriegsschiff, 5=Reiterei, 6=Feldherr*
+;   DAILOR (7-15): 7=Bogenschützen, 8=Katapult, 9=Blutsauger, 10=Axtmänner,
+;                  11=Feldherr, 12=Lindwurm, 13=Rammbock, 14=Wagenfahrer, 15=Wolfsreiter
+;   * Destroying Eldoin's Feldherr (type 6) wins the game for Dailor
 ;
 ; UNIT PLACEMENT DATA ($1057-$11A6):
 ; ----------------------------------
-; Initial unit positions for both players (Feldoin and Dailor).
+; Initial unit positions for both players (Eldoin and Dailor).
 ; Format:
 ;   $8X       - Unit type marker (X = 0-15)
 ;   X, Y      - Coordinate pairs for each unit of that type
@@ -27,10 +28,10 @@
 ;   ...
 ;   $FF       - End of data
 ;
-; Units with X < 40 belong to Feldoin (Player 1, left side)
+; Units with X < 40 belong to Eldoin (Player 1, left side)
 ; Units with X >= 40 belong to Dailor (Player 2, right side)
 ;
-; Total: 292 units (Feldoin: 128, Dailor: 164)
+; Total: 292 units (Eldoin: 128, Dailor: 164)
 ; =============================================================================
 
 ; -----------------------------------------------------------------------------
@@ -104,7 +105,8 @@ L1012:                          ; End of placement data
 ; Display order: R B A V | Table address order: V R B A
 ; -----------------------------------------------------------------------------
 ; $1017 - V (Verteidigung/Defense) - stored in unit[2], decreases when hit
-;         Schwert Bogen Adler Lanze Schif Reite Katap Bluts Axtmä Feldh Lindw Rambo Wagen Wolfs Unt14 Unt15
+;         Schwert Bogen Adler Lanze Schif Reite Feldh Bogen Katap Bluts Axtmä Feldh Lindw Rambo Wagen Wolfs
+;         (Eldoin types 0-6)                        (Dailor types 7-15)
         .byte $16, $12, $11, $14, $18, $10, $16, $12, $05, $10, $16, $16, $30, $05, $16, $18
 ;       BCD:   16   12   11   14   18   10   16   12    5   10   16   16   30    5   16   18
 

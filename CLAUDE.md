@@ -76,15 +76,15 @@ The game uses a 6-state turn system with 3 phases per round, alternating between
 
 | State | Phase | Player  | Action                              |
 |-------|-------|---------|-------------------------------------|
-| 1     | 0     | Feldoin | Movement                            |
+| 1     | 0     | Eldoin | Movement                            |
 | 2     | 0     | Dailor  | Movement                            |
-| 3     | 1     | Feldoin | Attack (movement=1)                 |
+| 3     | 1     | Eldoin | Attack (movement=1)                 |
 | 4     | 1     | Dailor  | Attack (movement=1)                 |
-| 5     | 2     | Feldoin | Fortification (Y < 60)              |
+| 5     | 2     | Eldoin | Fortification (Y < 60)              |
 | 6     | 2     | Dailor  | Fortification (Y >= 60), end round  |
 
 **Key Variables:**
 - `$034A` - GAME_STATE (phase: 0, 1, 2)
-- `$0347` - CURRENT_PLAYER (0=Feldoin, 1=Dailor)
+- `$0347` - CURRENT_PLAYER (0=Eldoin, 1=Dailor)
 - `$4FFF` - Turn counter (BCD, game ends at turn 15)
 

@@ -221,7 +221,7 @@ loc_140E:
         BEQ loc_1456
         LDA $0347               ; CURRENT_PLAYER (active player)
         BNE L1442
-        DEC $4FF0               ; FELDOIN_UNITS (Feldoin unit count)
+        DEC $4FF0               ; ELDOIN_UNITS (Eldoin unit count)
         BNE L1442
         LDA #$01
         STA $034F               ; ACTION_UNIT (unit in action)

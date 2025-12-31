@@ -81,7 +81,7 @@ sub_0ECF:
 ; -----------------------------------------------------------------------------
 ; Phase 2 allows players to build fortifications on their own territory.
 ; Territory boundary: Y = $3C (60)
-;   - Feldoin (Player 0): Can build on Y < 60 (northern half)
+;   - Eldoin (Player 0): Can build on Y < 60 (northern half)
 ;   - Dailor (Player 1): Can build on Y >= 60 (southern half)
 ; -----------------------------------------------------------------------------
 L0ED9:
@@ -90,14 +90,14 @@ L0ED9:
         BNE L0EF6               ; No, check other phases
         LDX $034B               ; CURSOR_MAP_Y (cursor Y on map)
         LDA $0347               ; CURRENT_PLAYER (active player)
-        BEQ L0EEE               ; Branch if Feldoin (Player 0)
+        BEQ L0EEE               ; Branch if Eldoin (Player 0)
         ; Dailor (Player 1): Can only build on Y >= 60
         CPX #$3C                ; Compare Y with territory boundary
         BMI L0EF6               ; Y < 60: wrong territory, deny
         BPL L0F06               ; Y >= 60: own territory, allow build
 
 L0EEE:
-        ; Feldoin (Player 0): Can only build on Y < 60
+        ; Eldoin (Player 0): Can only build on Y < 60
         CPX #$3C                ; Compare Y with territory boundary
         BMI L0F06               ; Y < 60: own territory, allow build
         RTS                     ; Y >= 60: wrong territory, deny
@@ -127,7 +127,7 @@ L0F05:
 ; -----------------------------------------------------------------------------
 ; Places terrain on map during Torphase:
 ;   - Default: Mountains ($6F / Gebirge)
-;   - On Gate: Feldoin places Wall ($71), Dailor places Meadow ($69)
+;   - On Gate: Eldoin places Wall ($71), Dailor places Meadow ($69)
 ;   - If unit on tile: Updates terrain stored in unit[5]
 ; -----------------------------------------------------------------------------
 L0F06:
@@ -177,18 +177,18 @@ loc_0F2D:
 ; L0F4E - Handle Gate Conversion
 ; -----------------------------------------------------------------------------
 ; When building on a Gate (Tor):
-;   - Feldoin (Player 0): Converts gate to Wall ($71 / Mauer)
+;   - Eldoin (Player 0): Converts gate to Wall ($71 / Mauer)
 ;   - Dailor (Player 1): Converts gate to Meadow ($69 / Wiese)
 ; -----------------------------------------------------------------------------
 L0F4E:
         LDA $0347               ; CURRENT_PLAYER
-        BEQ L0F58               ; Branch if Feldoin
+        BEQ L0F58               ; Branch if Eldoin
         ; Dailor: destroy gate (convert to meadow)
         LDA #$69                ; Meadow (Wiese)
         JMP loc_0F2D
 
 L0F58:
-        ; Feldoin: fortify gate (convert to wall)
+        ; Eldoin: fortify gate (convert to wall)
         LDA #$71                ; Wall (Mauer)
         JMP loc_0F2D
         .byte $05, $11, $1D, $0E, $2A, $2F, $34, $19, $05, $0B, $46, $45, $4B, $06, $05, $0A  ; ....*/4...fek...

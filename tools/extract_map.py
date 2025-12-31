@@ -307,7 +307,7 @@ def main():
 
     # Count and display unit distribution
     total_units = 0
-    feldoin_count = 0
+    eldoin_count = 0
     dailor_count = 0
 
     print("\nUnit distribution:")
@@ -317,16 +317,16 @@ def main():
             total_units += count
             german, english = UNIT_NAMES[unit_type]
 
-            # Count by faction (X < 40 = Feldoin, X >= 40 = Dailor)
+            # Count by faction (X < 40 = Eldoin, X >= 40 = Dailor)
             left = sum(1 for x, y in units[unit_type] if x < 40)
             right = count - left
-            feldoin_count += left
+            eldoin_count += left
             dailor_count += right
 
             print(f"  Type {unit_type:2d} ({english:15s}): {count:3d} units "
-                  f"(Feldoin: {left:3d}, Dailor: {right:3d})")
+                  f"(Eldoin: {left:3d}, Dailor: {right:3d})")
 
-    print(f"\nTotal: {total_units} units (Feldoin: {feldoin_count}, Dailor: {dailor_count})")
+    print(f"\nTotal: {total_units} units (Eldoin: {eldoin_count}, Dailor: {dailor_count})")
 
     # Create map with units
     print(f"\nRendering map with units...")
