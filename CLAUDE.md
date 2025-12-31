@@ -18,6 +18,7 @@ A Commodore 64 fantasy strategy game for two players.
 - `docs/map.md` - Terrain types, tile mappings, color system
 - `docs/movement.md` - Movement system, terrain costs, unit-specific movement tables
 - `docs/attack.md` - Attack phase, combat formulas, damage calculation, range system
+- `docs/torphase.md` - Torphase (gate phase), fortification mechanics, 13 gate positions
 - `docs/units.md` - Unit types, statistics, initial placement (292 units total)
 - `docs/victory_conditions.md` - Victory conditions, win states, game balance
 - `docs/program_flow.md` - Program flow, turn structure, state machine diagrams

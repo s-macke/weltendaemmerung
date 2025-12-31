@@ -1,25 +1,28 @@
 ; =============================================================================
-; Torphase (Fortification Phase) - Build Actions
+; Torphase (Gate Phase) - Modify Terrain at Fixed Positions
 ; Address range: $0F06 - $0FAB
 ; =============================================================================
-; Phase 2 allows players to build fortifications on their own territory.
+; Phase 2 allows players to modify terrain at 13 fixed positions on the map.
 ; Territory boundary: X = $3C (60)
-;   - Eldoin (Player 0): Can build on X < 60 (western half)
-;   - Dailor (Player 1): Can build on X >= 60 (eastern half)
+;   - Eldoin (Player 0): Converts Gate → Wall ($71) in X < 60 (western half)
+;   - Dailor (Player 1): Converts Gate → Meadow ($69) in X >= 60 (eastern half)
+; Both players place Gate ($6F) on non-gate terrain (overwrites existing).
+; Gate positions are predefined at $0F5D (X) and $0F6A (Y).
 ; =============================================================================
 
 ; -----------------------------------------------------------------------------
-; L0F06 - Build Fortification (Torphase Action)
+; L0F06 - Torphase Action Handler
 ; -----------------------------------------------------------------------------
-; Places terrain on map during Torphase:
-;   - Default: Mountains ($6F / Gebirge)
-;   - On Gate: Eldoin places Wall ($71), Dailor places Meadow ($69)
+; Modifies terrain at fixed positions during Torphase:
+;   - On Gate ($6F): Eldoin → Wall ($71), Dailor → Meadow ($69)
+;   - On other terrain: Places Gate ($6F), overwriting existing terrain
 ;   - If unit on tile: Updates terrain stored in unit[5]
+; Only works at 13 predefined gate positions (checked by sub_0F8C).
 ; -----------------------------------------------------------------------------
 L0F06:
         LDA #$00
         STA $034E               ; UNIT_TYPE_IDX (clear unit type)
-        JSR sub_0F8C            ; Check if cursor is on valid build location
+        JSR sub_0F8C            ; Check if cursor is on valid gate position
         JSR sub_1F1C            ; Get terrain/unit at cursor
 
 loc_0F11:
@@ -39,7 +42,7 @@ loc_0F11:
         JMP loc_0F11            ; Re-check terrain type
 
 L0F2B:
-        LDA #$6F                ; Default: Mountains (Gebirge)
+        LDA #$6F                ; Default: Gate (Tor) - place new gate on non-gate terrain
 
 loc_0F2D:
         PHA
@@ -62,25 +65,26 @@ loc_0F2D:
 ; -----------------------------------------------------------------------------
 ; L0F4E - Handle Gate Conversion
 ; -----------------------------------------------------------------------------
-; When building on a Gate (Tor):
-;   - Eldoin (Player 0): Converts gate to Wall ($71 / Mauer)
-;   - Dailor (Player 1): Converts gate to Meadow ($69 / Wiese)
+; When acting on a Gate (Tor), each player replaces it with different terrain:
+;   - Eldoin (Player 0): Gate → Wall ($71 / Mauer) - creates barrier
+;   - Dailor (Player 1): Gate → Meadow ($69 / Wiese) - creates open terrain
 ; -----------------------------------------------------------------------------
 L0F4E:
         LDA $0347               ; CURRENT_PLAYER
         BEQ L0F58               ; Branch if Eldoin
-        ; Dailor: destroy gate (convert to meadow)
+        ; Dailor: convert gate to meadow (open terrain)
         LDA #$69                ; Meadow (Wiese)
         JMP loc_0F2D
 
 L0F58:
-        ; Eldoin: fortify gate (convert to wall)
+        ; Eldoin: convert gate to wall (barrier)
         LDA #$71                ; Wall (Mauer)
         JMP loc_0F2D
 
 ; -----------------------------------------------------------------------------
-; Build location coordinate data (13 locations)
+; Gate position coordinate data (13 fixed locations)
 ; $0F5D: X coordinates, $0F6A: Y coordinates
+; 10 gates in Eldoin territory (X < 60), 3 in Dailor territory (X >= 60)
 ; -----------------------------------------------------------------------------
         .byte $05, $11, $1D, $0E, $2A, $2F, $34, $19, $05, $0B, $46, $45, $4B, $06, $05, $0A  ; ....*/4...fek...
         .byte $15, $15, $15, $15, $19, $23, $22, $07, $11, $22  ; .....#".."
@@ -88,11 +92,16 @@ L0F58:
 ; -----------------------------------------------------------------------------
 ; L0F77 - Update terrain stored in unit record
 ; -----------------------------------------------------------------------------
+; BUG: Only updates unit[5], but movement code uses STORED_CHAR ($0352) to
+; restore terrain when unit moves away. STORED_CHAR is NOT updated here!
+; Result: Torphase changes on occupied gates are LOST when the unit moves.
+; The terrain reverts to the original gate instead of the new wall/meadow.
+; -----------------------------------------------------------------------------
 L0F77:
         JSR sub_1FF6
         LDY #$05
         PLA
-        STA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
+        STA ($F9),Y             ; Store new terrain in unit[5]
         JMP sub_1F82
 
 ; -----------------------------------------------------------------------------
@@ -107,11 +116,13 @@ sub_0F82:
         RTS
 
 ; -----------------------------------------------------------------------------
-; sub_0F8C - Check if cursor is on valid build location
+; sub_0F8C - Check if cursor is on valid gate position
 ; -----------------------------------------------------------------------------
-; Checks cursor against 13 allowed build locations.
-; If NOT on a valid location, aborts by popping return address.
-; Also checks $4FF2,X STATE_GATE_FLAGS - negative flag prevents building.
+; Checks cursor against 13 allowed gate positions.
+; If NOT on a valid position, aborts by popping return address.
+; Also checks $4FF2,X STATE_GATE_FLAGS - negative flag prevents action.
+; Gate flags start at $00; when destroyed in combat (DEC), they become $FF.
+; $FF has bit 7 set, so BMI blocks torphase at destroyed gate positions.
 ; -----------------------------------------------------------------------------
 sub_0F8C:
         LDX #$0C
