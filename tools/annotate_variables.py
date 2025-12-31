@@ -58,10 +58,10 @@ VARIABLES = {
     "0359": ("ATTACKER_PTR", "attacker data ptr hi"),
     "035C": ("SAVE_LETTER", "save filename"),
     "035D": ("MENU_SELECT", "menu selection"),
-    # High memory
-    "4FF0": ("ELDOIN_UNITS", "Eldoin unit count"),
+    # High memory - state variables (saved to disk)
+    "4FF0": ("STATE_DAILOR_UNITS", "Dailor unit count (decremented on kill)"),
     # Gate/build location flags $4FF2-$4FFE
-    "4FF2": ("GATE_FLAGS", "gate/build location flags"),
+    "4FF2": ("STATE_GATE_FLAGS", "gate/build location flags"),
     # Sprite pointers
     "C3F8": ("SPRITE_PTRS", "sprite pointers"),
     "C3F9": ("SPRITE_PTRS", "sprite pointers"),

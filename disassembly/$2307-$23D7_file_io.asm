@@ -14,9 +14,9 @@
 ; | $5FA0-$6678   | 1,753 B | Unit records (~292 units, 6 bytes ea) |
 ;
 ; Game State Variables ($4FF0-$4FFF):
-;   $4FF0 - ELDOIN_UNITS: Unit counter for Eldoin
-;   $4FF2-$4FFE - GATE_FLAGS: Fortification flags (13 locations)
-;   $4FFF - TURN_COUNTER: Current turn (BCD, max $15)
+;   $4FF0 - STATE_DAILOR_UNITS: Dailor unit counter (decremented on kill)
+;   $4FF2-$4FFE - STATE_GATE_FLAGS: Fortification flags (13 locations)
+;   $4FFF - STATE_TURN_COUNTER: Current turn (BCD, max $15)
 ;
 ; Unit Record Structure (6 bytes each at $5FA0+):
 ;   Offset 0: X coordinate (0-79)

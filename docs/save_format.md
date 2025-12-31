@@ -19,12 +19,12 @@ The game saves the complete game state to disk using the KERNAL SAVE/LOAD routin
 
 ### Game State Variables ($4FF0-$4FFF)
 
-| Address | Size | Name           | Description                              |
-|---------|-----:|----------------|------------------------------------------|
-| $4FF0   |    1 | ELDOIN_UNITS   | Unit counter for Eldoin player           |
-| $4FF1   |    1 | (reserved)     | Padding/unused                           |
-| $4FF2   |   13 | GATE_FLAGS     | Gate/fortification flags for 13 locations|
-| $4FFF   |    1 | TURN_COUNTER   | Current turn number (BCD, max $15)       |
+| Address | Size | Name               | Description                              |
+|---------|-----:|--------------------|------------------------------------------|
+| $4FF0   |    1 | STATE_DAILOR_UNITS | Dailor unit counter (decremented on kill)|
+| $4FF1   |    1 | (reserved)         | Padding/unused                           |
+| $4FF2   |   13 | STATE_GATE_FLAGS   | Gate/fortification flags for 13 locations|
+| $4FFF   |    1 | STATE_TURN_COUNTER | Current turn number (BCD, max $15)       |
 
 ### Map Data ($5000-$5F9F)
 

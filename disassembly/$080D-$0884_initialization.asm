@@ -5,7 +5,7 @@
 
 loc_080D:
         LDA #$9F
-        STA $4FF0               ; ELDOIN_UNITS (Eldoin unit count)
+        STA $4FF0               ; STATE_DAILOR_UNITS (Dailor unit count)
         LDA #$00
         LDX #$18
 
@@ -13,7 +13,7 @@ L0816:
         STA SID_V1FREQL,X
         STA $0340,X             ; SCROLL_X (map scroll X)
         STA $0359,X             ; ATTACKER_PTR (attacker data ptr hi)
-        STA $4FF2,X             ; GATE_FLAGS (gate/build location flags)
+        STA $4FF2,X             ; STATE_GATE_FLAGS (gate/build location flags)
         DEX
         BPL L0816
         JSR sub_1B22

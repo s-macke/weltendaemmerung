@@ -111,7 +111,7 @@ sub_0F82:
 ; -----------------------------------------------------------------------------
 ; Checks cursor against 13 allowed build locations.
 ; If NOT on a valid location, aborts by popping return address.
-; Also checks $4FF2,X flags - negative flag prevents building.
+; Also checks $4FF2,X STATE_GATE_FLAGS - negative flag prevents building.
 ; -----------------------------------------------------------------------------
 sub_0F8C:
         LDX #$0C
@@ -130,7 +130,7 @@ L0F9E:
 
 L0FA1:
         BMI L0FA9
-        LDA $4FF2,X             ; GATE_FLAGS (gate/build location flags)
+        LDA $4FF2,X             ; STATE_GATE_FLAGS (gate/build location flags)
         BMI L0FA9
         RTS
 

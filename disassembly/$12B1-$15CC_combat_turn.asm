@@ -114,7 +114,7 @@ L1350:
         CMP #$3C
         BCS L1349
         JSR sub_0F8C
-        DEC $4FF2,X             ; GATE_FLAGS (gate/build location flags)
+        DEC $4FF2,X             ; STATE_GATE_FLAGS (gate/build location flags)
 
 L1361:
         LDA $0357               ; ATTACKER_TYPE (attacker type)
@@ -221,7 +221,7 @@ loc_140E:
         BEQ loc_1456
         LDA $0347               ; CURRENT_PLAYER (active player)
         BNE L1442
-        DEC $4FF0               ; ELDOIN_UNITS (Eldoin unit count)
+        DEC $4FF0               ; STATE_DAILOR_UNITS (Dailor unit count)
         BNE L1442
         LDA #$01
         STA $034F               ; ACTION_UNIT (unit in action)

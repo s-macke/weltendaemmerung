@@ -87,8 +87,8 @@ sub_227E:
 ```
 
 **Explanation:**
-- `$4FF0` is initialized to `$9F` (159 decimal) at game start
-- Despite being labeled "ELDOIN_UNITS", this counter tracks Dailor's remaining units
+- `$4FF0` (STATE_DAILOR_UNITS) is initialized to `$9F` (159 decimal) at game start
+- This counter tracks Dailor's remaining units
 - Only decremented when Eldoin destroys a Dailor unit
 - When it reaches zero, all Dailor units are eliminated
 - `$034F` is set to `$01`, which `!= $11`, so "ELDOIN" wins
@@ -123,16 +123,16 @@ Understanding victory conditions requires understanding the unit index system:
 
 ### Index to Unit Type Mapping
 
-| Index | Owner | Unit Type | Tile Code |
-|-------|-------|-----------|-----------|
-| $0B (11) | Eldoin | Schwerttraeger (0) | $74 |
-| $0C (12) | Eldoin | Bogenschuetzen (1) | $75 |
-| $0D (13) | Eldoin | Adler (2) | $76 |
-| $0E (14) | Eldoin | Lanzentraeger (3) | $77 |
-| $0F (15) | Eldoin | Kriegsschiff (4) | $78 |
-| $10 (16) | Eldoin | Reiterei (5) | $79 |
-| $11 (17) | Eldoin | Feldherr (6) | $7A |
-| $12+ | Dailor | Types 7-15 | $7B-$83 |
+| Index    | Owner  | Unit Type          | Tile Code  |
+|----------|--------|--------------------|------------|
+| $0B (11) | Eldoin | Schwerttraeger (0) | $74        |
+| $0C (12) | Eldoin | Bogenschuetzen (1) | $75        |
+| $0D (13) | Eldoin | Adler (2)          | $76        |
+| $0E (14) | Eldoin | Lanzentraeger (3)  | $77        |
+| $0F (15) | Eldoin | Kriegsschiff (4)   | $78        |
+| $10 (16) | Eldoin | Reiterei (5)       | $79        |
+| $11 (17) | Eldoin | Feldherr (6)       | $7A        |
+| $12+     | Dailor | Types 7-15         | $7B-$83    |
 
 ### Ownership Check (sub_12D4)
 
@@ -154,12 +154,12 @@ L12E2:  ; Eldoin: owns units $0B-$11
 
 ## Key Memory Addresses
 
-| Address | Name | Description |
-|---------|------|-------------|
-| `$0347` | CURRENT_PLAYER | Active player (0=Eldoin, 1=Dailor) |
-| `$034F` | ACTION_UNIT | Unit/terrain index at cursor |
-| `$4FF0` | Enemy Counter | Initialized to $9F, decremented on kills |
-| `$4FFF` | Turn Counter | BCD format, game ends at $15 |
+| Address | Name               | Description                              |
+|---------|--------------------|------------------------------------------|
+| `$0347` | CURRENT_PLAYER     | Active player (0=Eldoin, 1=Dailor)       |
+| `$034F` | ACTION_UNIT        | Unit/terrain index at cursor             |
+| `$4FF0` | STATE_DAILOR_UNITS | Initialized to $9F, decremented on kills |
+| `$4FFF` | STATE_TURN_COUNTER | BCD format, game ends at $15             |
 
 ## Game Balance Analysis
 

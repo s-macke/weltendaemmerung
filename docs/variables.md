@@ -53,11 +53,11 @@
 
 | Address       | Name           | Description                                    |
 |---------------|----------------|------------------------------------------------|
-| $4FF0         | ELDOIN_UNITS   | Unit counter for Eldoin player                 |
-| $4FF2-$4FFE   | GATE_FLAGS     | Gate/build location flags (13 locations)       |
-| $4FFF         | TURN_COUNTER   | Current turn number (BCD, game ends at $15)    |
-| $5000-$5F9F   | MAP_DATA       | Game map data (80x40 tiles = 3200 bytes)       |
-| $5FA0+        | UNIT_DATA      | Unit records (6 bytes each, see below)         |
+| $4FF0         | STATE_DAILOR_UNITS | Dailor unit counter (decremented when Eldoin kills) |
+| $4FF2-$4FFE   | STATE_GATE_FLAGS   | Gate/build location flags (13 locations)       |
+| $4FFF         | STATE_TURN_COUNTER | Current turn number (BCD, game ends at $15)    |
+| $5000-$5F9F   | STATE_MAP_DATA     | Game map data (80x40 tiles = 3200 bytes)       |
+| $5FA0+        | STATE_UNIT_DATA    | Unit records (6 bytes each, see below)         |
 
 ## Unit Stat Tables (BCD encoded)
 
