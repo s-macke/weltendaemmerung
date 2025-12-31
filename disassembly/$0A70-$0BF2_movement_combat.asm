@@ -52,7 +52,7 @@ sub_0AA3:
 
 L0AA6:
         BEQ L0A80
-        LDX $034C               ; CURSOR_MAP_X (cursor X on map)
+        LDX $034C               ; CURSOR_MAP_Y (cursor Y on map)
         JSR sub_0F82
         DEY
         BMI L0AB6
@@ -67,7 +67,7 @@ L0AB6:
 sub_0ABB:
         JSR sub_0A70
         BEQ L0A80
-        LDX $034C               ; CURSOR_MAP_X (cursor X on map)
+        LDX $034C               ; CURSOR_MAP_Y (cursor Y on map)
         JSR sub_0F82
         INY
         CPY #$50
@@ -81,7 +81,7 @@ sub_0ABB:
 sub_0AD5:
         JSR sub_0A70
         BEQ L0A80
-        LDX $034C               ; CURSOR_MAP_X (cursor X on map)
+        LDX $034C               ; CURSOR_MAP_Y (cursor Y on map)
         DEX
         JSR sub_0F82
         JSR sub_0B10
@@ -93,7 +93,7 @@ sub_0AD5:
 sub_0AEB:
         JSR sub_0A70
         BEQ L0AA6
-        LDX $034C               ; CURSOR_MAP_X (cursor X on map)
+        LDX $034C               ; CURSOR_MAP_Y (cursor Y on map)
         INX
         JSR sub_0F82
         JSR sub_0B10

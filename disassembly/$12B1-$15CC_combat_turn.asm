@@ -66,10 +66,10 @@ sub_12EE:
         BEQ L1327
         LDA #$0A
         STA VIC_SP0COL
-        LDA $034B               ; CURSOR_MAP_Y (cursor Y on map)
-        STA $0355               ; ATTACK_SRC_Y (attack source Y)
-        LDA $034C               ; CURSOR_MAP_X (cursor X on map)
-        STA $0356               ; ATTACK_SRC_X (attack source X)
+        LDA $034B               ; CURSOR_MAP_X (cursor X on map)
+        STA $0355               ; ATTACK_SRC_X (attack source X)
+        LDA $034C               ; CURSOR_MAP_Y (cursor Y on map)
+        STA $0356               ; ATTACK_SRC_Y (attack source Y)
         LDA $F9                 ; TEMP_PTR2 (general ptr lo)
         STA $0358               ; ATTACKER_PTR (attacker data ptr lo)
         LDA $FA                 ; TEMP_PTR2 (general ptr hi)
@@ -110,7 +110,7 @@ L134C:
 L1350:
         CPX #$06
         BNE L133D
-        LDA $034B               ; CURSOR_MAP_Y (cursor Y on map)
+        LDA $034B               ; CURSOR_MAP_X (cursor X on map)
         CMP #$3C
         BCS L1349
         JSR sub_0F8C
@@ -155,17 +155,17 @@ loc_13A6:
         JMP sub_1EE2
 
 sub_13AE:
-        LDA $0355               ; ATTACK_SRC_Y (attack source Y)
+        LDA $0355               ; ATTACK_SRC_X (attack source X)
         SEC
-        SBC $034B               ; CURSOR_MAP_Y (cursor Y on map)
+        SBC $034B               ; CURSOR_MAP_X (cursor X on map)
         JSR $BC3C
         JSR $BC0C
         LDA $61                 ; FAC_MANTISSA (math calc)
         JSR $BA2B
         JSR $BBCA
-        LDA $0356               ; ATTACK_SRC_X (attack source X)
+        LDA $0356               ; ATTACK_SRC_Y (attack source Y)
         SEC
-        SBC $034C               ; CURSOR_MAP_X (cursor X on map)
+        SBC $034C               ; CURSOR_MAP_Y (cursor Y on map)
         JSR $BC3C
         JSR $BC0C
         LDA $61                 ; FAC_MANTISSA (math calc)
@@ -211,7 +211,7 @@ loc_140E:
         STA ($D1),Y             ; SCREEN_PTR (screen line ptr lo)
         JSR sub_1C01
         STA ($F3),Y             ; COLOR_PTR (color RAM ptr lo)
-        LDX $034C               ; CURSOR_MAP_X (cursor X on map)
+        LDX $034C               ; CURSOR_MAP_Y (cursor Y on map)
         JSR sub_0F82
         PLA
         STA ($B4),Y             ; MAP_PTR (map data ptr lo)

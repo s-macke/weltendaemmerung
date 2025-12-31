@@ -113,7 +113,7 @@ L23C2:
         RTS
 
 sub_23C3:
-        LDX $034B               ; CURSOR_MAP_Y (cursor Y on map)
+        LDX $034B               ; CURSOR_MAP_X (cursor X on map)
         DEX
         BNE L23C2
         LDA $034F               ; ACTION_UNIT (unit in action)

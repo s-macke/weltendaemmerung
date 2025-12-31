@@ -225,7 +225,7 @@ L09C5:
         STA ($D1),Y             ; SCREEN_PTR (screen line ptr lo)
         JSR sub_1C01
         STA ($F3),Y             ; COLOR_PTR (color RAM ptr lo)
-        LDX $034C               ; CURSOR_MAP_X (cursor X on map)
+        LDX $034C               ; CURSOR_MAP_Y (cursor Y on map)
         JSR sub_0F82
         PLA
         STA ($B4),Y             ; MAP_PTR (map data ptr lo)
@@ -245,7 +245,7 @@ sub_09F2:
         PHA
         JSR sub_1C01
         STA ($F3),Y             ; COLOR_PTR (color RAM ptr lo)
-        LDX $034C               ; CURSOR_MAP_X (cursor X on map)
+        LDX $034C               ; CURSOR_MAP_Y (cursor Y on map)
         JSR sub_0F82
         PLA
         STA ($B4),Y             ; MAP_PTR (map data ptr lo)
@@ -254,12 +254,12 @@ sub_09F2:
         LDA $0351               ; STORED_PTR (F9/FA backup hi)
         STA $FA                 ; TEMP_PTR2 (general ptr hi)
         LDY #$00
-        LDX $034B               ; CURSOR_MAP_Y (cursor Y on map)
+        LDX $034B               ; CURSOR_MAP_X (cursor X on map)
         DEX
         TXA
         STA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         INY
-        LDX $034C               ; CURSOR_MAP_X (cursor X on map)
+        LDX $034C               ; CURSOR_MAP_Y (cursor Y on map)
         DEX
         TXA
         STA ($F9),Y             ; TEMP_PTR2 (general ptr lo)

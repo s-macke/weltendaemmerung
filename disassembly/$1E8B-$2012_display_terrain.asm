@@ -190,10 +190,10 @@ sub_1F1C:
         LDA $A7
         CLC
         ADC $0341               ; SCROLL_Y (map scroll Y)
-        STA $034C               ; CURSOR_MAP_X (cursor X on map)
+        STA $034C               ; CURSOR_MAP_Y (cursor Y on map)
         LDA $A8
         ADC $0340               ; SCROLL_X (map scroll X)
-        STA $034B               ; CURSOR_MAP_Y (cursor Y on map)
+        STA $034B               ; CURSOR_MAP_X (cursor X on map)
         JSR sub_1F77
         LDA ($D1),Y             ; SCREEN_PTR (screen line ptr lo) - read char code
         SEC
@@ -319,13 +319,13 @@ loc_1FF9:
         LDA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         TAX
         INX
-        CPX $034B               ; CURSOR_MAP_Y (cursor Y on map)
+        CPX $034B               ; CURSOR_MAP_X (cursor X on map)
         BNE L200C
         INY
         LDA ($F9),Y             ; TEMP_PTR2 (general ptr lo)
         TAX
         INX
-        CPX $034C               ; CURSOR_MAP_X (cursor X on map)
+        CPX $034C               ; CURSOR_MAP_Y (cursor Y on map)
         BEQ L2012
 
 L200C:

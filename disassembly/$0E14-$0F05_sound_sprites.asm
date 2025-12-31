@@ -80,28 +80,28 @@ sub_0ECF:
 ; L0ED9 - Phase 2 (Torphase) Territory Validation
 ; -----------------------------------------------------------------------------
 ; Validates player is in their own territory before allowing fortification.
-; Territory boundary: Y = $3C (60)
-;   - Eldoin (Player 0): Can build on Y < 60 (northern half)
-;   - Dailor (Player 1): Can build on Y >= 60 (southern half)
+; Territory boundary: X = $3C (60)
+;   - Eldoin (Player 0): Can build on X < 60 (western half)
+;   - Dailor (Player 1): Can build on X >= 60 (eastern half)
 ; If valid, jumps to L0F06 (see $0F06-$0FAB_torphase.asm for build logic).
 ; -----------------------------------------------------------------------------
 L0ED9:
         LDA $034A               ; GAME_STATE (game phase)
         CMP #$02                ; Is it Phase 2 (Torphase)?
         BNE L0EF6               ; No, check other phases
-        LDX $034B               ; CURSOR_MAP_Y (cursor Y on map)
+        LDX $034B               ; CURSOR_MAP_X (cursor X on map)
         LDA $0347               ; CURRENT_PLAYER (active player)
         BEQ L0EEE               ; Branch if Eldoin (Player 0)
-        ; Dailor (Player 1): Can only build on Y >= 60
-        CPX #$3C                ; Compare Y with territory boundary
-        BMI L0EF6               ; Y < 60: wrong territory, deny
-        BPL L0F06               ; Y >= 60: own territory, jump to torphase
+        ; Dailor (Player 1): Can only build on X >= 60
+        CPX #$3C                ; Compare X with territory boundary
+        BMI L0EF6               ; X < 60: wrong territory, deny
+        BPL L0F06               ; X >= 60: own territory, jump to torphase
 
 L0EEE:
-        ; Eldoin (Player 0): Can only build on Y < 60
-        CPX #$3C                ; Compare Y with territory boundary
-        BMI L0F06               ; Y < 60: own territory, jump to torphase
-        RTS                     ; Y >= 60: wrong territory, deny
+        ; Eldoin (Player 0): Can only build on X < 60
+        CPX #$3C                ; Compare X with territory boundary
+        BMI L0F06               ; X < 60: own territory, jump to torphase
+        RTS                     ; X >= 60: wrong territory, deny
         .byte $4C, $06, $0F     ; (dead code: JMP L0F06)
 
 ; -----------------------------------------------------------------------------

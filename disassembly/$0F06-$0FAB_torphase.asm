@@ -3,9 +3,9 @@
 ; Address range: $0F06 - $0FAB
 ; =============================================================================
 ; Phase 2 allows players to build fortifications on their own territory.
-; Territory boundary: Y = $3C (60)
-;   - Eldoin (Player 0): Can build on Y < 60 (northern half)
-;   - Dailor (Player 1): Can build on Y >= 60 (southern half)
+; Territory boundary: X = $3C (60)
+;   - Eldoin (Player 0): Can build on X < 60 (western half)
+;   - Dailor (Player 1): Can build on X >= 60 (eastern half)
 ; =============================================================================
 
 ; -----------------------------------------------------------------------------
@@ -52,7 +52,7 @@ loc_0F2D:
         STA ($D1),Y             ; Write to screen RAM
         JSR sub_1C01            ; Get color for terrain
         STA ($F3),Y             ; Write to color RAM
-        LDX $034C               ; CURSOR_MAP_X
+        LDX $034C               ; CURSOR_MAP_Y
         JSR sub_0F82            ; Get map position
         PLA
         STA ($B4),Y             ; Write to map data
@@ -80,7 +80,7 @@ L0F58:
 
 ; -----------------------------------------------------------------------------
 ; Build location coordinate data (13 locations)
-; $0F5D: Y coordinates, $0F6A: X coordinates
+; $0F5D: X coordinates, $0F6A: Y coordinates
 ; -----------------------------------------------------------------------------
         .byte $05, $11, $1D, $0E, $2A, $2F, $34, $19, $05, $0B, $46, $45, $4B, $06, $05, $0A  ; ....*/4...fek...
         .byte $15, $15, $15, $15, $19, $23, $22, $07, $11, $22  ; .....#".."
@@ -102,7 +102,7 @@ sub_0F82:
         DEX
         TXA
         JSR sub_1AD3
-        LDY $034B               ; CURSOR_MAP_Y (cursor Y on map)
+        LDY $034B               ; CURSOR_MAP_X (cursor X on map)
         DEY
         RTS
 
@@ -117,10 +117,10 @@ sub_0F8C:
         LDX #$0C
 
 L0F8E:
-        LDA $034B               ; CURSOR_MAP_Y (cursor Y on map)
+        LDA $034B               ; CURSOR_MAP_X (cursor X on map)
         CMP $0F5D,X
         BNE L0F9E
-        LDA $034C               ; CURSOR_MAP_X (cursor X on map)
+        LDA $034C               ; CURSOR_MAP_Y (cursor Y on map)
         CMP $0F6A,X
         BEQ L0FA1
 
