@@ -19,6 +19,7 @@ A Commodore 64 fantasy strategy game for two players.
 - `docs/units.md` - Unit types, statistics, initial placement (292 units total)
 - `docs/victory_conditions.md` - Victory conditions, win states, game balance
 - `docs/program_flow.md` - Program flow, turn structure, state machine diagrams
+- `docs/save_format.md` - Save game file format, memory layout for disk I/O
 
 ## Module Structure
 
