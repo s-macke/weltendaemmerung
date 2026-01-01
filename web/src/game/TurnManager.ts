@@ -39,9 +39,9 @@ export function advanceTurn(state: GameState): void {
       state.resetAllMovementPoints();
 
       // Check turn limit victory condition
-      const winner = checkVictory(state);
-      if (winner !== null) {
-        state.winner = winner;
+      const result = checkVictory(state);
+      if (result !== null) {
+        state.winner = result.winner;
       }
     }
   }

@@ -4,7 +4,11 @@
 import { C64_COLORS } from './utils/colors';
 import { MAP_WIDTH, MAP_HEIGHT, getCharCodeAt } from './data/map';
 import { GameState } from './game/GameState';
-import { UIRenderer, CursorRenderer } from './rendering';
+import { CursorRenderer } from './rendering';
+import { TitleScreen, VictoryScreen, GameChrome, StatusBar, initScreens, showScreen } from './ui';
+import { Player } from './types';
+import { advanceTurn } from './game/TurnManager';
+import { checkVictory, VictoryCondition } from './game/VictoryChecker';
 
 // Tile rendering constants
 const TILE_SIZE = 8;
@@ -20,11 +24,21 @@ let viewportX = 0;
 let viewportY = 0;
 
 // Game state
-const gameState = new GameState();
+let gameState = new GameState();
 
-// Renderers
-const uiRenderer = new UIRenderer();
+// UI Components
+const titleScreen = new TitleScreen();
+const victoryScreen = new VictoryScreen();
+const gameChrome = new GameChrome();
+const statusBar = new StatusBar();
 const cursorRenderer = new CursorRenderer();
+
+// Cursor position for status bar
+let cursorMapX = 0;
+let cursorMapY = 0;
+
+// Game running flag
+let gameRunning = false;
 
 // Load a single tile image
 async function loadTile(index: number): Promise<HTMLImageElement> {
@@ -108,6 +122,8 @@ function renderMap(ctx: CanvasRenderingContext2D): void {
 
 // Handle keyboard input for scrolling
 function handleKeyboard(e: KeyboardEvent): void {
+  if (!gameRunning) return;
+
   const scrollSpeed = 1;
 
   switch (e.key) {
@@ -133,6 +149,8 @@ function handleKeyboard(e: KeyboardEvent): void {
 
 // Handle mouse movement for cursor tracking
 function handleMouseMove(e: MouseEvent): void {
+  if (!gameRunning) return;
+
   const canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
   if (!canvas) return;
 
@@ -148,15 +166,17 @@ function handleMouseMove(e: MouseEvent): void {
   const tileY = Math.floor(canvasY / TILE_SIZE) + viewportY;
 
   // Clamp to map bounds
-  const mapX = Math.max(0, Math.min(MAP_WIDTH - 1, tileX));
-  const mapY = Math.max(0, Math.min(MAP_HEIGHT - 1, tileY));
+  cursorMapX = Math.max(0, Math.min(MAP_WIDTH - 1, tileX));
+  cursorMapY = Math.max(0, Math.min(MAP_HEIGHT - 1, tileY));
 
-  cursorRenderer.setCursorPosition(mapX, mapY);
+  cursorRenderer.setCursorPosition(cursorMapX, cursorMapY);
   requestAnimationFrame(() => render());
 }
 
 // Handle mouse click for unit selection and actions
 function handleMouseClick(e: MouseEvent): void {
+  if (!gameRunning) return;
+
   const canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
   if (!canvas) return;
 
@@ -194,7 +214,55 @@ function handleMouseClick(e: MouseEvent): void {
 // Handle right-click to deselect
 function handleRightClick(e: MouseEvent): void {
   e.preventDefault();
+  if (!gameRunning) return;
+
   gameState.selectedUnit = null;
+  requestAnimationFrame(() => render());
+}
+
+// Handle end turn
+function handleEndTurn(): void {
+  if (!gameRunning) return;
+
+  // Deselect any selected unit
+  gameState.selectedUnit = null;
+
+  // Advance the turn
+  advanceTurn(gameState);
+
+  // Check for victory
+  const result = checkVictory(gameState);
+  if (result) {
+    handleVictory(result.winner, result.condition);
+    return;
+  }
+
+  // Update UI
+  gameChrome.update(gameState);
+  requestAnimationFrame(() => render());
+}
+
+// Handle victory condition
+function handleVictory(winner: Player, condition: VictoryCondition): void {
+  gameRunning = false;
+  victoryScreen.show(winner, condition);
+}
+
+// Start a new game
+function startGame(): void {
+  // Reset game state
+  gameState = new GameState();
+  viewportX = 0;
+  viewportY = 0;
+
+  // Update UI
+  gameChrome.update(gameState);
+
+  // Show game screen
+  showScreen('game');
+  gameRunning = true;
+
+  // Initial render
   requestAnimationFrame(() => render());
 }
 
@@ -217,17 +285,28 @@ function render(): void {
   cursorRenderer.render(ctx, gameState, viewportX, viewportY);
 
   // Update UI
-  uiRenderer.render(gameState, cursorRenderer.getCursorPosition());
+  statusBar.update(gameState, cursorMapX, cursorMapY);
 }
 
 // Initialize the game
 async function init(): Promise<void> {
   console.log('Weltendaemmerung - Web Port');
   console.log(`Map size: ${MAP_WIDTH}x${MAP_HEIGHT}`);
-  console.log(`Units: ${gameState.units.length}`);
 
-  // Initialize UI renderer
-  uiRenderer.init('status-bar');
+  // Initialize screen state
+  initScreens();
+
+  // Initialize UI components
+  titleScreen.init();
+  victoryScreen.init();
+  gameChrome.init();
+
+  // Set up callbacks
+  titleScreen.onStart(() => startGame());
+  victoryScreen.onPlayAgain(() => {
+    showScreen('title');
+  });
+  gameChrome.onEndTurn(() => handleEndTurn());
 
   // Load tile assets
   await loadAllTiles();
@@ -242,10 +321,7 @@ async function init(): Promise<void> {
     canvas.addEventListener('contextmenu', handleRightClick);
   }
 
-  // Initial render
-  render();
-
-  console.log('Ready! Use arrow keys to scroll, click to select units.');
+  console.log('Ready! Click START GAME to begin.');
 }
 
 // Start the game

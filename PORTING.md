@@ -91,12 +91,14 @@ web/
     │   ├── CursorRenderer.ts     # Phase-based cursors
     │   └── UIRenderer.ts         # Status bar
     ├── ui/
-    │   ├── TitleScreen.ts        # Title + menu
-    │   ├── GameScreen.ts         # Main game
-    │   ├── VictoryScreen.ts      # Winner display
-    │   └── StatusBar.ts          # Phase/terrain/unit info
+    │   ├── index.ts              # UI module exports
+    │   ├── screens.ts            # Screen state management
+    │   ├── TitleScreen.ts        # Title + faction display + start
+    │   ├── GameChrome.ts         # Header bar (player/phase/turn/end turn)
+    │   ├── VictoryScreen.ts      # Winner display + play again
+    │   └── StatusBar.ts          # Terrain/unit info display
     ├── input/
-    │   └── MouseController.ts    # Click + edge scrolling
+    │   └── [MouseController.ts]  # Click + edge scrolling (TODO)
     └── utils/
         └── colors.ts             # C64 palette
 ```
@@ -541,6 +543,40 @@ function getTileColor(charCode: number): string {
 }
 ```
 
+### Retro-Modern Visual Design
+
+The web port uses a "CRT Terminal Fantasy" aesthetic that combines C64 authenticity with modern polish:
+
+**Typography:**
+- **Press Start 2P** Google Font for authentic pixel typography
+- Responsive font sizes using `clamp()` for mobile to desktop
+
+**CRT Effects (CSS-based):**
+```css
+/* Scanline overlay */
+.scanlines::after {
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px,
+    rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px);
+}
+
+/* Phosphor glow */
+.crt-glow {
+  box-shadow: 0 0 10px rgba(108,94,181,0.5), 0 0 20px rgba(108,94,181,0.3);
+}
+```
+
+**Animations:**
+- `phosphor-pulse` - Subtle brightness pulsing
+- `glow-pulse` - Box shadow intensity cycling
+- `title-glow` - Text shadow animation for title
+- `victory-entrance` - Scale + brightness burst for wins
+
+**Color Usage:**
+- Yellow (#B8C76F) - Eldoin faction, highlights, primary actions
+- Light Blue (#6C5EB5) - Dailor faction, secondary elements
+- Blue (#352879) - Borders, backgrounds, structural elements
+- Light Red (#9A6759) - Attack phase indicators
+
 ---
 
 ## Screen Layout
@@ -628,31 +664,37 @@ Deselect current unit / cancel action.
 - [x] Implement CursorRenderer (phase-based styling)
 - [x] Implement UIRenderer (status bar)
 
-### Phase 5: UI Screens
+### Phase 5: UI Screens ✅
 **Read:** [docs/title_screen.md](docs/title_screen.md), [docs/screen_display.md](docs/screen_display.md)
 
-- [ ] Create TitleScreen (with scroll animation)
-- [ ] Create GameScreen (main game loop)
-- [ ] Create VictoryScreen (winner display)
-- [ ] Create StatusBar component
-- [ ] Add "End Turn" button
+- [x] Create TitleScreen (with faction display and animations)
+- [x] Create GameChrome (header bar with phase indicators)
+- [x] Create VictoryScreen (winner display with condition messages)
+- [x] Create StatusBar component (terrain/unit info)
+- [x] Add "End Turn" button
+- [x] Implement screen state management (title → game → victory)
+- [x] Add retro-modern CSS styling (CRT glow, scanlines, pixel font)
 
-### Phase 6: Input
+### Phase 6: Input (Partial)
 **Read:** [docs/program_flow.md](docs/program_flow.md) (phase-specific actions), [docs/movement.md](docs/movement.md), [docs/attack.md](docs/attack.md), [docs/torphase.md](docs/torphase.md)
 
-- [ ] Implement MouseController
-- [ ] Add click handling for all phases
+- [x] Add keyboard scrolling (arrow keys)
+- [x] Add click handling for unit selection
+- [x] Add right-click to deselect
+- [ ] Implement full MouseController and TouchController
+- [ ] Add click handling for movement/attack/fortification actions
 - [ ] Add edge scrolling
-- [ ] Add right-click to deselect
 
-### Phase 7: Polish
+### Phase 7: Polish (Partial)
 **Read:** [docs/screen_display.md](docs/screen_display.md) (cursor colors, phase transitions)
 
+- [x] Add selected unit pulsing (green glow animation)
+- [x] Add phase-based cursor colors
+- [x] Add CRT glow and scanline effects
+- [x] Add responsive design (mobile to desktop)
 - [ ] Add unit movement animations
 - [ ] Add attack flash effects
 - [ ] Add phase transition effects
-- [ ] Add hover highlights
-- [ ] Add selected unit pulsing
 
 ---
 

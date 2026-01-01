@@ -3,14 +3,113 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Weltendämmerung</title>
+    <title>Weltendämmerung - Twilight of the Worlds</title>
     <link rel="stylesheet" href="/src/style.css" />
+    <meta name="description" content="A C64 fantasy strategy game for two players - Eldoin vs Dailor">
+    <meta name="theme-color" content="#352879">
   </head>
-  <body class="bg-c64-black min-h-screen flex items-center justify-center">
-    <div id="app" class="relative" style="width: min(90vw, 640px);">
-      <canvas id="game-canvas" width="320" height="152" style="width: 100%; image-rendering: pixelated;"></canvas>
-      <div id="status-bar" class="bg-c64-blue text-c64-light-blue font-mono text-sm p-2 flex flex-col gap-1" style="width: 100%;"></div>
+  <body class="min-h-screen flex items-center justify-center p-4">
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         TITLE SCREEN
+         ═══════════════════════════════════════════════════════════════════ -->
+    <div id="title-screen" class="scanlines">
+      <div class="title-content animate-fade-in">
+        <!-- Game Title -->
+        <h1 class="game-title">WELTENDÄMMERUNG</h1>
+        <p class="game-subtitle">Twilight of the Worlds</p>
+
+        <!-- Faction Display -->
+        <div class="factions-display">
+          <div class="faction-box eldoin animate-slide-up delay-100">
+            <div class="faction-name">ELDOIN</div>
+            <div class="faction-role">Western Defenders</div>
+          </div>
+
+          <div class="vs-text animate-slide-up delay-200">VS</div>
+
+          <div class="faction-box dailor animate-slide-up delay-300">
+            <div class="faction-name">DAILOR</div>
+            <div class="faction-role">Eastern Invaders</div>
+          </div>
+        </div>
+
+        <!-- Start Button -->
+        <button id="start-button" class="btn-retro btn-primary animate-slide-up delay-400">
+          START GAME
+        </button>
+
+        <p class="pixel-font text-c64-light-gray text-xs mt-8 opacity-70 animate-slide-up delay-500">
+          Press ENTER or Click to Begin
+        </p>
+      </div>
     </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         GAME SCREEN
+         ═══════════════════════════════════════════════════════════════════ -->
+    <div id="app" class="hidden relative">
+      <!-- Game Wrapper with CRT Effect -->
+      <div class="game-wrapper crt-glow scanlines">
+
+        <!-- Header Bar -->
+        <div class="game-header" id="game-header">
+          <div class="player-indicator eldoin" id="player-indicator">
+            ELDOIN
+          </div>
+
+          <div class="flex items-center gap-2">
+            <span class="phase-indicator movement active" id="phase-movement">MOV</span>
+            <span class="phase-indicator attack" id="phase-attack">ATK</span>
+            <span class="phase-indicator fortification" id="phase-fort">FOR</span>
+          </div>
+
+          <div class="turn-counter">
+            Turn <span id="turn-number">1</span>/15
+          </div>
+
+          <button class="btn-end-turn" id="end-turn-button">
+            END TURN
+          </button>
+        </div>
+
+        <!-- Canvas Container -->
+        <div class="canvas-container">
+          <canvas id="game-canvas" width="320" height="152"></canvas>
+        </div>
+
+        <!-- Status Bar -->
+        <div id="status-bar" class="p-3 flex flex-col gap-1">
+          <div class="flex justify-between items-center flex-wrap gap-2">
+            <span id="terrain-info" class="text-c64-light-gray">Terrain: Meadow</span>
+            <span id="unit-info" class="text-c64-yellow"></span>
+          </div>
+          <div id="unit-stats" class="text-c64-light-blue text-xs"></div>
+        </div>
+      </div>
+
+      <!-- Controls Help -->
+      <div class="pixel-font text-center text-c64-dark-gray text-xs mt-2 opacity-60">
+        Arrow Keys: Scroll | Click: Select | Right-Click: Deselect
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         VICTORY SCREEN
+         ═══════════════════════════════════════════════════════════════════ -->
+    <div id="victory-screen" class="hidden scanlines">
+      <div class="victory-content animate-victory">
+        <div class="victory-title">VICTORY</div>
+        <div class="winner-name eldoin" id="winner-name">ELDOIN</div>
+        <div class="victory-message" id="victory-message">
+          "The western lands are saved!"
+        </div>
+        <button id="play-again-button" class="btn-retro btn-primary">
+          PLAY AGAIN
+        </button>
+      </div>
+    </div>
+
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

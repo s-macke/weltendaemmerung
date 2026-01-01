@@ -8,6 +8,15 @@ import { ELDOIN_COMMANDER_TYPE } from '../data/units';
 // Maximum number of turns before Eldoin wins
 const MAX_TURNS = 15;
 
+// Victory condition types
+export type VictoryCondition = 'turnLimit' | 'commanderDestroyed' | 'annihilation';
+
+// Victory result with winner and condition
+export interface VictoryResult {
+  winner: Player;
+  condition: VictoryCondition;
+}
+
 /**
  * Check all victory conditions.
  *
@@ -16,12 +25,12 @@ const MAX_TURNS = 15;
  * 2. Commander Destroyed: Eldoin's Feldherr (type 6) destroyed → Dailor wins
  * 3. Total Annihilation: All Dailor units destroyed → Eldoin wins
  *
- * @returns Winner (Player) or null if game continues
+ * @returns VictoryResult with winner and condition, or null if game continues
  */
-export function checkVictory(state: GameState): Player | null {
+export function checkVictory(state: GameState): VictoryResult | null {
   // 1. Turn limit - Eldoin wins by survival
   if (state.turnCounter >= MAX_TURNS) {
-    return Player.Eldoin;
+    return { winner: Player.Eldoin, condition: 'turnLimit' };
   }
 
   // 2. Eldoin's Commander destroyed - Dailor wins
@@ -33,7 +42,7 @@ export function checkVictory(state: GameState): Player | null {
   );
 
   if (!eldoinCommander) {
-    return Player.Dailor;
+    return { winner: Player.Dailor, condition: 'commanderDestroyed' };
   }
 
   // 3. All Dailor units destroyed - Eldoin wins
@@ -42,7 +51,7 @@ export function checkVictory(state: GameState): Player | null {
   );
 
   if (dailorUnits.length === 0) {
-    return Player.Eldoin;
+    return { winner: Player.Eldoin, condition: 'annihilation' };
   }
 
   // Game continues

@@ -132,9 +132,9 @@ export function applyDamage(
     state.destroyUnit(target);
 
     // Check victory condition (Commander destroyed or all Dailor units destroyed)
-    const winner = checkVictory(state);
-    if (winner !== null) {
-      state.winner = winner;
+    const result = checkVictory(state);
+    if (result !== null) {
+      state.winner = result.winner;
     }
 
     return true;
