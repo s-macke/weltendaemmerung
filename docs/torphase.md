@@ -22,7 +22,7 @@ When acting on a Gate ($6F), each player **replaces** it with different terrain:
 
 | Player | Gate ($6F) becomes   | Result Terrain    | Strategic Effect  |
 |--------|----------------------|-------------------|-------------------|
-| Eldoin | Wall                 | $71 (Mauer)       | Creates barrier   |
+| Eldoin | Pavement             | $71 (Pflaster)    | Opens gate passage |
 | Dailor | Meadow               | $69 (Wiese)       | Creates open terrain |
 
 Note: The gate is permanently replaced - this is not a toggle operation.
@@ -91,6 +91,8 @@ There are **13 fixed gate positions** on the map. The cursor must be on one of t
 
 **Distribution:** 10 gates in Eldoin territory, 3 gates in Dailor territory.
 
+**Note on Coordinates:** The table above shows C64 1-indexed cursor coordinates. The TypeScript/web implementation in `gates.ts` uses 0-indexed array coordinates (subtract 1 from both X and Y values).
+
 ### Coordinate Storage
 
 Gate coordinates are stored at fixed addresses:
@@ -156,7 +158,7 @@ flowchart TD
     F --> G{Terrain Type}
     G -->|Gate $6F| H{Player?}
     G -->|Other Terrain| I[Place Gate $6F]
-    H -->|Eldoin| J[Place Wall $71]
+    H -->|Eldoin| J[Place Pavement $71]
     H -->|Dailor| K[Place Meadow $69]
     I --> L{Unit on Tile?}
     J --> L
@@ -167,15 +169,6 @@ flowchart TD
     N --> O
     O --> P[Play Sound<br/>Update Display]
 ```
-
-## Terrain Codes
-
-| Code | German   | English  | Movement Cost |
-|------|----------|----------|---------------|
-| $69  | Wiese    | Meadow   | 1             |
-| $70  | Gebirge  | Mountains| 1             |
-| $71  | Mauer    | Wall     | 1             |
-| $6F  | Tor      | Gate     | 1             |
 
 ## Key Memory Addresses
 
@@ -219,7 +212,7 @@ flowchart TD
 ### Asymmetric Design
 
 The torphase reflects the asymmetric nature of the game:
-- **Eldoin** (defender) converts gates to walls, creating barriers that hinder enemy movement
+- **Eldoin** (defender) converts gates to pavement, opening passages through fortifications
 - **Dailor** (attacker) converts gates to meadows, creating open terrain for their forces
 
 ### Gate Distribution
