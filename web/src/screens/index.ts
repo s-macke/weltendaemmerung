@@ -1,15 +1,20 @@
-// Screen State Management for Weltendämmerung
+// Screen Management for Weltendämmerung
 // Handles transitions between Title, Game, and Victory screens
+
+import './shared.css';
+
+// Re-export screen classes
+export { TitleScreen } from './title';
+export { GameChrome, StatusBar } from './game';
+export { VictoryScreen, type VictoryCondition } from './victory';
+
+// ═══════════════════════════════════════════════════════════════════
+// SCREEN STATE MANAGEMENT
+// ═══════════════════════════════════════════════════════════════════
 
 export type ScreenType = 'title' | 'game' | 'victory';
 
-export interface ScreenManager {
-  currentScreen: ScreenType;
-  showScreen(screen: ScreenType): void;
-  hideScreen(screen: ScreenType): void;
-}
-
-// DOM element references
+// DOM element references (lazy-loaded)
 const screens = {
   title: () => document.getElementById('title-screen'),
   game: () => document.getElementById('app'),

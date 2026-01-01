@@ -1,0 +1,62 @@
+/* ═══════════════════════════════════════════════════════════════════
+   VICTORY SCREEN STYLES
+   ═══════════════════════════════════════════════════════════════════ */
+
+#victory-screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 1000;
+}
+
+.victory-content {
+  text-align: center;
+  padding: 3rem;
+  background: linear-gradient(180deg, #1a1a3a 0%, #0a0a1a 100%);
+  border: 4px solid var(--c64-yellow);
+  box-shadow:
+    0 0 30px rgba(184, 199, 111, 0.5),
+    0 0 60px rgba(184, 199, 111, 0.3);
+}
+
+.victory-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(1rem, 4vw, 2rem);
+  color: var(--c64-white);
+  margin-bottom: 1em;
+  text-shadow:
+    0 0 10px rgba(255, 255, 255, 0.8),
+    0 0 20px rgba(255, 255, 255, 0.5);
+}
+
+.winner-name {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(1.2rem, 5vw, 2.5rem);
+  margin-bottom: 0.5em;
+}
+
+.winner-name.eldoin {
+  color: var(--c64-yellow);
+  text-shadow:
+    0 0 15px rgba(184, 199, 111, 1),
+    0 0 30px rgba(184, 199, 111, 0.7);
+}
+
+.winner-name.dailor {
+  color: var(--c64-light-blue);
+  text-shadow:
+    0 0 15px rgba(108, 94, 181, 1),
+    0 0 30px rgba(108, 94, 181, 0.7);
+}
+
+.victory-message {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(0.5rem, 2vw, 0.8rem);
+  color: var(--c64-light-gray);
+  margin-bottom: 2em;
+  font-style: italic;
+}

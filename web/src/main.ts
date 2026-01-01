@@ -5,10 +5,10 @@ import { C64_COLORS } from './utils/colors';
 import { MAP_WIDTH, MAP_HEIGHT, getCharCodeAt } from './data/map';
 import { GameState } from './game/GameState';
 import { CursorRenderer } from './rendering';
-import { TitleScreen, VictoryScreen, GameChrome, StatusBar, initScreens, showScreen } from './ui';
+import { TitleScreen, VictoryScreen, GameChrome, StatusBar, initScreens, showScreen, VictoryCondition } from './screens';
 import { Player } from './types';
 import { advanceTurn } from './game/TurnManager';
-import { checkVictory, VictoryCondition } from './game/VictoryChecker';
+import { checkVictory } from './game/VictoryChecker';
 
 // Tile rendering constants
 const TILE_SIZE = 8;
@@ -293,13 +293,17 @@ async function init(): Promise<void> {
   console.log('Weltendaemmerung - Web Port');
   console.log(`Map size: ${MAP_WIDTH}x${MAP_HEIGHT}`);
 
+  // Get root element for screen injection
+  const root = document.getElementById('app-root') || document.body;
+
+  // Initialize UI components (inject templates)
+  titleScreen.init(root);
+  gameChrome.init(root);
+  victoryScreen.init(root);
+  statusBar.init();
+
   // Initialize screen state
   initScreens();
-
-  // Initialize UI components
-  titleScreen.init();
-  victoryScreen.init();
-  gameChrome.init();
 
   // Set up callbacks
   titleScreen.onStart(() => startGame());

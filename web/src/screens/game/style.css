@@ -1,0 +1,198 @@
+/* ═══════════════════════════════════════════════════════════════════
+   GAME SCREEN STYLES
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Main app container */
+#app {
+  position: relative;
+  width: min(90vw, 720px);
+}
+
+/* Game wrapper with CRT frame */
+.game-wrapper {
+  position: relative;
+  background: var(--c64-black);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Canvas container */
+.canvas-container {
+  position: relative;
+  background: var(--c64-green);
+}
+
+#game-canvas {
+  width: 100%;
+  display: block;
+  box-sizing: border-box;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   GAME HEADER BAR
+   ═══════════════════════════════════════════════════════════════════ */
+
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(180deg, #1a1a2e 0%, #0a0a1a 100%);
+  border: 3px solid var(--c64-blue);
+  border-bottom: none;
+  padding: 0.5rem 1rem;
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(8px, 1.8vw, 11px);
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.player-indicator {
+  padding: 0.3em 0.6em;
+  border: 2px solid;
+}
+
+.player-indicator.eldoin {
+  color: var(--c64-yellow);
+  border-color: var(--c64-yellow);
+  background: rgba(184, 199, 111, 0.1);
+}
+
+.player-indicator.dailor {
+  color: var(--c64-light-blue);
+  border-color: var(--c64-light-blue);
+  background: rgba(108, 94, 181, 0.1);
+}
+
+/* Phase indicator pills */
+.phase-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.25em 0.75em;
+  border-radius: 2px;
+  background: var(--c64-dark-gray);
+  border: 2px solid var(--c64-blue);
+}
+
+.phase-indicator.active {
+  border-color: var(--c64-yellow);
+}
+
+.phase-indicator.movement.active {
+  background: rgba(154, 210, 132, 0.2);
+  border-color: var(--c64-light-green);
+}
+
+.phase-indicator.attack.active {
+  background: rgba(154, 103, 89, 0.2);
+  border-color: var(--c64-light-red);
+}
+
+.phase-indicator.fortification.active {
+  background: rgba(111, 61, 134, 0.2);
+  border-color: var(--c64-purple);
+}
+
+/* Turn counter */
+.turn-counter {
+  font-size: 0.9em;
+  color: var(--c64-light-blue);
+}
+
+.turn-counter span {
+  color: var(--c64-yellow);
+}
+
+/* End turn button */
+.btn-end-turn {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(6px, 1.5vw, 10px);
+  background: var(--c64-dark-gray);
+  color: var(--c64-yellow);
+  border: 2px solid var(--c64-blue);
+  padding: 0.4em 0.8em;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-end-turn:hover {
+  background: var(--c64-blue);
+  border-color: var(--c64-yellow);
+  box-shadow: 0 0 10px rgba(184, 199, 111, 0.4);
+}
+
+.btn-end-turn:active {
+  transform: scale(0.95);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   STATUS BAR
+   ═══════════════════════════════════════════════════════════════════ */
+
+#status-bar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(180deg, #1a1a2e 0%, #0a0a1a 100%);
+  border: 3px solid var(--c64-blue);
+  border-top: none;
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(8px, 1.8vw, 12px);
+  color: var(--c64-light-gray);
+  min-height: 3.5rem;
+}
+
+.status-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.status-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  text-align: right;
+}
+
+#terrain-info {
+  color: var(--c64-light-gray);
+}
+
+#unit-info {
+  color: var(--c64-yellow);
+}
+
+#unit-stats {
+  color: var(--c64-light-blue);
+  font-size: 0.85em;
+}
+
+.stat-rng {
+  color: var(--c64-yellow);
+}
+
+.stat-mov {
+  color: var(--c64-light-green);
+}
+
+.stat-atk {
+  color: var(--c64-light-red);
+}
+
+.stat-def {
+  color: var(--c64-yellow);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   RESPONSIVE ADJUSTMENTS
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 480px) {
+  .game-header {
+    justify-content: center;
+    text-align: center;
+  }
+}

@@ -1,3 +1,4 @@
+https://www.commodoregames.net/Commodore64/Weltendammerung-8543.html
 
 A 7kB binary weltendaemmerung is present. Let's just analyze it.
 `Analyze the binary file weltendaemmerung.bin`
@@ -97,3 +98,120 @@ At this time I realized, that sometimes TOWN is used as term. But there are no t
 `To my knowledge, there are no towns in the game. Why now?`
 
 It fixes all towns to gates.
+
+# Variable fixes
+
+/clear
+`Check all assembler files and fix the variables.md file with this.`
+It renamed the variables, but not subsequent comments.
+`Check again, you didn't fix all X and Y flips`
+
+
+# Load and store
+
+/clear
+`Take a look at the load/store routines and figure out, what is actually stored in the file. This is the full state of the game. Write an appropriate doc
+file`
+
+
+/clear
+
+# Color Map Fix
+
+/clear
+`I am sure, that forest has the color red. Check map.md and check all mappings regarding the color.`
+
+`Which tile file is forest?`
+`I am 100% sure, that tile_13.png is not forest. Forest is tile_14.png.`
+
+
+# Movement Phase
+
+`Analyze the movement phase and write a movement.md document.`
+`Use Mermaid diagram in movement.md instead of ascii art.`
+
+At this point I realized, that edge is the wrong name for the terrain field and chose end-marker.
+`Rename edge to end-marker`
+
+# Clarify Warship Movement
+
+`In Movement.md there is warship mentioned and water related logic. Can you clarify on these?`
+
+
+# Attack Phase
+`Analyze the attack/combat phase and write a document in the docs directory.`
+
+`Do you see any reason, why cvatapult has a special logic?`
+
+A lot of utility functions are called. Let us also comment these.
+`Can you also comment the coresponding utilities assembler functions?`
+
+`What a strange varialble: COUNTER. What does this variable mean exactly?`
+
+# Fortification Phase
+
+`Analyze the fortification phase and write a document in the docs directory.`
+
+`Check why is a gate blocked. Maybe because a unit is at that position?`
+
+`What happens if a unit os occupying a gate?`
+`Can I change a gate to open or close if an unit occupies that state?`
+`Sounds like a bug, because the underlying gate is open, the underlying map should be meadow. If the gate is closed, the meadow is still stored in the
+units data field.`
+It inserts a potential bug note at the corresponding places.
+
+`Check the attack phase again. Can all units destroy a gate`
+
+
+# Flow
+
+`Check Flow documentation.`
+`Also check sprite/cursor handling and document in flow.`
+`Any other inconsistencies`
+
+
+# Title
+
+`Analyze the title screen and write a document.`
+`Add to CLAUDE.md`
+
+# Screen
+
+Write a small document about the screen during the different phases. How does it look.
+
+TODO: # Add references to program_flow to files.
+
+# Overall check
+
+`Check all assembler files. Any core game mechanic, which is not covered in comments?`
+
+
+# Port
+
+First, install playwright Plugin.
+
+Now that we have everything, we can reduce the CLAUDE.md file 
+
+Port this game to a web application
+* Technology: vite, typescript and tailwind.
+* Do not use BCD format. 
+* No sound
+* No load and store
+* Don't skip the title screen
+* For the map and the units use the C64 colors and tiles.
+* Mouse control. Use different mouse pointers if possible. (See sprite/cursor handling)
+* Implement the exact rulebook.
+* The visuals can be more modern with retro style. But don't skip any information such as terrain data or unit stats.
+* Phase/player change over a end-turn button.
+* Read the full documentation first.
+* Language is english. Translate every German word to English.
+* Write a porting markdown file, with a design and an implementation plan.
+* Reference the documentation files in the markdown file when necessary.
+web subdirectory
+edge scrolling
+
+
+## UI
+
+Use the frontend design skill to design a nice retro-modern look for the webapp under /web. Examine first the the PORING.md file.
+

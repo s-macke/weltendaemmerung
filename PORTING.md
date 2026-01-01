@@ -4,7 +4,7 @@ A comprehensive guide for porting the C64 game "Weltendämmerung" (Twilight of t
 
 ## Overview
 
-**Original:** Commodore 64 turn-based fantasy strategy game (1987, Markt und Technik)
+**Original:** Commodore 64 turn-based fantasy strategy game (1987, Markt und Technik) by Dirk Meier
 **Target:** Modern web application using Vite, TypeScript, and Tailwind CSS
 **Visual Style:** Retro-modern (C64 aesthetics with crisp rendering and smooth animations)
 
@@ -56,7 +56,7 @@ The game features 292 units across 16 types on an 80x40 tile map, with three dis
 
 ```
 web/
-├── index.html                    # Entry point
+├── index.html                    # Minimal shell (screens injected dynamically)
 ├── package.json                  # Dependencies
 ├── tsconfig.json                 # TypeScript config
 ├── tailwind.config.js            # Tailwind + C64 colors
@@ -90,13 +90,22 @@ web/
     │   ├── MapRenderer.ts        # Viewport scrolling
     │   ├── CursorRenderer.ts     # Phase-based cursors
     │   └── UIRenderer.ts         # Status bar
-    ├── ui/
-    │   ├── index.ts              # UI module exports
-    │   ├── screens.ts            # Screen state management
-    │   ├── TitleScreen.ts        # Title + faction display + start
-    │   ├── GameChrome.ts         # Header bar (player/phase/turn/end turn)
-    │   ├── VictoryScreen.ts      # Winner display + play again
-    │   └── StatusBar.ts          # Terrain/unit info display
+    ├── vite-env.d.ts             # TypeScript declaration for ?raw imports
+    ├── screens/
+    │   ├── index.ts              # Screen manager + exports
+    │   ├── shared.css            # Shared styles (CRT effects, animations)
+    │   ├── title/
+    │   │   ├── index.ts          # TitleScreen class
+    │   │   ├── template.html     # HTML template (Vite ?raw import)
+    │   │   └── style.css         # Title-specific styles
+    │   ├── game/
+    │   │   ├── index.ts          # GameChrome + StatusBar classes
+    │   │   ├── template.html     # Game screen template
+    │   │   └── style.css         # Game-specific styles
+    │   └── victory/
+    │       ├── index.ts          # VictoryScreen class
+    │       ├── template.html     # Victory screen template
+    │       └── style.css         # Victory-specific styles
     ├── input/
     │   └── [MouseController.ts]  # Click + edge scrolling (TODO)
     └── utils/

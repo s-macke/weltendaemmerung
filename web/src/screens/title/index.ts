@@ -1,23 +1,30 @@
 // Title Screen Component for Weltendämmerung
 // Displays the epic game title with faction display and start button
 
-import { showScreen } from './screens';
+import './style.css';
+import template from './template.html?raw';
+import { showScreen } from '../index';
 
 export class TitleScreen {
-  private container: HTMLElement | null;
-  private startButton: HTMLButtonElement | null;
+  private container: HTMLElement | null = null;
+  private startButton: HTMLButtonElement | null = null;
   private onStartCallback: (() => void) | null = null;
-
-  constructor() {
-    this.container = document.getElementById('title-screen');
-    this.startButton = document.getElementById('start-button') as HTMLButtonElement;
-  }
+  private initialized = false;
 
   /**
-   * Initialize the title screen with event listeners
+   * Initialize the title screen - inject template and setup listeners
    */
-  init(): void {
-    // Start button click
+  init(root: HTMLElement): void {
+    if (this.initialized) return;
+
+    // Inject template
+    root.insertAdjacentHTML('beforeend', template);
+
+    // Get DOM references
+    this.container = document.getElementById('title-screen');
+    this.startButton = document.getElementById('start-button') as HTMLButtonElement;
+
+    // Setup event listeners
     if (this.startButton) {
       this.startButton.addEventListener('click', () => this.handleStart());
     }
@@ -28,6 +35,8 @@ export class TitleScreen {
         this.handleStart();
       }
     });
+
+    this.initialized = true;
   }
 
   /**

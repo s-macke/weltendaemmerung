@@ -1,0 +1,132 @@
+/* ═══════════════════════════════════════════════════════════════════
+   TITLE SCREEN STYLES
+   ═══════════════════════════════════════════════════════════════════ */
+
+#title-screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at center, #1a1a3a 0%, #0a0a1a 70%, #000 100%);
+  z-index: 1000;
+}
+
+.title-content {
+  text-align: center;
+  padding: 2rem;
+}
+
+.author-credit {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(0.5rem, 1.8vw, 0.8rem);
+  color: var(--c64-yellow);
+  margin-bottom: 0.5em;
+  opacity: 0.9;
+}
+
+.game-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(1rem, 4vw, 2rem);
+  color: var(--c64-yellow);
+  margin-bottom: 0.5em;
+  animation: title-glow 2.5s ease-in-out infinite;
+}
+
+.game-subtitle {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(0.5rem, 2vw, 0.9rem);
+  color: var(--c64-light-blue);
+  margin-bottom: 0.5em;
+  opacity: 0.9;
+}
+
+.copyright-text {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(0.4rem, 1.5vw, 0.6rem);
+  color: var(--c64-green);
+  margin-bottom: 1.5em;
+  opacity: 0.8;
+}
+
+/* Faction display */
+.factions-display {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin: 2rem 0;
+  flex-wrap: wrap;
+}
+
+.faction-box {
+  background: rgba(0, 0, 0, 0.6);
+  border: 3px solid var(--c64-blue);
+  padding: 1.5rem 2rem;
+  min-width: 140px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.faction-box:hover {
+  transform: scale(1.05);
+}
+
+.faction-box.eldoin {
+  border-color: var(--c64-yellow);
+  box-shadow: 0 0 20px rgba(184, 199, 111, 0.3);
+}
+
+.faction-box.dailor {
+  border-color: var(--c64-light-blue);
+  box-shadow: 0 0 20px rgba(108, 94, 181, 0.3);
+}
+
+.faction-name {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(0.7rem, 2.5vw, 1rem);
+  margin-bottom: 0.5em;
+}
+
+.faction-box.eldoin .faction-name {
+  color: var(--c64-yellow);
+}
+
+.faction-box.dailor .faction-name {
+  color: var(--c64-light-blue);
+}
+
+.faction-role {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(0.4rem, 1.5vw, 0.6rem);
+  color: var(--c64-light-gray);
+}
+
+.vs-text {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(0.8rem, 3vw, 1.2rem);
+  color: var(--c64-light-red);
+  align-self: center;
+  text-shadow: 0 0 10px rgba(154, 103, 89, 0.8);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   RESPONSIVE ADJUSTMENTS
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 480px) {
+  .factions-display {
+    gap: 1rem;
+  }
+
+  .faction-box {
+    padding: 1rem;
+    min-width: 100px;
+  }
+
+  .vs-text {
+    width: 100%;
+    order: -1;
+    margin-bottom: 0.5rem;
+  }
+}

@@ -1,8 +1,10 @@
 // Victory Screen Component for Weltendämmerung
 // Displays the dramatic winner announcement
 
-import { Player } from '../types';
-import { showScreen, hideScreen } from './screens';
+import './style.css';
+import template from './template.html?raw';
+import { Player } from '../../types';
+import { showScreen, hideScreen } from '../index';
 
 // Victory condition messages
 const VICTORY_MESSAGES = {
@@ -23,23 +25,29 @@ const VICTORY_MESSAGES = {
 export type VictoryCondition = 'turnLimit' | 'commanderDestroyed' | 'annihilation';
 
 export class VictoryScreen {
-  private container: HTMLElement | null;
-  private winnerNameEl: HTMLElement | null;
-  private victoryMessageEl: HTMLElement | null;
-  private playAgainButton: HTMLButtonElement | null;
+  private container: HTMLElement | null = null;
+  private winnerNameEl: HTMLElement | null = null;
+  private victoryMessageEl: HTMLElement | null = null;
+  private playAgainButton: HTMLButtonElement | null = null;
   private onPlayAgainCallback: (() => void) | null = null;
+  private initialized = false;
 
-  constructor() {
+  /**
+   * Initialize the victory screen - inject template and setup listeners
+   */
+  init(root: HTMLElement): void {
+    if (this.initialized) return;
+
+    // Inject template
+    root.insertAdjacentHTML('beforeend', template);
+
+    // Get DOM references
     this.container = document.getElementById('victory-screen');
     this.winnerNameEl = document.getElementById('winner-name');
     this.victoryMessageEl = document.getElementById('victory-message');
     this.playAgainButton = document.getElementById('play-again-button') as HTMLButtonElement;
-  }
 
-  /**
-   * Initialize the victory screen with event listeners
-   */
-  init(): void {
+    // Setup event listeners
     if (this.playAgainButton) {
       this.playAgainButton.addEventListener('click', () => this.handlePlayAgain());
     }
@@ -50,6 +58,8 @@ export class VictoryScreen {
         this.handlePlayAgain();
       }
     });
+
+    this.initialized = true;
   }
 
   /**

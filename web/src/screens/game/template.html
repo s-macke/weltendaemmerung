@@ -1,0 +1,47 @@
+<div id="app" class="hidden relative">
+  <!-- Game Wrapper with CRT Effect -->
+  <div class="game-wrapper crt-glow scanlines">
+
+    <!-- Header Bar -->
+    <div class="game-header" id="game-header">
+      <div class="player-indicator eldoin" id="player-indicator">
+        ELDOIN
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="phase-indicator movement active" id="phase-movement">MOV</span>
+        <span class="phase-indicator attack" id="phase-attack">ATK</span>
+        <span class="phase-indicator fortification" id="phase-fort">FOR</span>
+      </div>
+
+      <div class="turn-counter">
+        Turn <span id="turn-number">1</span>/15
+      </div>
+
+      <button class="btn-end-turn" id="end-turn-button">
+        END TURN
+      </button>
+    </div>
+
+    <!-- Canvas Container -->
+    <div class="canvas-container">
+      <canvas id="game-canvas" width="320" height="152"></canvas>
+    </div>
+
+    <!-- Status Bar -->
+    <div id="status-bar">
+      <div class="status-left">
+        <span id="terrain-info">Terrain: Meadow</span>
+      </div>
+      <div class="status-right">
+        <span id="unit-info"></span>
+        <span id="unit-stats"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls Help -->
+  <div class="pixel-font text-center text-c64-dark-gray text-xs mt-2 opacity-60">
+    Arrow Keys: Scroll | Click: Select | Right-Click: Deselect
+  </div>
+</div>
