@@ -9,7 +9,7 @@ import { TitleScreen, VictoryScreen, GameChrome, StatusBar, initScreens, showScr
 import { Player, Phase } from './types';
 import { advanceTurn } from './game/TurnManager';
 import { checkVictory } from './game/VictoryChecker';
-import { canMoveTo, moveUnit, getValidMoveTargets } from './game/MovementSystem';
+import { getAllReachablePositions, executeMovementPath, ReachablePosition } from './game/MovementSystem';
 import { canAttack, attackUnit, canAttackStructure, attackStructure } from './game/CombatSystem';
 import { canPerformTorphase, performTorphase, getValidTorphasePositions } from './game/FortificationSystem';
 import { findGateAt } from './data/gates';
@@ -58,6 +58,13 @@ let touchStartY = 0;
 let touchStartViewportX = 0;
 let touchStartViewportY = 0;
 let isTouchDragging = false;
+
+// Movement system state - cached reachable positions for selected unit
+let cachedReachablePositions: Map<string, ReachablePosition> = new Map();
+let lastSelectedUnit: typeof gameState.selectedUnit = null;
+
+// Path preview state - tracks which tile the cursor is hovering over
+let hoveredPathKey: string | null = null;
 
 // Load a single tile image
 async function loadTile(index: number): Promise<HTMLImageElement> {
@@ -220,6 +227,15 @@ function handleMouseMove(e: MouseEvent): void {
   cursorMapY = Math.max(0, Math.min(MAP_HEIGHT - 1, tileY));
 
   cursorRenderer.setCursorPosition(cursorMapX, cursorMapY);
+
+  // Update hovered path for path preview (only in movement phase with selected unit)
+  if (gameState.phase === Phase.Movement && gameState.selectedUnit) {
+    const key = `${cursorMapX},${cursorMapY}`;
+    hoveredPathKey = cachedReachablePositions.has(key) ? key : null;
+  } else {
+    hoveredPathKey = null;
+  }
+
   requestAnimationFrame(() => render());
 }
 
@@ -260,10 +276,17 @@ function processClick(mapX: number, mapY: number): void {
     }
   }
 
-  // MOVEMENT: Move selected unit (Movement phase ONLY)
+  // MOVEMENT: Move selected unit to any reachable tile (Movement phase ONLY)
   if (gameState.phase === Phase.Movement && gameState.selectedUnit && !clickedUnit) {
-    if (canMoveTo(gameState, gameState.selectedUnit, target)) {
-      moveUnit(gameState, gameState.selectedUnit, target);
+    const key = `${mapX},${mapY}`;
+    const reachable = cachedReachablePositions.get(key);
+
+    if (reachable) {
+      // Execute the full path to the target
+      executeMovementPath(gameState, gameState.selectedUnit, reachable.path);
+      // Recalculate reachable positions after movement
+      cachedReachablePositions = getAllReachablePositions(gameState, gameState.selectedUnit);
+      hoveredPathKey = null;
       requestAnimationFrame(() => render());
       return;
     }
@@ -271,9 +294,25 @@ function processClick(mapX: number, mapY: number): void {
 
   // SELECTION: Toggle unit selection (own units only)
   if (clickedUnit && clickedUnit.owner === gameState.currentPlayer) {
-    gameState.selectedUnit = (gameState.selectedUnit === clickedUnit) ? null : clickedUnit;
+    if (gameState.selectedUnit === clickedUnit) {
+      // Deselect
+      gameState.selectedUnit = null;
+      cachedReachablePositions.clear();
+    } else {
+      // Select new unit
+      gameState.selectedUnit = clickedUnit;
+      // Cache reachable positions for the new selection
+      if (gameState.phase === Phase.Movement) {
+        cachedReachablePositions = getAllReachablePositions(gameState, clickedUnit);
+      } else {
+        cachedReachablePositions.clear();
+      }
+    }
+    hoveredPathKey = null;
   } else if (!clickedUnit) {
     gameState.selectedUnit = null;
+    cachedReachablePositions.clear();
+    hoveredPathKey = null;
   }
 
   requestAnimationFrame(() => render());
@@ -405,8 +444,11 @@ function handleTouchEnd(_e: TouchEvent): void {
 function handleEndTurn(): void {
   if (!gameRunning) return;
 
-  // Deselect any selected unit
+  // Deselect any selected unit and clear movement cache
   gameState.selectedUnit = null;
+  cachedReachablePositions.clear();
+  lastSelectedUnit = null;
+  hoveredPathKey = null;
 
   // Advance the turn
   advanceTurn(gameState);
@@ -436,6 +478,11 @@ function startGame(): void {
   viewportX = 0;
   viewportY = 0;
 
+  // Clear movement cache
+  cachedReachablePositions.clear();
+  lastSelectedUnit = null;
+  hoveredPathKey = null;
+
   // Update UI
   gameChrome.update(gameState);
 
@@ -464,11 +511,32 @@ function render(): void {
   // Render map
   renderMap(ctx);
 
+  // Update cached reachable positions if selected unit changed
+  if (gameState.selectedUnit !== lastSelectedUnit) {
+    lastSelectedUnit = gameState.selectedUnit;
+    if (gameState.selectedUnit && gameState.phase === Phase.Movement) {
+      cachedReachablePositions = getAllReachablePositions(gameState, gameState.selectedUnit);
+    } else {
+      cachedReachablePositions.clear();
+    }
+    hoveredPathKey = null;
+  }
+
   // Render valid targets BEFORE cursor
   if (gameState.selectedUnit && gameState.isUnitAlive(gameState.selectedUnit)) {
-    // Movement targets (green)
-    const moveTargets = getValidMoveTargets(gameState, gameState.selectedUnit);
-    cursorRenderer.renderMoveTargets(ctx, moveTargets, viewportX, viewportY);
+    if (gameState.phase === Phase.Movement) {
+      // Movement targets - show ALL reachable positions (green)
+      const allReachable = Array.from(cachedReachablePositions.values()).map(r => r.coord);
+      cursorRenderer.renderMoveTargets(ctx, allReachable, viewportX, viewportY);
+
+      // Path preview if hovering over a reachable tile
+      if (hoveredPathKey) {
+        const hoveredReachable = cachedReachablePositions.get(hoveredPathKey);
+        if (hoveredReachable) {
+          cursorRenderer.renderPathPreview(ctx, hoveredReachable.path, viewportX, viewportY);
+        }
+      }
+    }
 
     // Attack range in attack phase (red)
     if (gameState.phase === Phase.Attack) {

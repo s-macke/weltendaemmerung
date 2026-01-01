@@ -271,4 +271,61 @@ export class CursorRenderer {
 
     ctx.globalAlpha = 1.0;
   }
+
+  /**
+   * Render path preview for movement.
+   * Shows the path a unit will take when moving to a hovered tile.
+   */
+  renderPathPreview(
+    ctx: CanvasRenderingContext2D,
+    path: Coord[],
+    viewportX: number,
+    viewportY: number
+  ): void {
+    if (path.length === 0) return;
+
+    // Draw path tiles with white outline
+    ctx.strokeStyle = C64_COLORS.white;
+    ctx.lineWidth = 1;
+    ctx.globalAlpha = 0.8;
+
+    for (const pos of path) {
+      const screenX = pos.x - viewportX;
+      const screenY = pos.y - viewportY;
+
+      if (screenX >= 0 && screenX < 40 && screenY >= 0 && screenY < 19) {
+        const pixelX = screenX * this.tileSize;
+        const pixelY = screenY * this.tileSize;
+
+        ctx.strokeRect(pixelX + 0.5, pixelY + 0.5, this.tileSize - 1, this.tileSize - 1);
+      }
+    }
+
+    // Draw connecting lines between path tiles
+    ctx.strokeStyle = C64_COLORS.yellow;
+    ctx.lineWidth = 1;
+    ctx.globalAlpha = 0.6;
+    ctx.beginPath();
+
+    let started = false;
+    for (const pos of path) {
+      const screenX = pos.x - viewportX;
+      const screenY = pos.y - viewportY;
+
+      if (screenX >= 0 && screenX < 40 && screenY >= 0 && screenY < 19) {
+        const pixelX = screenX * this.tileSize + this.tileSize / 2;
+        const pixelY = screenY * this.tileSize + this.tileSize / 2;
+
+        if (!started) {
+          ctx.moveTo(pixelX, pixelY);
+          started = true;
+        } else {
+          ctx.lineTo(pixelX, pixelY);
+        }
+      }
+    }
+
+    ctx.stroke();
+    ctx.globalAlpha = 1.0;
+  }
 }
