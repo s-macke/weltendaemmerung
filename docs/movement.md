@@ -58,21 +58,21 @@ All movement point values use **Binary Coded Decimal (BCD)** encoding. The 6502 
 
 ### Base Terrain Costs
 
-Most terrain costs **1 movement point** per tile. Special terrain has unit-specific costs:
+Most terrain costs **1 movement point** per tile. Some terrain types have unit-specific variable costs, while others **block movement entirely** for non-flying units:
 
-| Char  | German   | English   | Cost           |
-|-------|----------|-----------|----------------|
-| $69   | Wiese    | Meadow    | 1              |
-| $6A   | Wiese    | Meadow    | 1 (variant 2)  |
-| $6B   | Fluss    | River     | Variable       |
-| $6C   | Wald     | Forest    | Variable       |
-| $6D   | Ende     | End-marker| 1              |
-| $6E   | Sumpf    | Swamp     | Variable       |
-| $6F   | Tor      | Gate      | 1              |
-| $70   | Gebirge  | Mountains | 1              |
-| $71   | Pflaster | Pavement  | 1              |
-| $72   | Mauer    | Wall      | 1              |
-| $73   | Mauer    | Wall      | 1              |
+| Char  | German   | English   | Cost                      |
+|-------|----------|-----------|---------------------------|
+| $69   | Wiese    | Meadow    | 1                         |
+| $6A   | Wiese    | Meadow    | 1 (variant 2)             |
+| $6B   | Fluss    | River     | Variable (see unit table) |
+| $6C   | Wald     | Forest    | Variable (see unit table) |
+| $6D   | Ende     | End-marker| 1                         |
+| $6E   | Sumpf    | Swamp     | Variable (see unit table) |
+| $6F   | Tor      | Gate      | **BLOCKED** (flying: 1)   |
+| $70   | Gebirge  | Mountains | **BLOCKED** (flying: 1)   |
+| $71   | Pflaster | Pavement  | 1                         |
+| $72   | Mauer    | Wall      | **BLOCKED**               |
+| $73   | Mauer    | Wall      | **BLOCKED**               |
 
 ### Unit-Specific Cost Tables
 
@@ -118,9 +118,10 @@ Cost:  3  3  1  3  0  4  3  3  4  1  3  3  1  4  7  4
 | Wolf Riders   | 15    | 2       | 2      | 4     |
 
 **Notable Movement Abilities:**
-- **Eagle & Bloodsucker**: Low cost (1) for all special terrains - fly/pass through easily
+- **Eagle & Bloodsucker**: Flying units - can traverse ALL terrain including Mountains ($70) and Gates ($6F) at cost 1. Only blocked by other units (collision). They bypass all terrain restriction checks in `sub_0B10`.
 - **Warship**: Water-only unit - can ONLY move on river terrain ($6B). Cannot enter forest, swamp, mountains, or land. The "0" values in cost tables are unused placeholders.
-- **Wagon Drivers**: High forest/swamp cost (7) - slow through difficult terrain
+- **Wagon Drivers**: High forest/swamp cost (7) - slow through difficult terrain.
+- **All other units**: Blocked entirely by Mountains, Gates, and Walls - these are impassable terrain, not just high-cost.
 
 ## Movement Validation
 
@@ -146,10 +147,11 @@ skip:
 
 Validates destination tile for unit movement:
 
-1. **Unit Type Check**: Eagles ($0D) and Bloodsuckers ($14) have special forest access
-2. **Terrain Range**: Valid terrain codes $69-$73
-3. **Unit Collision**: Codes >= $74 indicate another unit present
-4. **Special Units**: Commanders, Cavalry, and Wagon Drivers have direct movement
+1. **Flying Unit Check**: Eagles ($0D) and Bloodsuckers ($14) bypass all terrain restrictions - they jump directly to collision check only
+2. **Blocked Terrain**: Gates ($6F), Mountains ($70), and Walls ($72-$73) block all non-flying units
+3. **Terrain Range**: Valid terrain codes $69-$73
+4. **Unit Collision**: Codes >= $74 indicate another unit present - blocks ALL units including flying
+5. **Special Units**: Commanders, Cavalry, and Wagon Drivers have direct movement (no extra update routines)
 
 **Return Values:**
 - Carry Clear (CLC): Movement allowed
