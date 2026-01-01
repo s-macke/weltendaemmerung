@@ -111,12 +111,14 @@ export function getGateDescription(
   switch (gateState) {
     case GateState.Original:
       return 'Gate';
-    case GateState.Wall:
-      return 'Wall (fortified)';
+    case GateState.Pavement:
+      return 'Pavement (opened)';
     case GateState.Meadow:
       return 'Meadow (cleared)';
     case GateState.Destroyed:
       return 'Destroyed';
+    default:
+      return 'Unknown';
   }
 }
 
