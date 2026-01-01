@@ -42,6 +42,7 @@ export interface Unit {
   defense: number;     // Current defense (decreases in combat)
   movement: number;    // Remaining movement this phase
   maxMovement: number; // Max movement (reset each round)
+  hasAttacked: boolean; // True if unit has attacked this attack phase
 }
 
 // Complete game state

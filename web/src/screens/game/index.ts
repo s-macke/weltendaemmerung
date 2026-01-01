@@ -255,10 +255,15 @@ export class StatusBar {
 
       this.unitInfo.innerHTML = `<span class="${ownerClass}">${stats.name}</span>`;
 
+      // Show attack status during Attack phase (compact on stats line)
+      const attackStatus = gameState.phase === Phase.Attack
+        ? (unit.hasAttacked ? '<span class="text-c64-dark-gray">*</span>' : '')
+        : '';
+
       this.unitStats.innerHTML =
         `Rng:<span class="stat-rng">${stats.range}</span> ` +
         `Mov:<span class="stat-mov">${unit.movement}</span>/${stats.movement} ` +
-        `Atk:<span class="stat-atk">${stats.attack}</span> ` +
+        `Atk:<span class="stat-atk">${stats.attack}</span>${attackStatus} ` +
         `Def:<span class="stat-def">${unit.defense}</span>/${stats.defense}`;
     } else if (gameState.selectedUnit) {
       // Show selected unit info even when cursor is elsewhere
@@ -273,10 +278,15 @@ export class StatusBar {
 
       this.unitInfo.innerHTML = `<span class="${ownerClass}">${stats.name} (selected)</span>`;
 
+      // Show attack status during Attack phase (compact on stats line)
+      const attackStatus = gameState.phase === Phase.Attack
+        ? (gameState.selectedUnit.hasAttacked ? '<span class="text-c64-dark-gray">*</span>' : '')
+        : '';
+
       this.unitStats.innerHTML =
         `Rng:<span class="stat-rng">${stats.range}</span> ` +
         `Mov:<span class="stat-mov">${gameState.selectedUnit.movement}</span>/${stats.movement} ` +
-        `Atk:<span class="stat-atk">${stats.attack}</span> ` +
+        `Atk:<span class="stat-atk">${stats.attack}</span>${attackStatus} ` +
         `Def:<span class="stat-def">${gameState.selectedUnit.defense}</span>/${stats.defense}`;
     } else {
       this.unitInfo.textContent = '';

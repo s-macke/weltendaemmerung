@@ -169,6 +169,7 @@ export class CursorRenderer {
 
   /**
    * Render attack range indicator.
+   * Shows full circular range and highlights enemy units within range.
    */
   renderAttackRange(
     ctx: CanvasRenderingContext2D,
@@ -178,13 +179,39 @@ export class CursorRenderer {
   ): void {
     if (!state.selectedUnit || state.phase !== Phase.Attack) return;
 
-    // Highlight enemy units in range
     const range = UNIT_STATS[state.selectedUnit.type]!.range;
     const ax = state.selectedUnit.x;
     const ay = state.selectedUnit.y;
 
+    // 1. Draw full circular range (semi-transparent fill)
+    ctx.fillStyle = '#FF4444';  // Bright red for visibility
+    ctx.globalAlpha = 0.4;
+
+    for (let dy = -range; dy <= range; dy++) {
+      for (let dx = -range; dx <= range; dx++) {
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist <= range) {
+          const tx = ax + dx;
+          const ty = ay + dy;
+          const screenX = tx - viewportX;
+          const screenY = ty - viewportY;
+
+          if (screenX >= 0 && screenX < 40 && screenY >= 0 && screenY < 19) {
+            ctx.fillRect(
+              screenX * this.tileSize,
+              screenY * this.tileSize,
+              this.tileSize,
+              this.tileSize
+            );
+          }
+        }
+      }
+    }
+    ctx.globalAlpha = 1.0;
+
+    // 2. Highlight enemy units in range (brighter outline)
     ctx.strokeStyle = C64_COLORS.lightRed;
-    ctx.globalAlpha = 0.5;
+    ctx.globalAlpha = 0.8;
     ctx.lineWidth = 1;
 
     for (const unit of state.units) {

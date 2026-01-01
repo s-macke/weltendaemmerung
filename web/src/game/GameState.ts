@@ -50,6 +50,7 @@ export class GameState {
         defense: stats.defense,
         movement: stats.movement,
         maxMovement: stats.movement,
+        hasAttacked: false,
       };
     });
   }
@@ -154,6 +155,18 @@ export class GameState {
     for (const unit of this.units) {
       if (this.isUnitAlive(unit)) {
         unit.movement = 1;
+      }
+    }
+  }
+
+  /**
+   * Reset attack flags for all units at start of attack phase.
+   * Each unit can attack once per attack phase.
+   */
+  resetAllAttackFlags(): void {
+    for (const unit of this.units) {
+      if (this.isUnitAlive(unit)) {
+        unit.hasAttacked = false;
       }
     }
   }

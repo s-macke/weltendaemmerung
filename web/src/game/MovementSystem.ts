@@ -41,13 +41,21 @@ export function canMoveTo(
     return false;
   }
 
-  // Check blocking terrain (Mountains, Walls, End)
-  if (
-    terrain === TerrainType.Mountains ||
-    terrain === TerrainType.Wall ||
-    terrain === TerrainType.End
-  ) {
-    return false;
+  // Get unit stats to check flying ability
+  const stats = UNIT_STATS[unit.type]!;
+
+  // Flying units (Eagle, Bloodsucker) can pass through mountains and gates
+  // They are only blocked by other units (collision check below)
+  if (!stats.isFlying) {
+    // Non-flying units: blocked by Mountains, Gates, Walls, End
+    if (
+      terrain === TerrainType.Mountains ||
+      terrain === TerrainType.Gate ||
+      terrain === TerrainType.Wall ||
+      terrain === TerrainType.End
+    ) {
+      return false;
+    }
   }
 
   // Check if target is occupied

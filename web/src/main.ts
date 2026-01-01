@@ -260,8 +260,8 @@ function processClick(mapX: number, mapY: number): void {
     }
   }
 
-  // MOVEMENT: Move selected unit (Movement or Attack phase)
-  if (gameState.selectedUnit && !clickedUnit) {
+  // MOVEMENT: Move selected unit (Movement phase ONLY)
+  if (gameState.phase === Phase.Movement && gameState.selectedUnit && !clickedUnit) {
     if (canMoveTo(gameState, gameState.selectedUnit, target)) {
       moveUnit(gameState, gameState.selectedUnit, target);
       requestAnimationFrame(() => render());

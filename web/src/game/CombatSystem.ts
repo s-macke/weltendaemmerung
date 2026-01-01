@@ -41,6 +41,11 @@ export function canAttack(
     return false;
   }
 
+  // Attacker must not have already attacked this phase
+  if (attacker.hasAttacked) {
+    return false;
+  }
+
   // Target must be alive
   if (!state.isUnitAlive(target)) {
     return false;
@@ -69,6 +74,11 @@ export function canAttackStructure(
 ): boolean {
   // Attacker must be alive
   if (!state.isUnitAlive(attacker)) {
+    return false;
+  }
+
+  // Attacker must not have already attacked this phase
+  if (attacker.hasAttacked) {
     return false;
   }
 
@@ -159,6 +169,9 @@ export function attackUnit(
   const damage = calculateDamage(attacker.type);
   const destroyed = applyDamage(state, target, damage);
 
+  // Mark unit as having attacked (each unit can only attack once per phase)
+  attacker.hasAttacked = true;
+
   return { damage, destroyed };
 }
 
@@ -184,6 +197,10 @@ export function attackStructure(
   if (gateIndex !== -1) {
     // Mark gate as destroyed (becomes Pavement)
     state.setGateState(gateIndex, GateState.Destroyed);
+
+    // Mark unit as having attacked (each unit can only attack once per phase)
+    attacker.hasAttacked = true;
+
     return true;
   }
 

@@ -46,9 +46,9 @@ export function advanceTurn(state: GameState): void {
     }
   }
 
-  // At start of attack phase, restrict movement to 1
+  // At start of attack phase, reset attack flags (each unit can attack once)
   if (state.phase === Phase.Attack) {
-    state.setAllMovementToOne();
+    state.resetAllAttackFlags();
   }
 }
 
