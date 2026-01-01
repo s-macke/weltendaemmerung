@@ -4,15 +4,15 @@ This document describes the attack phase mechanics, combat formulas, and damage 
 
 ## Overview
 
-The Attack Phase (Angriffsphase) is Phase 1 of each round. During this phase, units can engage in combat while having restricted movement (1 movement point only).
+The Attack Phase (Angriffsphase) is Phase 1 of each round. During this phase, units can engage in combat. Unit movement is disabled - only the cursor can move to select attackers and targets.
 
 **Phase Behavior:**
 
-| Phase | Name                      | Movement Points  | Combat    |
+| Phase | Name                      | Movement         | Combat    |
 |-------|---------------------------|------------------|-----------|
 | 0     | Bewegungsphase (Movement) | Full B value     | Disabled  |
-| 1     | Angriffsphase (Attack)    | Restricted to 1  | Enabled   |
-| 2     | Torphase (Fortification)  | No movement      | Disabled  |
+| 1     | Angriffsphase (Attack)    | Disabled         | Enabled   |
+| 2     | Torphase (Fortification)  | Disabled         | Disabled  |
 
 ## Combat Flow
 
@@ -69,15 +69,22 @@ When the fire button is pressed on an owned unit during attack phase:
 
 ## Movement During Attack Phase
 
-During the attack phase, all units have their movement points restricted to **1 point only**, regardless of their normal movement value. This restriction is applied by `sub_20D3` when entering the attack phase.
+During the attack phase, **unit movement is disabled**. The cursor can move freely to select attackers and targets, but units cannot change position on the map.
 
-| Unit Property | Movement Phase | Attack Phase |
-|---------------|----------------|--------------|
-| Movement Points | Full B value | Always 1 |
-| Can Move | Yes | Yes (limited) |
-| Can Attack | No | Yes |
+| Unit Property     | Movement Phase | Attack Phase         |
+|-------------------|----------------|----------------------|
+| B_current usage   | Movement points| Attacks remaining    |
+| Can Move          | Yes            | No                   |
+| Can Attack        | No             | Yes (once per unit)  |
 
-The restricted movement allows units to reposition slightly before or after attacking, but prevents significant tactical repositioning during combat.
+**How attacks-per-unit limiting works:**
+
+1. `sub_20D3` sets all units' `B_current` (unit[3]) to 1 when entering the attack phase
+2. Before attacking, `sub_12EE` checks if `unit[3] != 0` (line 128-129)
+3. After attacking, `sub_1445` sets `unit[3] = 0` (line 384)
+4. Any subsequent attack attempt by that unit fails the check
+
+The `B_current` field is repurposed during attack phase as an "attacks remaining" counter rather than movement points.
 
 ## Attack Directions
 

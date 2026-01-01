@@ -59,11 +59,14 @@ L20D2:
         RTS
 
 ; -----------------------------------------------------------------------------
-; sub_20D3 - Restrict Unit Movement to 1 (B current = 1)
+; sub_20D3 - Initialize Attack Phase (B current = 1)
 ; -----------------------------------------------------------------------------
 ; Sets B current (unit[3]) to 1 for all units.
-; Called at STATES 2,3 transition (entering Angriffsphase) to restrict
-; movement during the attack phase - units can only move 1 tile.
+; Called at STATES 2,3 transition (entering Angriffsphase).
+; During attack phase, B_current is repurposed as "attacks remaining" counter:
+;   - Set to 1 here (each unit can attack once)
+;   - Checked by sub_12EE before allowing attack (BEQ L1327 if 0)
+;   - Set to 0 by sub_1445 after unit attacks
 ;
 ; CALLED FROM: loc_1EA8 when combined state = 2 or 3
 ;   State 2: Dailor finishes Bewegungsphase, Eldoin enters Angriffsphase

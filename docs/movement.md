@@ -8,11 +8,11 @@ Movement Phase (Bewegungsphase) is Phase 0 of each round. During this phase, uni
 
 **Phase Behavior:**
 
-| Phase | Name                      | Movement Points  |
+| Phase | Name                      | Movement         |
 |-------|---------------------------|------------------|
 | 0     | Bewegungsphase (Movement) | Full B value     |
-| 1     | Angriffsphase (Attack)    | Restricted to 1  |
-| 2     | Torphase (Fortification)  | No movement      |
+| 1     | Angriffsphase (Attack)    | Disabled         |
+| 2     | Torphase (Fortification)  | Disabled         |
 
 ## Movement Points System
 
@@ -283,7 +283,7 @@ done:
     RTS
 ```
 
-### Attack Phase Restriction (sub_20D3)
+### Attack Phase Setup (sub_20D3)
 
 Called at States 2/3 (entering Angriffsphase):
 
@@ -294,12 +294,19 @@ loop:
     LDY #$04
     LDA ($F9),Y         ; Check B_max
     BEQ done            ; Zero = end of list
-    LDA #$01            ; Set to 1 movement point
+    LDA #$01            ; Set B_current to 1
     DEY
     STA ($F9),Y         ; Store to B_current
     JSR sub_20B7        ; Next unit
     JMP loop
 ```
+
+**Note:** During the attack phase, `B_current` is repurposed as an "attacks remaining" counter:
+- Set to 1 here (each unit can attack once)
+- Checked by `sub_12EE` before allowing an attack
+- Set to 0 by `sub_1445` after a unit attacks
+
+Unit movement is disabled during attack phase by `sub_0A70`, which returns Z=1 causing all movement routines to exit early.
 
 ## Key Memory Addresses
 
