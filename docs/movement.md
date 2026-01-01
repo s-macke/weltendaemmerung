@@ -161,6 +161,49 @@ Validates destination tile for unit movement:
 - 0: Normal movement
 - 1: Movement blocked/special handling
 
+## Movement Directions
+
+Movement is **strictly orthogonal** (4 directions only). Diagonal movement is not supported.
+
+### Joystick Bit Mapping
+
+| Bit | Direction |
+|-----|-----------|
+| 0   | Up        |
+| 1   | Down      |
+| 2   | Left      |
+| 3   | Right     |
+| 4   | Fire      |
+
+### Direction Priority
+
+When multiple directions are pressed simultaneously, only one is processed per frame. The priority order is:
+
+**Up > Down > Left > Right**
+
+The input dispatcher at `$08BC` uses sequential `ROR` instructions to test each direction bit. Once a direction is successfully processed, the code exits without checking remaining directions:
+
+```assembly
+L08BC:
+    ROR A                   ; Bit 0 (Up) -> Carry
+    BCS L08ED               ; If Up pressed, jump to up handler
+    ROR A                   ; Bit 1 (Down) -> Carry
+    BCS L0911               ; If Down pressed, jump to down handler
+    ROR A                   ; Bit 2 (Left) -> Carry
+    BCS L092E               ; If Left pressed, jump to left handler
+    ROR A                   ; Bit 3 (Right) -> Carry
+    BCS L08E5               ; If Right pressed, jump to right handler
+```
+
+### Direction Handlers
+
+| Address | Subroutine | Direction | Screen Boundary | Scroll Routine |
+|---------|------------|-----------|-----------------|----------------|
+| $0AA3   | sub_0AA3   | Left      | X=$1E           | sub_1BBE       |
+| $0ABB   | sub_0ABB   | Right     | X=$147          | sub_1BCC       |
+| $0AD5   | sub_0AD5   | Up        | Y=$38           | sub_1BDC       |
+| $0AEB   | sub_0AEB   | Down      | Y=$C8           | sub_1BF0       |
+
 ## Movement Algorithm
 
 ### Input Flow

@@ -67,6 +67,43 @@ When the fire button is pressed on an owned unit during attack phase:
     STA $0356               ; Store as attack source Y
 ```
 
+## Movement During Attack Phase
+
+During the attack phase, all units have their movement points restricted to **1 point only**, regardless of their normal movement value. This restriction is applied by `sub_20D3` when entering the attack phase.
+
+| Unit Property | Movement Phase | Attack Phase |
+|---------------|----------------|--------------|
+| Movement Points | Full B value | Always 1 |
+| Can Move | Yes | Yes (limited) |
+| Can Attack | No | Yes |
+
+The restricted movement allows units to reposition slightly before or after attacking, but prevents significant tactical repositioning during combat.
+
+## Attack Directions
+
+Unlike movement (which is orthogonal only), **attacks can be made in any direction including diagonals**.
+
+The game uses **Euclidean distance** for range calculation, which naturally supports diagonal targeting:
+
+```
+distance = sqrt((src_x - dest_x)² + (src_y - dest_y)²)
+```
+
+### Diagonal Attack Examples
+
+| Attacker | Target | Distance | Range 1 | Range 2 |
+|----------|--------|----------|---------|---------|
+| (0,0)    | (1,0)  | 1.00     | ✓       | ✓       |
+| (0,0)    | (0,1)  | 1.00     | ✓       | ✓       |
+| (0,0)    | (1,1)  | 1.41     | ✗       | ✓       |
+| (0,0)    | (2,1)  | 2.24     | ✗       | ✓       |
+| (0,0)    | (2,2)  | 2.83     | ✗       | ✗       |
+
+This means:
+- **Melee units** (range 1): Can only attack orthogonally adjacent tiles
+- **Short range units** (range 2): Can attack diagonally adjacent tiles
+- **Ranged units** (range 3+): Have circular attack zones centered on themselves
+
 ## Range Calculation (sub_13AE)
 
 The game uses **Euclidean distance** to determine if a target is within attack range.
