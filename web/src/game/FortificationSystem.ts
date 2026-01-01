@@ -71,8 +71,8 @@ export function performTorphase(
   if (currentTerrain === TerrainType.Gate) {
     // Convert existing gate
     if (state.currentPlayer === Player.Eldoin) {
-      // Eldoin: Gate → Wall
-      state.setGateState(gate.index, GateState.Wall);
+      // Eldoin: Gate → Pavement (opens gate)
+      state.setGateState(gate.index, GateState.Pavement);
     } else {
       // Dailor: Gate → Meadow
       state.setGateState(gate.index, GateState.Meadow);

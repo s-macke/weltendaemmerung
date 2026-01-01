@@ -9,7 +9,7 @@ import { GATE_POSITIONS } from '../data/gates';
 // Gate state enum for tracking modifications
 export enum GateState {
   Original = 0,    // Gate as placed on original map
-  Wall = 1,        // Converted to wall by Eldoin
+  Pavement = 1,    // Converted to pavement by Eldoin (opens gate)
   Meadow = 2,      // Converted to meadow by Dailor
   Destroyed = 3,   // Destroyed by combat (becomes Pavement)
 }
@@ -87,8 +87,8 @@ export class GameState {
     if (gateIndex !== -1) {
       const state = this.gateStates[gateIndex]!;
       switch (state) {
-        case GateState.Wall:
-          return TerrainType.Wall;
+        case GateState.Pavement:
+          return TerrainType.Pavement;
         case GateState.Meadow:
           return TerrainType.Meadow;
         case GateState.Destroyed:

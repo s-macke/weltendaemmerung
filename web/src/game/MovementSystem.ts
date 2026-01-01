@@ -25,10 +25,11 @@ export function canMoveTo(
     return false;
   }
 
-  // Target must be adjacent (1 tile away)
+  // Target must be orthogonally adjacent (no diagonal movement)
   const dx = Math.abs(target.x - unit.x);
   const dy = Math.abs(target.y - unit.y);
-  if (dx > 1 || dy > 1 || (dx === 0 && dy === 0)) {
+  // Only allow movement in 4 cardinal directions: (1,0), (0,1), (-1,0), (0,-1)
+  if (!((dx === 1 && dy === 0) || (dx === 0 && dy === 1))) {
     return false;
   }
 
@@ -99,20 +100,23 @@ export function moveUnit(
 
 /**
  * Get all valid movement targets for a unit.
- * Returns adjacent tiles the unit can move to.
+ * Returns orthogonally adjacent tiles the unit can move to (4 directions only).
  */
 export function getValidMoveTargets(state: GameState, unit: Unit): Coord[] {
   const targets: Coord[] = [];
 
-  // Check all 8 adjacent tiles
-  for (let dy = -1; dy <= 1; dy++) {
-    for (let dx = -1; dx <= 1; dx++) {
-      if (dx === 0 && dy === 0) continue;
+  // Check only 4 orthogonal directions (no diagonal movement)
+  const directions = [
+    { dx: 0, dy: -1 }, // up
+    { dx: 0, dy: 1 },  // down
+    { dx: -1, dy: 0 }, // left
+    { dx: 1, dy: 0 },  // right
+  ];
 
-      const target: Coord = { x: unit.x + dx, y: unit.y + dy };
-      if (canMoveTo(state, unit, target)) {
-        targets.push(target);
-      }
+  for (const { dx, dy } of directions) {
+    const target: Coord = { x: unit.x + dx, y: unit.y + dy };
+    if (canMoveTo(state, unit, target)) {
+      targets.push(target);
     }
   }
 

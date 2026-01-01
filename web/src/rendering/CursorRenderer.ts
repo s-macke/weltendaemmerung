@@ -211,4 +211,37 @@ export class CursorRenderer {
 
     ctx.globalAlpha = 1.0;
   }
+
+  /**
+   * Render valid torphase (fortification) positions.
+   */
+  renderTorphaseTargets(
+    ctx: CanvasRenderingContext2D,
+    targets: Coord[],
+    viewportX: number,
+    viewportY: number
+  ): void {
+    for (const target of targets) {
+      const screenX = target.x - viewportX;
+      const screenY = target.y - viewportY;
+
+      if (screenX >= 0 && screenX < 40 && screenY >= 0 && screenY < 19) {
+        const pixelX = screenX * this.tileSize;
+        const pixelY = screenY * this.tileSize;
+
+        // Fill with semi-transparent purple
+        ctx.fillStyle = C64_COLORS.purple;
+        ctx.globalAlpha = 0.5;
+        ctx.fillRect(pixelX, pixelY, this.tileSize, this.tileSize);
+
+        // Add bright outline for visibility
+        ctx.globalAlpha = 1.0;
+        ctx.strokeStyle = C64_COLORS.lightBlue;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(pixelX + 0.5, pixelY + 0.5, this.tileSize - 1, this.tileSize - 1);
+      }
+    }
+
+    ctx.globalAlpha = 1.0;
+  }
 }

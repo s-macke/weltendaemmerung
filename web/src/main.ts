@@ -6,9 +6,14 @@ import { MAP_WIDTH, MAP_HEIGHT, getCharCodeAt } from './data/map';
 import { GameState } from './game/GameState';
 import { CursorRenderer } from './rendering';
 import { TitleScreen, VictoryScreen, GameChrome, StatusBar, initScreens, showScreen, VictoryCondition } from './screens';
-import { Player } from './types';
+import { Player, Phase } from './types';
 import { advanceTurn } from './game/TurnManager';
 import { checkVictory } from './game/VictoryChecker';
+import { canMoveTo, moveUnit, getValidMoveTargets } from './game/MovementSystem';
+import { canAttack, attackUnit, canAttackStructure, attackStructure } from './game/CombatSystem';
+import { canPerformTorphase, performTorphase, getValidTorphasePositions } from './game/FortificationSystem';
+import { findGateAt } from './data/gates';
+import { GateState } from './game/GameState';
 
 // Tile rendering constants
 const TILE_SIZE = 8;
@@ -39,6 +44,20 @@ let cursorMapY = 0;
 
 // Game running flag
 let gameRunning = false;
+
+// Edge scrolling state
+let mouseOverCanvas = false;
+let lastMouseX = 0;
+let lastMouseY = 0;
+const EDGE_SCROLL_ZONE = 16;
+let edgeScrollInterval: number | null = null;
+
+// Touch input state
+let touchStartX = 0;
+let touchStartY = 0;
+let touchStartViewportX = 0;
+let touchStartViewportY = 0;
+let isTouchDragging = false;
 
 // Load a single tile image
 async function loadTile(index: number): Promise<HTMLImageElement> {
@@ -71,6 +90,10 @@ function charCodeToTileIndex(charCode: number): number {
   return charCode - TILE_OFFSET;
 }
 
+// Tile indices for terrain types (char code - TILE_OFFSET)
+const TILE_MEADOW = 0x6A - TILE_OFFSET;   // 12 - Meadow tile
+const TILE_PAVEMENT = 0x71 - TILE_OFFSET; // 19 - Pavement tile
+
 // Render the map viewport
 function renderMap(ctx: CanvasRenderingContext2D): void {
   // Fill background with C64 green
@@ -86,9 +109,32 @@ function renderMap(ctx: CanvasRenderingContext2D): void {
       // Skip out-of-bounds tiles
       if (mapX >= MAP_WIDTH || mapY >= MAP_HEIGHT) continue;
 
-      const charCode = getCharCodeAt(mapX, mapY);
+      let tileIndex: number;
 
-      const tileIndex = charCodeToTileIndex(charCode);
+      // Check if this is a gate position with modified state
+      const gate = findGateAt({ x: mapX, y: mapY });
+      if (gate) {
+        const gateState = gameState.getGateState(gate.index);
+        switch (gateState) {
+          case GateState.Pavement:
+            tileIndex = TILE_PAVEMENT;
+            break;
+          case GateState.Meadow:
+            tileIndex = TILE_MEADOW;
+            break;
+          case GateState.Destroyed:
+            tileIndex = TILE_PAVEMENT;
+            break;
+          default:
+            // Original state - use base map tile
+            tileIndex = charCodeToTileIndex(getCharCodeAt(mapX, mapY));
+        }
+      } else {
+        // Not a gate position - use base map tile
+        const charCode = getCharCodeAt(mapX, mapY);
+        tileIndex = charCodeToTileIndex(charCode);
+      }
+
       const tileImg = tileImages.get(tileIndex);
 
       if (tileImg) {
@@ -151,6 +197,10 @@ function handleKeyboard(e: KeyboardEvent): void {
 function handleMouseMove(e: MouseEvent): void {
   if (!gameRunning) return;
 
+  // Track position for edge scrolling
+  lastMouseX = e.clientX;
+  lastMouseY = e.clientY;
+
   const canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
   if (!canvas) return;
 
@@ -173,6 +223,62 @@ function handleMouseMove(e: MouseEvent): void {
   requestAnimationFrame(() => render());
 }
 
+// Process click at map coordinates - shared by mouse and touch
+function processClick(mapX: number, mapY: number): void {
+  const clickedUnit = gameState.getUnitAt({ x: mapX, y: mapY });
+  const target = { x: mapX, y: mapY };
+
+  // FORTIFICATION PHASE: Build gates/walls
+  if (gameState.phase === Phase.Fortification) {
+    if (canPerformTorphase(gameState, target, gameState.currentPlayer)) {
+      performTorphase(gameState, target);
+    }
+    requestAnimationFrame(() => render());
+    return;
+  }
+
+  // ATTACK PHASE: Attack enemy units or structures
+  if (gameState.phase === Phase.Attack && gameState.selectedUnit) {
+    // Attack enemy unit
+    if (clickedUnit && clickedUnit.owner !== gameState.currentPlayer) {
+      if (canAttack(gameState, gameState.selectedUnit, clickedUnit)) {
+        attackUnit(gameState, gameState.selectedUnit, clickedUnit);
+        const result = checkVictory(gameState);
+        if (result) {
+          handleVictory(result.winner, result.condition);
+          return;
+        }
+        requestAnimationFrame(() => render());
+        return;
+      }
+    }
+    // Attack structure (gate/wall)
+    if (!clickedUnit && canAttackStructure(gameState, gameState.selectedUnit, target)) {
+      attackStructure(gameState, gameState.selectedUnit, target);
+      requestAnimationFrame(() => render());
+      return;
+    }
+  }
+
+  // MOVEMENT: Move selected unit (Movement or Attack phase)
+  if (gameState.selectedUnit && !clickedUnit) {
+    if (canMoveTo(gameState, gameState.selectedUnit, target)) {
+      moveUnit(gameState, gameState.selectedUnit, target);
+      requestAnimationFrame(() => render());
+      return;
+    }
+  }
+
+  // SELECTION: Toggle unit selection (own units only)
+  if (clickedUnit && clickedUnit.owner === gameState.currentPlayer) {
+    gameState.selectedUnit = (gameState.selectedUnit === clickedUnit) ? null : clickedUnit;
+  } else if (!clickedUnit) {
+    gameState.selectedUnit = null;
+  }
+
+  requestAnimationFrame(() => render());
+}
+
 // Handle mouse click for unit selection and actions
 function handleMouseClick(e: MouseEvent): void {
   if (!gameRunning) return;
@@ -183,32 +289,12 @@ function handleMouseClick(e: MouseEvent): void {
   const rect = canvas.getBoundingClientRect();
   const scaleX = canvas.width / rect.width;
   const scaleY = canvas.height / rect.height;
-
   const canvasX = (e.clientX - rect.left) * scaleX;
   const canvasY = (e.clientY - rect.top) * scaleY;
+  const mapX = Math.max(0, Math.min(MAP_WIDTH - 1, Math.floor(canvasX / TILE_SIZE) + viewportX));
+  const mapY = Math.max(0, Math.min(MAP_HEIGHT - 1, Math.floor(canvasY / TILE_SIZE) + viewportY));
 
-  const tileX = Math.floor(canvasX / TILE_SIZE) + viewportX;
-  const tileY = Math.floor(canvasY / TILE_SIZE) + viewportY;
-
-  // Clamp to map bounds
-  const mapX = Math.max(0, Math.min(MAP_WIDTH - 1, tileX));
-  const mapY = Math.max(0, Math.min(MAP_HEIGHT - 1, tileY));
-
-  const clickedUnit = gameState.getUnitAt({ x: mapX, y: mapY });
-
-  // Toggle unit selection
-  if (clickedUnit && clickedUnit.owner === gameState.currentPlayer) {
-    if (gameState.selectedUnit === clickedUnit) {
-      gameState.selectedUnit = null;
-    } else {
-      gameState.selectedUnit = clickedUnit;
-    }
-  } else if (!clickedUnit && gameState.selectedUnit) {
-    // Deselect if clicking empty tile
-    gameState.selectedUnit = null;
-  }
-
-  requestAnimationFrame(() => render());
+  processClick(mapX, mapY);
 }
 
 // Handle right-click to deselect
@@ -218,6 +304,101 @@ function handleRightClick(e: MouseEvent): void {
 
   gameState.selectedUnit = null;
   requestAnimationFrame(() => render());
+}
+
+// Edge scrolling - scroll viewport when mouse is near edge
+function updateEdgeScroll(): void {
+  if (!gameRunning || !mouseOverCanvas) return;
+
+  const canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
+  if (!canvas) return;
+  const rect = canvas.getBoundingClientRect();
+
+  const canvasX = lastMouseX - rect.left;
+  const canvasY = lastMouseY - rect.top;
+
+  let scrolled = false;
+  if (canvasX < EDGE_SCROLL_ZONE && viewportX > 0) { viewportX--; scrolled = true; }
+  if (canvasX > rect.width - EDGE_SCROLL_ZONE && viewportX < MAP_WIDTH - VIEWPORT_WIDTH) { viewportX++; scrolled = true; }
+  if (canvasY < EDGE_SCROLL_ZONE && viewportY > 0) { viewportY--; scrolled = true; }
+  if (canvasY > rect.height - EDGE_SCROLL_ZONE && viewportY < MAP_HEIGHT - VIEWPORT_HEIGHT) { viewportY++; scrolled = true; }
+
+  if (scrolled) requestAnimationFrame(() => render());
+}
+
+// Touch handlers for mobile support
+function handleTouchStart(e: TouchEvent): void {
+  if (!gameRunning || e.touches.length !== 1) return;
+
+  const touch = e.touches[0];
+  if (!touch) return;
+  touchStartX = touch.clientX;
+  touchStartY = touch.clientY;
+  touchStartViewportX = viewportX;
+  touchStartViewportY = viewportY;
+  isTouchDragging = false;
+}
+
+function handleTouchMove(e: TouchEvent): void {
+  if (!gameRunning || e.touches.length !== 1) return;
+  e.preventDefault(); // Prevent page scrolling
+
+  const touch = e.touches[0];
+  if (!touch) return;
+  const deltaX = touchStartX - touch.clientX;
+  const deltaY = touchStartY - touch.clientY;
+
+  // If moved more than 10px, treat as drag
+  if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
+    isTouchDragging = true;
+  }
+
+  if (isTouchDragging) {
+    const canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+
+    // Convert pixel drag to tile scroll
+    const tileDeltaX = Math.floor((deltaX * scaleX) / TILE_SIZE);
+    const tileDeltaY = Math.floor((deltaY * scaleY) / TILE_SIZE);
+
+    viewportX = Math.max(0, Math.min(MAP_WIDTH - VIEWPORT_WIDTH, touchStartViewportX + tileDeltaX));
+    viewportY = Math.max(0, Math.min(MAP_HEIGHT - VIEWPORT_HEIGHT, touchStartViewportY + tileDeltaY));
+
+    requestAnimationFrame(() => render());
+  }
+}
+
+function handleTouchEnd(_e: TouchEvent): void {
+  if (!gameRunning) return;
+
+  // If was dragging, don't process as tap
+  if (isTouchDragging) {
+    isTouchDragging = false;
+    return;
+  }
+
+  // Treat as click at start position
+  const canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
+  if (!canvas) return;
+
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  const canvasX = (touchStartX - rect.left) * scaleX;
+  const canvasY = (touchStartY - rect.top) * scaleY;
+  const mapX = Math.max(0, Math.min(MAP_WIDTH - 1, Math.floor(canvasX / TILE_SIZE) + viewportX));
+  const mapY = Math.max(0, Math.min(MAP_HEIGHT - 1, Math.floor(canvasY / TILE_SIZE) + viewportY));
+
+  // Update cursor position for status bar
+  cursorMapX = mapX;
+  cursorMapY = mapY;
+  cursorRenderer.setCursorPosition(mapX, mapY);
+
+  // Process click (same logic as mouse click)
+  processClick(mapX, mapY);
 }
 
 // Handle end turn
@@ -280,8 +461,28 @@ function render(): void {
   // Update pulse animation
   cursorRenderer.updatePulse(performance.now());
 
-  // Render layers
+  // Render map
   renderMap(ctx);
+
+  // Render valid targets BEFORE cursor
+  if (gameState.selectedUnit && gameState.isUnitAlive(gameState.selectedUnit)) {
+    // Movement targets (green)
+    const moveTargets = getValidMoveTargets(gameState, gameState.selectedUnit);
+    cursorRenderer.renderMoveTargets(ctx, moveTargets, viewportX, viewportY);
+
+    // Attack range in attack phase (red)
+    if (gameState.phase === Phase.Attack) {
+      cursorRenderer.renderAttackRange(ctx, gameState, viewportX, viewportY);
+    }
+  }
+
+  // Fortification targets in torphase (purple)
+  if (gameState.phase === Phase.Fortification) {
+    const torphaseTargets = getValidTorphasePositions(gameState);
+    cursorRenderer.renderTorphaseTargets(ctx, torphaseTargets, viewportX, viewportY);
+  }
+
+  // Render cursor
   cursorRenderer.render(ctx, gameState, viewportX, viewportY);
 
   // Update UI
@@ -320,9 +521,28 @@ async function init(): Promise<void> {
 
   const canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
   if (canvas) {
+    // Mouse events
     canvas.addEventListener('mousemove', handleMouseMove);
     canvas.addEventListener('click', handleMouseClick);
     canvas.addEventListener('contextmenu', handleRightClick);
+
+    // Edge scrolling
+    canvas.addEventListener('mouseenter', () => {
+      mouseOverCanvas = true;
+      edgeScrollInterval = window.setInterval(updateEdgeScroll, 100);
+    });
+    canvas.addEventListener('mouseleave', () => {
+      mouseOverCanvas = false;
+      if (edgeScrollInterval) {
+        clearInterval(edgeScrollInterval);
+        edgeScrollInterval = null;
+      }
+    });
+
+    // Touch events for mobile
+    canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+    canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+    canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
   }
 
   console.log('Ready! Click START GAME to begin.');

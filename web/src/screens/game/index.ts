@@ -6,7 +6,6 @@ import template from './template.html?raw';
 import { Player, Phase, TerrainType } from '../../types';
 import { GameState } from '../../game/GameState';
 import { UNIT_STATS } from '../../data/units';
-import { getTerrainAt } from '../../data/map';
 
 // ═══════════════════════════════════════════════════════════════════
 // GAME CHROME - Header bar with player indicator, phase display, etc.
@@ -200,17 +199,17 @@ export class StatusBar {
    * Update the status bar based on game state and cursor position
    */
   update(gameState: GameState, cursorX: number, cursorY: number): void {
-    this.updateTerrainInfo(cursorX, cursorY);
+    this.updateTerrainInfo(gameState, cursorX, cursorY);
     this.updateUnitInfo(gameState, cursorX, cursorY);
   }
 
   /**
    * Update terrain information display
    */
-  private updateTerrainInfo(x: number, y: number): void {
+  private updateTerrainInfo(gameState: GameState, x: number, y: number): void {
     if (!this.terrainInfo) return;
 
-    const terrain = getTerrainAt(x, y);
+    const terrain = gameState.getTerrainAt({ x, y });
     const terrainName = TERRAIN_NAMES[terrain] || 'Unknown';
 
     // Add color coding for terrain

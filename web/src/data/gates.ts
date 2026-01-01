@@ -9,28 +9,30 @@ export interface GatePosition {
   territory: Player;
 }
 
-// Territory boundary: X < 60 = Eldoin, X >= 60 = Dailor
-export const TERRITORY_BOUNDARY_X = 60;
+// Territory boundary (0-indexed): X < 59 = Eldoin, X >= 59 = Dailor
+// Note: C64 uses 1-indexed cursor coords (boundary at 60)
+export const TERRITORY_BOUNDARY_X = 59;
 
-// 13 fixed gate positions on the map
+// 13 fixed gate positions on the map (0-indexed coordinates)
+// Note: C64 uses 1-indexed cursor coords, converted here for array access
 // Players can only build/modify gates at these specific locations
 export const GATE_POSITIONS: GatePosition[] = [
-  // Eldoin territory (X < 60) - 10 gates
-  { index: 0,  pos: { x: 5,  y: 6 },  territory: Player.Eldoin },
-  { index: 1,  pos: { x: 17, y: 5 },  territory: Player.Eldoin },
-  { index: 2,  pos: { x: 29, y: 10 }, territory: Player.Eldoin },
-  { index: 3,  pos: { x: 14, y: 21 }, territory: Player.Eldoin },
-  { index: 4,  pos: { x: 42, y: 21 }, territory: Player.Eldoin },
-  { index: 5,  pos: { x: 47, y: 21 }, territory: Player.Eldoin },
-  { index: 6,  pos: { x: 52, y: 21 }, territory: Player.Eldoin },
-  { index: 7,  pos: { x: 25, y: 25 }, territory: Player.Eldoin },
-  { index: 8,  pos: { x: 5,  y: 35 }, territory: Player.Eldoin },
-  { index: 9,  pos: { x: 11, y: 34 }, territory: Player.Eldoin },
+  // Eldoin territory (X < 59) - 10 gates
+  { index: 0,  pos: { x: 4,  y: 5 },  territory: Player.Eldoin },
+  { index: 1,  pos: { x: 16, y: 4 },  territory: Player.Eldoin },
+  { index: 2,  pos: { x: 28, y: 9 },  territory: Player.Eldoin },
+  { index: 3,  pos: { x: 13, y: 20 }, territory: Player.Eldoin },
+  { index: 4,  pos: { x: 41, y: 20 }, territory: Player.Eldoin },
+  { index: 5,  pos: { x: 46, y: 20 }, territory: Player.Eldoin },
+  { index: 6,  pos: { x: 51, y: 20 }, territory: Player.Eldoin },
+  { index: 7,  pos: { x: 24, y: 24 }, territory: Player.Eldoin },
+  { index: 8,  pos: { x: 4,  y: 34 }, territory: Player.Eldoin },
+  { index: 9,  pos: { x: 10, y: 33 }, territory: Player.Eldoin },
 
-  // Dailor territory (X >= 60) - 3 gates
-  { index: 10, pos: { x: 70, y: 7 },  territory: Player.Dailor },
-  { index: 11, pos: { x: 69, y: 17 }, territory: Player.Dailor },
-  { index: 12, pos: { x: 75, y: 34 }, territory: Player.Dailor },
+  // Dailor territory (X >= 59) - 3 gates
+  { index: 10, pos: { x: 69, y: 6 },  territory: Player.Dailor },
+  { index: 11, pos: { x: 68, y: 16 }, territory: Player.Dailor },
+  { index: 12, pos: { x: 74, y: 33 }, territory: Player.Dailor },
 ];
 
 // Total gate counts per territory

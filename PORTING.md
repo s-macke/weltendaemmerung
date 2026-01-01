@@ -239,7 +239,7 @@ Instead of storing a mutable copy of the map terrain, gate modifications are tra
 ```typescript
 enum GateState {
   Original = 0,    // Gate as placed on original map
-  Wall = 1,        // Converted to wall by Eldoin
+  Pavement = 1,    // Converted to pavement by Eldoin (opens gate)
   Meadow = 2,      // Converted to meadow by Dailor
   Destroyed = 3,   // Destroyed by combat (becomes Pavement)
 }
@@ -283,9 +283,27 @@ All 16 unit types with stats from [docs/units.md](docs/units.md):
 
 ---
 
-## Terrain Movement Costs
+## Movement System
 
-From [docs/movement.md](docs/movement.md), special terrain costs by unit type:
+From [docs/movement.md](docs/movement.md):
+
+### Orthogonal Movement Only
+
+Movement is restricted to **4 cardinal directions only** (up, down, left, right). Diagonal movement is not allowed in the original C64 game.
+
+```typescript
+// Only allow orthogonal movement
+const directions = [
+  { dx: 0, dy: -1 }, // up
+  { dx: 0, dy: 1 },  // down
+  { dx: -1, dy: 0 }, // left
+  { dx: 1, dy: 0 },  // right
+];
+```
+
+### Terrain Movement Costs
+
+Special terrain costs by unit type:
 
 ```typescript
 // Default cost for Meadow, Gate, Mountains, Pavement, Wall = 1
@@ -457,9 +475,9 @@ function performTorphase(state: GameState, pos: Coord): boolean {
   if (terrain === TerrainType.Gate) {
     // Convert gate
     if (state.currentPlayer === Player.Eldoin) {
-      setTerrainAt(state, pos, TerrainType.Wall);   // Eldoin: Gate → Wall
+      setTerrainAt(state, pos, TerrainType.Pavement); // Eldoin: Gate → Pavement (opens gate)
     } else {
-      setTerrainAt(state, pos, TerrainType.Meadow); // Dailor: Gate → Meadow
+      setTerrainAt(state, pos, TerrainType.Meadow);   // Dailor: Gate → Meadow
     }
   } else {
     // Place new gate
@@ -710,7 +728,8 @@ Deselect current unit / cancel action.
 ## Testing Checklist
 
 ### Movement
-- [ ] Unit can/c move on meadow (cost 1)
+- [ ] Movement is orthogonal only (4 directions, no diagonals)
+- [ ] Unit can move on meadow (cost 1)
 - [ ] Eagle/Bloodsucker flies over all terrain
 - [ ] Warship only moves on river
 - [ ] Movement points deducted correctly
@@ -727,7 +746,7 @@ Deselect current unit / cancel action.
 ### Torphase
 - [ ] Only 13 valid positions
 - [ ] Territory restriction enforced
-- [ ] Eldoin: Gate → Wall
+- [ ] Eldoin: Gate → Pavement (opens gate)
 - [ ] Dailor: Gate → Meadow
 - [ ] Either: Non-gate → Gate
 - [ ] Destroyed gates cannot be used
