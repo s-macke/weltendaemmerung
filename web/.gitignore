@@ -1,7 +1,4 @@
 node_modules/
 dist/
 .vite/
-.claude/
-.playwright-mcp/
 *.local
-.idea
