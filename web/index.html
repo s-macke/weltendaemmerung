@@ -7,9 +7,9 @@
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body class="bg-c64-black min-h-screen flex items-center justify-center">
-    <div id="app" class="relative">
-      <canvas id="game-canvas" width="320" height="152"></canvas>
-      <div id="status-bar" class="bg-c64-blue text-c64-light-blue font-mono text-sm p-1"></div>
+    <div id="app" class="relative" style="width: min(90vw, 640px);">
+      <canvas id="game-canvas" width="320" height="152" style="width: 100%; image-rendering: pixelated;"></canvas>
+      <div id="status-bar" class="bg-c64-blue text-c64-light-blue font-mono text-sm p-2 flex flex-col gap-1" style="width: 100%;"></div>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>

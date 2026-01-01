@@ -1,7 +1,7 @@
 // Core game state management for Weltendaemmerung
 
 import { Player, Phase, TerrainType, Unit, Coord } from '../types';
-import { MAP_TERRAIN, MAP_WIDTH, MAP_HEIGHT } from '../data/map';
+import { getTerrainAt as getBaseTerrainAt, MAP_WIDTH, MAP_HEIGHT } from '../data/map';
 import { INITIAL_UNITS } from '../data/initialUnits';
 import { UNIT_STATS } from '../data/units';
 import { GATE_POSITIONS } from '../data/gates';
@@ -77,7 +77,7 @@ export class GameState {
     }
 
     // Get original terrain
-    const original = MAP_TERRAIN[pos.y * MAP_WIDTH + pos.x]!;
+    const original = getBaseTerrainAt(pos.x, pos.y);
 
     // Check if this is a gate position that may have been modified
     const gateIndex = GATE_POSITIONS.findIndex(

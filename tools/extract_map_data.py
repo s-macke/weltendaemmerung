@@ -37,6 +37,29 @@ TERRAIN_CODES = {
     0x73: 'Wall2',
 }
 
+# Compact string representation mapping
+# Char code -> single character for compact map strings
+CODE_TO_CHAR = {
+    # UI Frame elements (fortress walls)
+    0x61: '1', 0x62: '2', 0x63: '3', 0x64: '4',
+    0x65: '5', 0x66: '6', 0x67: '7', 0x68: '8',
+    # Terrain
+    0x69: 'M',  # Meadow1
+    0x6A: 'm',  # Meadow2
+    0x6B: 'R',  # River
+    0x6C: 'F',  # Forest
+    0x6D: 'E',  # End
+    0x6E: 'S',  # Swamp
+    0x6F: 'G',  # Gate
+    0x70: 'X',  # Mountains
+    0x71: 'P',  # Pavement
+    0x72: 'W',  # Wall1
+    0x73: 'w',  # Wall2
+}
+
+# Reverse mapping for TypeScript generation
+CHAR_TO_CODE = {v: k for k, v in CODE_TO_CHAR.items()}
+
 # Unit type info: (German name, English name, owner: 0=Eldoin, 1=Dailor)
 UNIT_INFO = [
     ('Schwertträger', 'Sword Bearers', 0),      # 0
@@ -168,7 +191,7 @@ def convert_terrain_to_enum(char_code: int) -> str:
 
 
 def generate_map_ts(map_data: list[int]) -> str:
-    """Generate TypeScript file with map data."""
+    """Generate TypeScript file with compact string-based map data."""
     lines = [
         "// Auto-generated map data from Weltendaemmerung C64 binary",
         "// DO NOT EDIT - regenerate with tools/extract_map_data.py",
@@ -178,44 +201,68 @@ def generate_map_ts(map_data: list[int]) -> str:
         "export const MAP_WIDTH = 80;",
         "export const MAP_HEIGHT = 40;",
         "",
-        "// Raw character codes from C64 binary (for tile rendering)",
-        "// $69-$6A = Meadow, $6B = River, $6C = Forest, $6D = End,",
-        "// $6E = Swamp, $6F = Gate, $70 = Mountains, $71 = Pavement, $72-$73 = Wall",
-        "export const MAP_CHAR_CODES: number[] = [",
+        "// Compact map representation - each character represents one tile",
+        "// Terrain: M/m=Meadow, R=River, F=Forest, E=End, S=Swamp, G=Gate, X=Mountains, P=Pavement, W/w=Wall",
+        "// Frame elements: 1-8 (fortress walls, map to Wall for game logic)",
+        "const MAP_STRINGS: string[] = [",
     ]
 
-    # Output map data as rows
+    # Output map data as compact strings
     for y in range(MAP_HEIGHT):
         row_start = y * MAP_WIDTH
         row_end = row_start + MAP_WIDTH
         row_data = map_data[row_start:row_end]
-        hex_values = ', '.join(f'0x{v:02X}' for v in row_data)
-        lines.append(f"  {hex_values},  // Row {y}")
+        row_str = ''.join(CODE_TO_CHAR.get(v, '?') for v in row_data)
+        lines.append(f'  "{row_str}",')
 
     lines.append("];")
     lines.append("")
 
-    # Generate terrain type array
-    lines.append("// Terrain types for game logic (derived from char codes)")
-    lines.append("export const MAP_TERRAIN: TerrainType[] = [")
-
-    for y in range(MAP_HEIGHT):
-        row_start = y * MAP_WIDTH
-        row_end = row_start + MAP_WIDTH
-        row_data = map_data[row_start:row_end]
-        terrain_values = ', '.join(convert_terrain_to_enum(v) for v in row_data)
-        lines.append(f"  {terrain_values},")
-
-    lines.append("];")
+    # Character to char code mapping
+    lines.append("// Character to C64 char code mapping")
+    lines.append("const CHAR_TO_CODE: Record<string, number> = {")
+    char_mappings = ', '.join(f"'{c}': 0x{code:02X}" for c, code in sorted(CHAR_TO_CODE.items()))
+    lines.append(f"  {char_mappings}")
+    lines.append("};")
     lines.append("")
 
-    # Helper function
+    # Character to terrain type mapping
+    lines.append("// Character to terrain type mapping")
+    lines.append("const CHAR_TO_TERRAIN: Record<string, TerrainType> = {")
+    terrain_mappings = []
+    for char, code in sorted(CHAR_TO_CODE.items()):
+        if char in '12345678':
+            terrain_mappings.append(f"'{char}': TerrainType.Wall")
+        elif char == 'M' or char == 'm':
+            terrain_mappings.append(f"'{char}': TerrainType.Meadow")
+        elif char == 'W' or char == 'w':
+            terrain_mappings.append(f"'{char}': TerrainType.Wall")
+        elif char == 'R':
+            terrain_mappings.append(f"'{char}': TerrainType.River")
+        elif char == 'F':
+            terrain_mappings.append(f"'{char}': TerrainType.Forest")
+        elif char == 'E':
+            terrain_mappings.append(f"'{char}': TerrainType.End")
+        elif char == 'S':
+            terrain_mappings.append(f"'{char}': TerrainType.Swamp")
+        elif char == 'G':
+            terrain_mappings.append(f"'{char}': TerrainType.Gate")
+        elif char == 'X':
+            terrain_mappings.append(f"'{char}': TerrainType.Mountains")
+        elif char == 'P':
+            terrain_mappings.append(f"'{char}': TerrainType.Pavement")
+    lines.append(f"  {', '.join(terrain_mappings)}")
+    lines.append("};")
+    lines.append("")
+
+    # Helper functions
     lines.append("// Get terrain at map coordinates")
     lines.append("export function getTerrainAt(x: number, y: number): TerrainType {")
     lines.append("  if (x < 0 || x >= MAP_WIDTH || y < 0 || y >= MAP_HEIGHT) {")
     lines.append("    return TerrainType.End;")
     lines.append("  }")
-    lines.append("  return MAP_TERRAIN[y * MAP_WIDTH + x]!;")
+    lines.append("  const char = MAP_STRINGS[y]![x]!;")
+    lines.append("  return CHAR_TO_TERRAIN[char] ?? TerrainType.End;")
     lines.append("}")
     lines.append("")
 
@@ -224,7 +271,8 @@ def generate_map_ts(map_data: list[int]) -> str:
     lines.append("  if (x < 0 || x >= MAP_WIDTH || y < 0 || y >= MAP_HEIGHT) {")
     lines.append("    return 0x6D; // End marker")
     lines.append("  }")
-    lines.append("  return MAP_CHAR_CODES[y * MAP_WIDTH + x]!;")
+    lines.append("  const char = MAP_STRINGS[y]![x]!;")
+    lines.append("  return CHAR_TO_CODE[char] ?? 0x6D;")
     lines.append("}")
     lines.append("")
 

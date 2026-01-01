@@ -113,8 +113,37 @@ python3 tools/extract_map_data.py
 ```
 
 This generates:
-- `web/src/data/map.ts` - 80x40 terrain grid with character codes
+- `web/src/data/map.ts` - 80x40 terrain grid as compact strings
 - `web/src/data/initialUnits.ts` - 292 unit positions
+
+#### Compact Map Format
+
+The map data uses a compact string representation where each character represents one terrain tile:
+
+| Char | Hex Code | Terrain |
+|------|----------|---------|
+| M    | 0x69     | Meadow (variant 1) |
+| m    | 0x6A     | Meadow (variant 2) |
+| R    | 0x6B     | River |
+| F    | 0x6C     | Forest |
+| E    | 0x6D     | End (map boundary) |
+| S    | 0x6E     | Swamp |
+| G    | 0x6F     | Gate |
+| X    | 0x70     | Mountains |
+| P    | 0x71     | Pavement |
+| W    | 0x72     | Wall (variant 1) |
+| w    | 0x73     | Wall (variant 2) |
+| 1-8  | 0x61-68  | UI frame elements (fortress walls) |
+
+The generated file exports helper functions rather than raw arrays:
+
+```typescript
+// Get terrain type for game logic (e.g., movement costs)
+export function getTerrainAt(x: number, y: number): TerrainType;
+
+// Get C64 character code for rendering (distinguishes visual variants)
+export function getCharCodeAt(x: number, y: number): number;
+```
 
 ### Tile Assets
 Copy existing extracted tiles:
@@ -206,7 +235,7 @@ enum GateState {
 ```
 
 The `GameState` class stores `gateStates: GateState[]` (13 entries) and derives current terrain by checking:
-1. Original `MAP_TERRAIN` at position
+1. Original terrain via `getTerrainAt(x, y)` from map.ts
 2. If position is a gate location, apply the `GateState` override
 
 ---
@@ -526,10 +555,12 @@ From [docs/screen_display.md](docs/screen_display.md):
 
 ### Status Bar
 Located below the map canvas, displaying:
-1. **Phase header:** `[PLAYER] [PHASE]PHASE`
-   - Example: "ELDOIN BEWEGUNGSPHASE"
-2. **Terrain info:** Current terrain name at cursor
-3. **Unit stats:** `R= XX  B= XX  A= XX  V= XX` (when cursor on unit)
+1. **Phase header:** `[PLAYER] [PHASE] PHASE`
+   - Example: "ELDOIN MOVEMENT PHASE"
+2. **Terrain info:** Current terrain name at cursor (English: Meadow, River, Forest, etc.)
+3. **Unit stats:** `[Unit Name] - Rng=XX Mov=XX Atk=XX Def=XX` (when cursor on unit)
+   - Rng = Range, Mov = Movement, Atk = Attack, Def = Defense
+4. **Turn counter:** `Turn X/15`
 
 ### Cursor Behavior
 - **Movement phase:** Pointer cursor, white highlight
@@ -589,13 +620,13 @@ Deselect current unit / cancel action.
 - [x] Implement FortificationSystem (gates, walls)
 - [x] Implement VictoryChecker (3 conditions)
 
-### Phase 4: Rendering
+### Phase 4: Rendering ✅
 **Read:** [docs/screen_display.md](docs/screen_display.md), [docs/map.md](docs/map.md)
 
 - [x] Implement TileRenderer (load PNG tiles)
 - [x] Implement MapRenderer (Canvas, viewport scrolling)
-- [ ] Implement CursorRenderer (phase-based styling)
-- [ ] Implement UIRenderer (status bar)
+- [x] Implement CursorRenderer (phase-based styling)
+- [x] Implement UIRenderer (status bar)
 
 ### Phase 5: UI Screens
 **Read:** [docs/title_screen.md](docs/title_screen.md), [docs/screen_display.md](docs/screen_display.md)
@@ -628,7 +659,7 @@ Deselect current unit / cancel action.
 ## Testing Checklist
 
 ### Movement
-- [ ] Unit can move on meadow (cost 1)
+- [ ] Unit can/c move on meadow (cost 1)
 - [ ] Eagle/Bloodsucker flies over all terrain
 - [ ] Warship only moves on river
 - [ ] Movement points deducted correctly

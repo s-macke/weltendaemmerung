@@ -2,8 +2,9 @@
 // A Commodore 64 fantasy strategy game for two players
 
 import { C64_COLORS } from './utils/colors';
-import { MAP_WIDTH, MAP_HEIGHT, MAP_CHAR_CODES } from './data/map';
-import { INITIAL_UNITS } from './data/initialUnits';
+import { MAP_WIDTH, MAP_HEIGHT, getCharCodeAt } from './data/map';
+import { GameState } from './game/GameState';
+import { UIRenderer, CursorRenderer } from './rendering';
 
 // Tile rendering constants
 const TILE_SIZE = 8;
@@ -17,6 +18,13 @@ const tileImages: Map<number, HTMLImageElement> = new Map();
 // Viewport position
 let viewportX = 0;
 let viewportY = 0;
+
+// Game state
+const gameState = new GameState();
+
+// Renderers
+const uiRenderer = new UIRenderer();
+const cursorRenderer = new CursorRenderer();
 
 // Load a single tile image
 async function loadTile(index: number): Promise<HTMLImageElement> {
@@ -64,8 +72,7 @@ function renderMap(ctx: CanvasRenderingContext2D): void {
       // Skip out-of-bounds tiles
       if (mapX >= MAP_WIDTH || mapY >= MAP_HEIGHT) continue;
 
-      const charCode = MAP_CHAR_CODES[mapY * MAP_WIDTH + mapX];
-      if (charCode === undefined) continue;
+      const charCode = getCharCodeAt(mapX, mapY);
 
       const tileIndex = charCodeToTileIndex(charCode);
       const tileImg = tileImages.get(tileIndex);
@@ -76,8 +83,11 @@ function renderMap(ctx: CanvasRenderingContext2D): void {
     }
   }
 
-  // Render units on visible area
-  for (const unit of INITIAL_UNITS) {
+  // Render living units from game state
+  for (const unit of gameState.units) {
+    // Skip destroyed units
+    if (unit.y === 255) continue;
+
     const screenX = unit.x - viewportX;
     const screenY = unit.y - viewportY;
 
@@ -86,22 +96,13 @@ function renderMap(ctx: CanvasRenderingContext2D): void {
     if (screenY < 0 || screenY >= VIEWPORT_HEIGHT) continue;
 
     // Unit tiles start at index 22 (0x74 - 0x5E)
-    // Types 0-6 are Eldoin, types 7-15 are Dailor
-    const unitTileBase = 22; // tile_22.png = first unit sprite
+    const unitTileBase = 22;
     const tileIndex = unitTileBase + unit.type;
     const tileImg = tileImages.get(tileIndex);
 
     if (tileImg) {
       ctx.drawImage(tileImg, screenX * TILE_SIZE, screenY * TILE_SIZE);
     }
-  }
-}
-
-// Update status bar
-function updateStatusBar(): void {
-  const statusBar = document.getElementById('status-bar');
-  if (statusBar) {
-    statusBar.textContent = `ELDOIN BEWEGUNGSPHASE | Map: ${MAP_WIDTH}x${MAP_HEIGHT} | Units: ${INITIAL_UNITS.length} | View: (${viewportX}, ${viewportY})`;
   }
 }
 
@@ -130,6 +131,73 @@ function handleKeyboard(e: KeyboardEvent): void {
   requestAnimationFrame(() => render());
 }
 
+// Handle mouse movement for cursor tracking
+function handleMouseMove(e: MouseEvent): void {
+  const canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
+  if (!canvas) return;
+
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+
+  const canvasX = (e.clientX - rect.left) * scaleX;
+  const canvasY = (e.clientY - rect.top) * scaleY;
+
+  // Convert to map coordinates
+  const tileX = Math.floor(canvasX / TILE_SIZE) + viewportX;
+  const tileY = Math.floor(canvasY / TILE_SIZE) + viewportY;
+
+  // Clamp to map bounds
+  const mapX = Math.max(0, Math.min(MAP_WIDTH - 1, tileX));
+  const mapY = Math.max(0, Math.min(MAP_HEIGHT - 1, tileY));
+
+  cursorRenderer.setCursorPosition(mapX, mapY);
+  requestAnimationFrame(() => render());
+}
+
+// Handle mouse click for unit selection and actions
+function handleMouseClick(e: MouseEvent): void {
+  const canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
+  if (!canvas) return;
+
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+
+  const canvasX = (e.clientX - rect.left) * scaleX;
+  const canvasY = (e.clientY - rect.top) * scaleY;
+
+  const tileX = Math.floor(canvasX / TILE_SIZE) + viewportX;
+  const tileY = Math.floor(canvasY / TILE_SIZE) + viewportY;
+
+  // Clamp to map bounds
+  const mapX = Math.max(0, Math.min(MAP_WIDTH - 1, tileX));
+  const mapY = Math.max(0, Math.min(MAP_HEIGHT - 1, tileY));
+
+  const clickedUnit = gameState.getUnitAt({ x: mapX, y: mapY });
+
+  // Toggle unit selection
+  if (clickedUnit && clickedUnit.owner === gameState.currentPlayer) {
+    if (gameState.selectedUnit === clickedUnit) {
+      gameState.selectedUnit = null;
+    } else {
+      gameState.selectedUnit = clickedUnit;
+    }
+  } else if (!clickedUnit && gameState.selectedUnit) {
+    // Deselect if clicking empty tile
+    gameState.selectedUnit = null;
+  }
+
+  requestAnimationFrame(() => render());
+}
+
+// Handle right-click to deselect
+function handleRightClick(e: MouseEvent): void {
+  e.preventDefault();
+  gameState.selectedUnit = null;
+  requestAnimationFrame(() => render());
+}
+
 // Main render function
 function render(): void {
   const canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
@@ -141,26 +209,43 @@ function render(): void {
   // Disable image smoothing for crisp pixels
   ctx.imageSmoothingEnabled = false;
 
+  // Update pulse animation
+  cursorRenderer.updatePulse(performance.now());
+
+  // Render layers
   renderMap(ctx);
-  updateStatusBar();
+  cursorRenderer.render(ctx, gameState, viewportX, viewportY);
+
+  // Update UI
+  uiRenderer.render(gameState, cursorRenderer.getCursorPosition());
 }
 
 // Initialize the game
 async function init(): Promise<void> {
   console.log('Weltendaemmerung - Web Port');
   console.log(`Map size: ${MAP_WIDTH}x${MAP_HEIGHT}`);
-  console.log(`Units: ${INITIAL_UNITS.length}`);
+  console.log(`Units: ${gameState.units.length}`);
+
+  // Initialize UI renderer
+  uiRenderer.init('status-bar');
 
   // Load tile assets
   await loadAllTiles();
 
-  // Setup keyboard controls
+  // Setup input handlers
   document.addEventListener('keydown', handleKeyboard);
+
+  const canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
+  if (canvas) {
+    canvas.addEventListener('mousemove', handleMouseMove);
+    canvas.addEventListener('click', handleMouseClick);
+    canvas.addEventListener('contextmenu', handleRightClick);
+  }
 
   // Initial render
   render();
 
-  console.log('Ready! Use arrow keys to scroll the map.');
+  console.log('Ready! Use arrow keys to scroll, click to select units.');
 }
 
 // Start the game
