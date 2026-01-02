@@ -11,11 +11,12 @@
     "test:ui": "playwright test --ui"
   },
   "devDependencies": {
-    "@playwright/test": "^1.57.0",
-    "autoprefixer": "^10.4.20",
-    "postcss": "^8.4.49",
-    "tailwindcss": "^3.4.17",
-    "typescript": "~5.6.2",
-    "vite": "^6.0.3"
+    "@playwright/test": "^1.57",
+    "@tailwindcss/postcss": "^4.1.18",
+    "autoprefixer": "^10.4",
+    "postcss": "^8.4",
+    "tailwindcss": "^4.1",
+    "typescript": "~5.9",
+    "vite": "^7.3"
   }
 }
