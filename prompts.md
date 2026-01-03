@@ -215,3 +215,15 @@ edge scrolling
 
 Use the frontend design skill to design a nice retro-modern look for the webapp under /web. Examine first the the PORING.md file.
 
+
+## Movement
+
+`Check movement.md and the assembler code. The question is, if the units can move diagonally?`
+
+`Now check the same for attack.md. Is movment included during attack? Can you attack diagonally?`
+
+
+# Highlight
+
+`The movement system only allows movement step by step and you have to click multiple times. Would it be possible to highlight every possible map position
+possible and let the user click on it. This need some iterative/recursive approach for the movement to show all possible fields. Might be difficult.`
