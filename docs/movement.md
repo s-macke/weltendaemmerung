@@ -18,16 +18,7 @@ Movement Phase (Bewegungsphase) is Phase 0 of each round. During this phase, uni
 
 ### Unit Record Structure
 
-Each unit stores movement data in its 6-byte record at `$5FA0`:
-
-| Offset | Field     | Description                      |
-|--------|-----------|----------------------------------|
-| 0      | X         | X coordinate (0-79)              |
-| 1      | Y         | Y coordinate (0-39)              |
-| 2      | V         | Defense (can decrease in combat) |
-| 3      | B_current | Current movement points (BCD)    |
-| 4      | B_max     | Maximum movement points (BCD)    |
-| 5      | terrain   | Original terrain under unit      |
+*See [units.md](units.md#unit-data-structure) for the 6-byte unit record format at `$5FA0`.*
 
 ### BCD Encoding
 
@@ -35,24 +26,7 @@ All movement point values use **Binary Coded Decimal (BCD)** encoding. The 6502 
 
 ### Unit Movement Values
 
-| Unit Type | German        | English            | B (Movement)  |
-|-----------|---------------|--------------------|---------------|
-| 0         | Schwertträger | Sword Bearers      | 10            |
-| 1         | Bogenschützen | Archers            | 10            |
-| 2         | Adler         | Eagle              | 12            |
-| 3         | Lanzenträger  | Spear Bearers      | 10            |
-| 4         | Kriegsschiff  | Warship            | 8             |
-| 5         | Reiterei      | Cavalry            | 15            |
-| 6         | Feldherr      | Commander (Eldoin) | 10            |
-| 7         | Bogenschützen | Archers            | 10            |
-| 8         | Katapult      | Catapult           | 9             |
-| 9         | Blutsauger    | Bloodsucker        | 12            |
-| 10        | Axtmänner     | Axe Men            | 10            |
-| 11        | Feldherr      | Commander (Dailor) | 10            |
-| 12        | Lindwurm      | Dragon/Wyrm        | 10            |
-| 13        | Rammbock      | Battering Ram      | 10            |
-| 14        | Wagenfahrer   | Wagon Drivers      | 14            |
-| 15        | Wolfsreiter   | Wolf Riders        | 12            |
+*See [units.md](units.md#unit-statistics) for complete movement (B) values per unit type.*
 
 ## Terrain Movement Costs
 

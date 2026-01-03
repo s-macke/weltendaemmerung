@@ -138,24 +138,7 @@ The range check uses BASIC ROM floating-point routines:
 
 ### Range Values by Unit Type
 
-| Unit Type | German        | English        | Range (R) |
-|-----------|---------------|----------------|-----------|
-| 0         | Schwertträger | Sword Bearers  | 1         |
-| 1         | Bogenschützen | Archers        | 8         |
-| 2         | Adler         | Eagle          | 2         |
-| 3         | Lanzenträger  | Spear Bearers  | 2         |
-| 4         | Kriegsschiff  | Warship        | 8         |
-| 5         | Reiterei      | Cavalry        | 5         |
-| 6         | Feldherr      | Commander (E)  | 1         |
-| 7         | Bogenschützen | Archers        | 8         |
-| 8         | Katapult      | Catapult       | 12        |
-| 9         | Blutsauger    | Bloodsucker    | 1         |
-| 10        | Axtmänner     | Axe Men        | 1         |
-| 11        | Feldherr      | Commander (D)  | 1         |
-| 12        | Lindwurm      | Dragon/Wyrm    | 2         |
-| 13        | Rammbock      | Battering Ram  | 1         |
-| 14        | Wagenfahrer   | Wagon Drivers  | 7         |
-| 15        | Wolfsreiter   | Wolf Riders    | 3         |
+*See [units.md](units.md#unit-statistics) for complete range (R) values per unit type.*
 
 **BCD Conversion Note**: The Catapult's range is stored as BCD $12 (decimal 12). Since the Euclidean distance calculation returns a binary integer, the code converts BCD $12 to binary $0C (both represent 12) for correct comparison. Other range values (1-8) are identical in BCD and binary, so no conversion is needed.
 
@@ -165,24 +148,7 @@ Combat damage uses **BCD (Binary Coded Decimal)** arithmetic throughout.
 
 ### Base Attack Values
 
-| Unit Type | German        | English        | Attack (A) |
-|-----------|---------------|----------------|------------|
-| 0         | Schwertträger | Sword Bearers  | 4          |
-| 1         | Bogenschützen | Archers        | 5          |
-| 2         | Adler         | Eagle          | 7          |
-| 3         | Lanzenträger  | Spear Bearers  | 5          |
-| 4         | Kriegsschiff  | Warship        | 20         |
-| 5         | Reiterei      | Cavalry        | 6          |
-| 6         | Feldherr      | Commander (E)  | 6          |
-| 7         | Bogenschützen | Archers        | 5          |
-| 8         | Katapult      | Catapult       | 1          |
-| 9         | Blutsauger    | Bloodsucker    | 8          |
-| 10        | Axtmänner     | Axe Men        | 4          |
-| 11        | Feldherr      | Commander (D)  | 6          |
-| 12        | Lindwurm      | Dragon/Wyrm    | 30         |
-| 13        | Rammbock      | Battering Ram  | 1          |
-| 14        | Wagenfahrer   | Wagon Drivers  | 10         |
-| 15        | Wolfsreiter   | Wolf Riders    | 8          |
+*See [units.md](units.md#unit-statistics) for complete attack (A) values per unit type.*
 
 ### Combat Modifier (sub_1567)
 
@@ -242,24 +208,7 @@ Final Damage = Base Attack + Random Modifier (0-4)
 
 ## Defense Values
 
-| Unit Type | German        | English        | Defense (V) |
-|-----------|---------------|----------------|-------------|
-| 0         | Schwertträger | Sword Bearers  | 16          |
-| 1         | Bogenschützen | Archers        | 12          |
-| 2         | Adler         | Eagle          | 11          |
-| 3         | Lanzenträger  | Spear Bearers  | 14          |
-| 4         | Kriegsschiff  | Warship        | 18          |
-| 5         | Reiterei      | Cavalry        | 10          |
-| 6         | Feldherr      | Commander (E)  | 16          |
-| 7         | Bogenschützen | Archers        | 12          |
-| 8         | Katapult      | Catapult       | 5           |
-| 9         | Blutsauger    | Bloodsucker    | 10          |
-| 10        | Axtmänner     | Axe Men        | 16          |
-| 11        | Feldherr      | Commander (D)  | 16          |
-| 12        | Lindwurm      | Dragon/Wyrm    | 30          |
-| 13        | Rammbock      | Battering Ram  | 5           |
-| 14        | Wagenfahrer   | Wagon Drivers  | 16          |
-| 15        | Wolfsreiter   | Wolf Riders    | 18          |
+*See [units.md](units.md#unit-statistics) for complete defense (V) values per unit type.*
 
 ## Special Unit Abilities
 

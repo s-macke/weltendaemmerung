@@ -45,14 +45,7 @@ Units are stored as 6-byte records in a contiguous array.
 
 #### Unit Record Structure (6 bytes)
 
-| Offset | Name       | Description                                    |
-|-------:|------------|------------------------------------------------|
-|      0 | X          | X coordinate on map (0-79)                     |
-|      1 | Y          | Y coordinate on map (0-39), $FF = destroyed    |
-|      2 | V          | Current defense points (BCD, decreases in combat) |
-|      3 | B_current  | Current movement points (BCD, decreases on move) |
-|      4 | B_max      | Maximum movement points (BCD, reset each turn) |
-|      5 | terrain    | Original terrain tile under the unit           |
+*See [units.md](units.md#unit-data-structure) for the 6-byte unit record format.*
 
 #### End Marker
 

@@ -136,21 +136,7 @@ Understanding victory conditions requires understanding the unit index system:
 
 ### Ownership Check (sub_12D4)
 
-```assembly
-sub_12D4:
-        LDX $034F               ; ACTION_UNIT index
-        LDA $0347               ; CURRENT_PLAYER
-        BEQ L12E2               ; Branch if Eldoin
-        ; Dailor: owns units >= $12
-        CPX #$12
-        BCC L12EA               ; Not Dailor's unit
-        BCS L12EC               ; Is Dailor's unit
-L12E2:  ; Eldoin: owns units $0B-$11
-        CPX #$0B
-        BCC L12EA               ; Not valid (terrain)
-        CPX #$12
-        BCC L12EC               ; Is Eldoin's unit
-```
+*See [units.md](units.md#ownership-check-sub_12d4) for the ownership check assembly code.*
 
 ## Key Memory Addresses
 

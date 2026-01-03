@@ -28,14 +28,7 @@ Examples:
 - `DAILOR ANGRIFFSPHASE`
 
 **Row 23-24 - Terrain Info:**
-Shows the terrain type at cursor position:
-- Wiese (Meadow)
-- Fluss (River)
-- Wald (Forest)
-- Sumpf (Swamp)
-- Gebirge (Mountains)
-- Tor (Gate)
-- Mauer (Wall)
+Shows the terrain type at cursor position. *See [map.md](map.md#terrain-types) for complete terrain details and tile mappings.*
 
 **Row 24 Column 18 - Unit Stats:**
 When cursor is over a unit, displays:

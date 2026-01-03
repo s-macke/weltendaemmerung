@@ -119,6 +119,8 @@ The names above are verified from the actual string offset table and string data
 
 Unit placement data is stored at $1057 in `disassembly/$0FAC-$12B0_game_logic.asm`.
 
+![Map with Units](../assets/map_with_units.png)
+
 ### Placement Table Format ($1057)
 
 ```

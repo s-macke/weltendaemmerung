@@ -174,12 +174,10 @@ flowchart TD
 
 ## Victory Conditions
 
-The game can end in three ways (see `docs/victory_conditions.md` for details):
+*See [victory_conditions.md](victory_conditions.md) for detailed victory condition mechanics, code locations, and game balance analysis.*
 
 | Condition           | Winner | Trigger                            |
 |---------------------|--------|------------------------------------|
 | Turn Limit          | Eldoin | Turn counter reaches 15            |
 | Commander Destroyed | Dailor | Eldoin's Feldherr unit eliminated  |
 | Army Annihilation   | Eldoin | All Dailor units destroyed         |
-
-This creates an asymmetric game: Eldoin can win by surviving or eliminating all enemies, while Dailor must eliminate Eldoin's commander before turn 15.
