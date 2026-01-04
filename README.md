@@ -1,29 +1,28 @@
 # Weltendämmerung
 
-**Reverse Engineering a 1980s C64 Strategy Game with AI**
+**Reverse Engineering a German 1980s C64 Strategy Game with AI**
 
-What happens when you combine a 40-year-old Commodore 64 game, modern AI tools, and a weekend of curiosity? This project documents the complete reverse engineering of "Weltendämmerung" (Twilight of the Worlds), a fantasy strategy game by Dirk Maier.
+What happens when you combine a 40-year-old Commodore 64 game and modern AI tools? This project documents the reverse engineering and web port of "Weltendämmerung" (Twilight of the Worlds), a fantasy strategy game by Dirk Maier.
 
 ![Gameplay](images/weltendaemmerung.gif)
 
 ### **Play:**
-### [Web Port](https://sebastian.macke.github.io/weltendaemmerung/)
+### [Web Port](https://s-macke.github.io/weltendaemmerung/)
 ### [Manual (English)](manual/manual.md)
 ### [Original (C64 Emulator)](https://www.commodoregames.net/Commodore64/Weltendammerung-8543.html)
 
 ## About the Game
 
-Weltendämmerung is a turn-based fantasy strategy game for two players (Feldherren/Commanders). Players command asymmetric armies across an 80x40 tile map, taking turns through movement, attack, and fortification phases.
-
-
+Weltendämmerung is a turn-based fantasy strategy game for two players (Commanders). Players command asymmetric armies across an 80x40 tile map, taking turns through movement, attack, and fortification phases.
 
 ## How This Project Was Built
 
-Twenty-five years ago, I started a similar reverse engineering project: [SAM](https://github.com/s-macke/SAM). Spread over half a year, it took several weeks just to understand the code and write a C port. This project? Two days. The difference was Claude Code and the remarkably capable Opus 4.5 model. Except for this README, everything else was written by AI.
+Twenty-five years ago, I started a similar reverse engineering project: [SAM](https://github.com/s-macke/SAM). Spread over half a year, it took several weeks just to understand the code and write a C port. 
+This project? Three days. The difference was Claude Code and the remarkably capable Opus 4.5 model. Except for this README, everything else was written by AI.
 
-Why this game? Weltendämmerung is pretty unknown, has a decent size, but significant complexity. According to the author Dirk Maier, it took two months to develop. I also just wanted to finally play the game in a more modern way.
+Why this game? Weltendämmerung is pretty unknown for the AI, has a decent size, but significant complexity. According to the author Dirk Maier, it took [two months to develop](https://www.stcarchiv.de/happy-computer/1987/04/weltendaemmerung-auf).
 
-The key to making this work was being spec-driven rather than just prompting. I kept all files small and removed unnecessary noise. CLAUDE.md stayed minimal but referenced all documentation. Instead of relying on chat history, I had the agent document everything in markdown files with clear separation of concerns. I kept sessions short enough to avoid context compaction. For complex tasks with high error potential, I performed explicit "check your assignment" verification. The chatbot can be sloppy, so catching issues early matters.
+The key to making this work was being spec-driven rather than just prompting. I kept all files small and removed unnecessary noise from time to time. CLAUDE.md stayed minimal but referenced all documentation. Instead of relying on chat history, I had the agent document everything in markdown files with clear separation of concerns. I kept sessions short enough to avoid context compaction. For complex tasks with high error potential, I performed explicit "check your assignment" verification. The chatbot can be sloppy, so catching issues early matters.
 
 The total API cost came to $100 spread across more than 50 sessions.
 
@@ -51,13 +50,13 @@ This produced a dozen .asm files. Some descriptions were wrong, but that was not
 
 ### Reverse Engineering
 
-With the disassembled code split into modules, the reverse engineering proceeded through several phases. I maintained tight documentation throughout—both formal specs of assembly elements and inline annotations as new insights emerged.
+With the disassembled code split into modules, the reverse engineering proceeded through several phases. I maintained tight documentation throughout. Both formal [specs](docs/) of assembly elements and inline annotations as new insights emerged.
 
 #### Memory Layout & Variables
 
 > `Check all assembler files and figure out the memory layout used. Then write a markdown file.`
 
-The memory layout was extracted from the assembler files into [docs/memory_layout.md](docs/memory_layout.md). Game state variables were documented in [docs/variables.md](docs/variables.md), and the assembler files were annotated with variable comments. This required several iterations to fix X/Y coordinate flips in the variable naming.
+The memory layout was extracted from the assembler files into [docs/memory_layout.md](docs/memory_layout.md). Game state variables were documented in [docs/variables.md](docs/variables.md), and the assembler files were annotated with variable comments. This required several iterations.
 
 #### Tile & Map Extraction
 
@@ -89,13 +88,9 @@ Each game phase required dedicated analysis sessions:
 - **Attack**: [docs/attack.md](docs/attack.md) - combat formulas, range system, catapult special logic
 - **Fortification**: [docs/torphase.md](docs/torphase.md) - gate mechanics, 13 gate positions
 
-During fortification analysis, a potential bug was discovered: gate state conflicts with unit occupation.
-
-> `Sounds like a bug, because the underlying gate is open, the underlying map should be meadow.`
-
 #### C64-Specific Techniques
 
-The reverse engineering uncovered classic 6502 optimization techniques:
+The reverse engineering also uncovered classic 6502 optimization techniques:
 
 **BCD Arithmetic**: All unit statistics (defense, movement points, attack values) and the turn counter use Binary Coded Decimal format. The 6502's decimal mode (`SED`/`CLD`) makes BCD arithmetic automatic. The Catapult's range of 12 required special handling - BCD `$12` needed conversion to binary `$0C` for Euclidean distance comparison.
 
@@ -115,7 +110,7 @@ These techniques don't translate to JavaScript - the port uses regular arithmeti
 
 ### Web Port
 
-For the port, I enabled several Claude Code plugins: **Playwright** for UI testing via Chrome, **frontend-design** for building a retro-modern aesthetic, and **typescript-lsp** for code analysis (though I never saw it activate).
+For the port, I choose a CLAUDE.md file and I enabled several Claude Code plugins: **Playwright** for UI testing via Chrome, **frontend-design** for building a retro-modern aesthetic, and **typescript-lsp** for code analysis (though I never saw it activate).
 
 With documentation complete, the web port followed the same spec-driven approach:
 
@@ -137,7 +132,8 @@ With documentation complete, the web port followed the same spec-driven approach
 
 The agent read all documentation files before generating [PORTING.md](PORTING.md) with a comprehensive design document.
 
-From here, things got messier. I had the model implement each step from the porting guide across several parallel sessions. Documentation bugs surfaced along the way, which the chatbot fixed once I pointed them out. The web port code is not pretty—I don't really care about its quality. It works, and it's a good candidate for future refactoring experiments.
+From here, things got messier. I had the model implement each step from the porting guide across several parallel sessions. Documentation bugs surfaced along the way, which the chatbot fixed once I pointed them out. 
+The web port code is not pretty. But it works, and it's a good candidate for refactoring experiments with future models.
 
 > `Use the frontend design skill to design a nice retro-modern look for the webapp.`
 
@@ -145,12 +141,13 @@ The UI was polished using Claude Code's frontend design skill for the final retr
 
 ## Conclusion
 
-This repository probably won't age well. It's a snapshot—a documentation of winter 2025/26, when coding agents became powerful enough to deserve the word "agentic." If I extrapolate the progress in this field, the entire project will be achievable with a single well-crafted prompt by the end of 2026, for maybe $10.
+This repository probably won't age well. It's a snapshot. A documentation of winter 2025/26, when coding agents became powerful enough to deserve the word "agentic." If I extrapolate the progress in this field, the entire project will be achievable with a single well-crafted prompt by the end of 2026, for maybe $10.
 
-There are perhaps 1,000 to 10,000 people on this planet with enough knowledge to complete this reverse engineering task without AI assistance. Maybe 100 could do it in under two weeks. The AI compressed that expertise into a two-day collaboration.
+There are currently perhaps 1,000 to 10,000 people on this planet with enough knowledge to complete this reverse engineering task without AI assistance. Maybe 100 could do it in under two weeks. The AI compressed that expertise into a three-day collaboration.
 
 The chatbot already has deep knowledge of vintage computers and mostly behaves like a professional programmer. But it's also often sloppy and lacks a sense of its own uncertainty. A variable reused one time as a number and one time as a flag was impossible to deduce by the chatbot. Even after multiple attempts. I had to tell it directly. 
 
-Anyhow, the human role becomes one of verification and course correction. You need enough domain knowledge to spot when the AI is wrong—and the patience to keep checking. The spec-driven approach helps: when everything is documented, errors become visible. When sessions stay short, context stays fresh. When you force the AI to "check its assignment," it catches mistakes it would otherwise miss.
+Anyhow, the human role becomes one of verification and course correction. You need enough domain knowledge to spot when the AI is wrong and the patience to keep checking. The spec-driven approach helps: when everything is documented, errors become visible. When sessions stay short, context stays fresh. When you force the AI to "check its assignment," it catches mistakes it would otherwise miss.
 
-This is what AI-assisted programming looks like in early 2026: powerful but imperfect, fast but requiring vigilance. The tools will improve. The cost will drop. The human role will evolve. But for now, the collaboration works—and a 40-year-old game runs in a browser because of it.
+This is what AI-assisted programming looks like in early 2026: powerful but imperfect, fast but requiring vigilance. The tools will improve. The cost will drop. The human role will evolve. But for now, the collaboration works and a 40-year-old game runs in a browser because of it.
+
