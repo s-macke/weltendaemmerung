@@ -72,7 +72,7 @@ async function loadTile(index: number): Promise<HTMLImageElement> {
     const img = new Image();
     img.onload = () => resolve(img);
     img.onerror = reject;
-    img.src = `/tiles/tile_${index.toString().padStart(2, '0')}.png`;
+    img.src = `./tiles/tile_${index.toString().padStart(2, '0')}.png`;
   });
 }
 
