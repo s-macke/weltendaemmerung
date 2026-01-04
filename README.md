@@ -8,13 +8,14 @@ What happens when you combine a 40-year-old Commodore 64 game, modern AI tools, 
 
 ### **Play:**
 ### [Web Port](https://sebastian.macke.github.io/weltendaemmerung/)
+### [Manual (English)](manual/manual.md)
 ### [Original (C64 Emulator)](https://www.commodoregames.net/Commodore64/Weltendammerung-8543.html)
 
 ## About the Game
 
 Weltendämmerung is a turn-based fantasy strategy game for two players (Feldherren/Commanders). Players command asymmetric armies across an 80x40 tile map, taking turns through movement, attack, and fortification phases.
 
-#### [Manual (English)](TODO)
+
 
 ## How This Project Was Built
 
