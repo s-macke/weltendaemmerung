@@ -410,8 +410,11 @@ function handleTouchMove(e: TouchEvent): void {
   }
 }
 
-function handleTouchEnd(_e: TouchEvent): void {
+function handleTouchEnd(e: TouchEvent): void {
   if (!gameRunning) return;
+
+  // Prevent browser from generating synthetic click event after touch
+  e.preventDefault();
 
   // If was dragging, don't process as tap
   if (isTouchDragging) {
