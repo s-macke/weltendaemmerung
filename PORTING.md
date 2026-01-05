@@ -4,7 +4,7 @@ A comprehensive guide for porting the C64 game "Weltendämmerung" (Twilight of t
 
 ## Overview
 
-**Original:** Commodore 64 turn-based fantasy strategy game (1987, Markt und Technik) by Dirk Meier
+**Original:** Commodore 64 turn-based fantasy strategy game
 **Target:** Modern web application using Vite, TypeScript, and Tailwind CSS
 **Visual Style:** Retro-modern (C64 aesthetics with crisp rendering and smooth animations)
 
@@ -20,13 +20,13 @@ The game features 292 units across 16 types on an 80x40 tile map, with three dis
 
 ## Technology Stack
 
-| Component | Technology |
-|-----------|------------|
-| Build Tool | Vite |
-| Language | TypeScript (strict mode) |
-| Styling | Tailwind CSS |
-| Rendering | HTML5 Canvas (map/units) + DOM (UI) |
-| State | TypeScript classes |
+| Component  | Technology                          |
+|------------|-------------------------------------|
+| Build Tool | Vite                                |
+| Language   | TypeScript (strict mode)            |
+| Styling    | Tailwind CSS                        |
+| Rendering  | HTML5 Canvas (map/units) + DOM (UI) |
+| State      | TypeScript classes                  |
 
 ### Excluded Features (per requirements)
 - Sound/music (no SID emulation)
@@ -37,18 +37,18 @@ The game features 292 units across 16 types on an 80x40 tile map, with three dis
 
 ## Source Documentation Reference
 
-| Topic | Documentation |
-|-------|---------------|
-| Movement rules, terrain costs | [docs/movement.md](docs/movement.md) |
-| Combat formulas, range, damage | [docs/attack.md](docs/attack.md) |
-| Torphase fortification mechanics | [docs/torphase.md](docs/torphase.md) |
-| Unit types, statistics, placement | [docs/units.md](docs/units.md) |
-| Victory conditions, win states | [docs/victory_conditions.md](docs/victory_conditions.md) |
-| Turn structure, state machine | [docs/program_flow.md](docs/program_flow.md) |
-| Screen layout, phase display | [docs/screen_display.md](docs/screen_display.md) |
-| Map structure, terrain types | [docs/map.md](docs/map.md) |
-| Memory layout, data structures | [docs/memory_layout.md](docs/memory_layout.md) |
-| Title screen, startup sequence | [docs/title_screen.md](docs/title_screen.md) |
+| Topic                             | Documentation                                            |
+|-----------------------------------|----------------------------------------------------------|
+| Movement rules, terrain costs     | [docs/movement.md](docs/movement.md)                     |
+| Combat formulas, range, damage    | [docs/attack.md](docs/attack.md)                         |
+| Torphase fortification mechanics  | [docs/torphase.md](docs/torphase.md)                     |
+| Unit types, statistics, placement | [docs/units.md](docs/units.md)                           |
+| Victory conditions, win states    | [docs/victory_conditions.md](docs/victory_conditions.md) |
+| Turn structure, state machine     | [docs/program_flow.md](docs/program_flow.md)             |
+| Screen layout, phase display      | [docs/screen_display.md](docs/screen_display.md)         |
+| Map structure, terrain types      | [docs/map.md](docs/map.md)                               |
+| Memory layout, data structures    | [docs/memory_layout.md](docs/memory_layout.md)           |
+| Title screen, startup sequence    | [docs/title_screen.md](docs/title_screen.md)             |
 
 ---
 
@@ -131,20 +131,20 @@ This generates:
 
 The map data uses a compact string representation where each character represents one terrain tile:
 
-| Char | Hex Code | Terrain |
-|------|----------|---------|
-| M    | 0x69     | Meadow (variant 1) |
-| m    | 0x6A     | Meadow (variant 2) |
-| R    | 0x6B     | River |
-| F    | 0x6C     | Forest |
-| E    | 0x6D     | End (map boundary) |
-| S    | 0x6E     | Swamp |
-| G    | 0x6F     | Gate |
-| X    | 0x70     | Mountains |
-| P    | 0x71     | Pavement |
-| W    | 0x72     | Wall (variant 1) |
-| w    | 0x73     | Wall (variant 2) |
-| 1-8  | 0x61-68  | UI frame elements (fortress walls) |
+| Char | Hex Code | Terrain                               |
+|------|----------|---------------------------------------|
+| M    | 0x69     | Meadow (variant 1)                    |
+| m    | 0x6A     | Meadow (variant 2)                    |
+| R    | 0x6B     | River                                 |
+| F    | 0x6C     | Forest                                |
+| E    | 0x6D     | End (map boundary)                    |
+| S    | 0x6E     | Swamp                                 |
+| G    | 0x6F     | Gate                                  |
+| X    | 0x70     | Mountains                             |
+| P    | 0x71     | Pavement                              |
+| W    | 0x72     | Wall (variant 1)                      |
+| w    | 0x73     | Wall (variant 2)                      |
+| 1-8  | 0x61-68  | UI frame elements and fortress walls  |
 
 The generated file exports helper functions rather than raw arrays:
 
@@ -253,53 +253,11 @@ The `GameState` class stores `gateStates: GateState[]` (13 entries) and derives 
 
 ## Unit Statistics
 
-All 16 unit types with stats from [docs/units.md](docs/units.md):
-
-### Eldoin Units (Types 0-6)
-
-| Type | Name | Range | Move | Attack | Defense | Special |
-|------|------|-------|------|--------|---------|---------|
-| 0 | Schwertträger | 1 | 10 | 4 | 16 | - |
-| 1 | Bogenschützen | 8 | 10 | 5 | 12 | Long range |
-| 2 | Adler | 2 | 12 | 7 | 11 | Flies (terrain cost 1) |
-| 3 | Lanzenträger | 2 | 10 | 5 | 14 | - |
-| 4 | Kriegsschiff | 8 | 8 | 20 | 18 | Water-only |
-| 5 | Reiterei | 5 | 15 | 6 | 10 | Highest movement |
-| 6 | Feldherr | 1 | 10 | 6 | 16 | **VICTORY UNIT** |
-
-### Dailor Units (Types 7-15)
-
-| Type | Name | Range | Move | Attack | Defense | Special |
-|------|------|-------|------|--------|---------|---------|
-| 7 | Bogenschützen | 8 | 10 | 5 | 12 | Long range |
-| 8 | Katapult | 12 | 9 | 1 | 5 | Destroys structures |
-| 9 | Blutsauger | 1 | 12 | 8 | 10 | Flies (terrain cost 1) |
-| 10 | Axtmänner | 1 | 10 | 4 | 16 | - |
-| 11 | Feldherr | 1 | 10 | 6 | 16 | - |
-| 12 | Lindwurm | 2 | 10 | 30 | 30 | **Strongest**, destroys structures |
-| 13 | Rammbock | 1 | 10 | 1 | 5 | Destroys gates only |
-| 14 | Wagenfahrer | 7 | 14 | 10 | 16 | Slow in difficult terrain |
-| 15 | Wolfsreiter | 3 | 12 | 8 | 18 | - |
-
----
+All 16 unit types can be found in [docs/units.md](docs/units.md):
 
 ## Movement System
 
-From [docs/movement.md](docs/movement.md):
-
-### Orthogonal Movement Only
-
-Movement is restricted to **4 cardinal directions only** (up, down, left, right). Diagonal movement is not allowed in the original C64 game.
-
-```typescript
-// Only allow orthogonal movement
-const directions = [
-  { dx: 0, dy: -1 }, // up
-  { dx: 0, dy: 1 },  // down
-  { dx: -1, dy: 0 }, // left
-  { dx: 1, dy: 0 },  // right
-];
-```
+At [docs/movement.md](docs/movement.md):
 
 ### Terrain Movement Costs
 
@@ -333,14 +291,14 @@ The game uses a 6-state turn machine described in [docs/program_flow.md](docs/pr
 Combined State = (Phase × 2) + Player + 1
 ```
 
-| State | Phase | Player | German Name | Actions |
-|-------|-------|--------|-------------|---------|
-| 1 | 0 | Eldoin | Bewegungsphase | Full movement |
-| 2 | 0 | Dailor | Bewegungsphase | Full movement |
-| 3 | 1 | Eldoin | Angriffsphase | Attack, movement=1 |
-| 4 | 1 | Dailor | Angriffsphase | Attack, movement=1 |
-| 5 | 2 | Eldoin | Torphase | Build (X<60 only) |
-| 6 | 2 | Dailor | Torphase | Build (X≥60), end round |
+| State | Phase | Player | German Name    | Actions                 |
+|-------|-------|--------|----------------|-------------------------|
+| 1     | 0     | Eldoin | Bewegungsphase | Full movement           |
+| 2     | 0     | Dailor | Bewegungsphase | Full movement           |
+| 3     | 1     | Eldoin | Angriffsphase  | Attack, movement=1      |
+| 4     | 1     | Dailor | Angriffsphase  | Attack, movement=1      |
+| 5     | 2     | Eldoin | Torphase       | Build (X<60 only)       |
+| 6     | 2     | Dailor | Torphase       | Build (X≥60), end round |
 
 ### Turn Advancement
 
@@ -372,7 +330,6 @@ function advanceTurn(state: GameState): void {
   }
 }
 ```
-
 ---
 
 ## Combat System
@@ -494,11 +451,11 @@ function performTorphase(state: GameState, pos: Coord): boolean {
 
 From [docs/victory_conditions.md](docs/victory_conditions.md):
 
-| Condition | Winner | Trigger |
-|-----------|--------|---------|
-| Turn Limit | Eldoin | Turn counter reaches 15 |
+| Condition           | Winner | Trigger                              |
+|---------------------|--------|--------------------------------------|
+| Turn Limit          | Eldoin | Turn counter reaches 15              |
 | Commander Destroyed | Dailor | Eldoin's Feldherr (type 6) destroyed |
-| Total Annihilation | Eldoin | All Dailor units destroyed |
+| Total Annihilation  | Eldoin | All Dailor units destroyed           |
 
 ```typescript
 function checkVictory(state: GameState): Player | null {
@@ -640,11 +597,11 @@ An "End Turn" button must be displayed on screen. Clicking it advances to the ne
 
 ### Click Actions
 
-| Phase | Own Unit | Enemy Unit | Empty Tile | Gate Position |
-|-------|----------|------------|------------|---------------|
-| Movement | Select/Deselect | - | Move (if selected) | - |
-| Attack | Select attacker | Attack (if selected) | - | - |
-| Torphase | - | - | - | Build/Convert |
+| Phase    | Own Unit        | Enemy Unit           | Empty Tile         | Gate Position |
+|----------|-----------------|----------------------|--------------------|---------------|
+| Movement | Select/Deselect | -                    | Move (if selected) | -             |
+| Attack   | Select attacker | Attack (if selected) | -                  | -             |
+| Torphase | -               | -                    | -                  | Build/Convert |
 
 ### Edge Scrolling
 When cursor is within 20px of viewport edge, scroll map in that direction at 60fps.
@@ -708,9 +665,9 @@ Deselect current unit / cancel action.
 - [x] Add keyboard scrolling (arrow keys)
 - [x] Add click handling for unit selection
 - [x] Add right-click to deselect
-- [ ] Implement full MouseController and TouchController
-- [ ] Add click handling for movement/attack/fortification actions
-- [ ] Add edge scrolling
+- [x] Implement full MouseController and TouchController
+- [x] Add click handling for movement/attack/fortification actions
+- [x] Add edge scrolling
 
 ### Phase 7: Polish (Partial)
 **Read:** [docs/screen_display.md](docs/screen_display.md) (cursor colors, phase transitions)
@@ -760,19 +717,6 @@ Deselect current unit / cancel action.
 - [ ] States cycle 1→2→3→4→5→6→1
 - [ ] Movement reset at round start
 - [ ] Movement = 1 during attack phase
-
----
-
-## Original Binary Offsets
-
-For reference, key data locations in `weltendaemmerung.bin`:
-
-| Data | Binary Offset | C64 Address |
-|------|---------------|-------------|
-| Tile graphics | $0DF1 | $15F0 |
-| Map data (RLE) | $0F89 | $1788 |
-| Unit placement | $0858 | $1057 |
-| Unit stat tables | $0818 | $1017 |
 
 ---
 
