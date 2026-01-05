@@ -176,13 +176,9 @@ The UI was polished using Claude Code's frontend design skill for the final retr
 
 ## Conclusion
 
-This repository probably won't age well. It's a snapshot. A documentation of winter 2025/26, when coding agents became powerful enough to deserve the word "agentic." If I extrapolate the progress in this field, the entire project will be achievable with a single well-crafted prompt by the end of 2026, for maybe $10.
+This repository probably won’t age well. It’s a snapshot, a record of winter 2025/26, when coding agents became strong enough to really deserve the word agentic. If you extrapolate the pace of progress, this entire project may be doable with a single well-crafted prompt by the end of 2026, for maybe $10.
 
-There are currently perhaps 1,000 to 10,000 people on this planet with enough knowledge to complete this reverse engineering task without AI assistance. Maybe 100 could do it in under two weeks. The AI compressed that expertise into a three-day collaboration.
+The chatbot already knows a lot about vintage computers and usually behaves like a professional programmer. But it can also be sloppy, and it doesn’t always recognize its own uncertainty. One example: a variable that was reused once as a number and once as a flag. The chatbot couldn’t infer that, even after several attempts. I had to tell it explicitly.
+Working with a coding agent is often two steps forward, one step back, and one step sideways.
 
-The chatbot already has deep knowledge of vintage computers and mostly behaves like a professional programmer. But it's also often sloppy and lacks a sense of its own uncertainty. A variable reused one time as a number and one time as a flag was impossible to deduce by the chatbot. Even after multiple attempts. I had to tell it directly. 
-
-Anyhow, the human role becomes one of verification and course correction. You need enough domain knowledge to spot when the AI is wrong and the patience to keep checking. The spec-driven approach helps: when everything is documented, errors become visible. When sessions stay short, context stays fresh. When you force the AI to "check its assignment," it catches mistakes it would otherwise miss.
-
-This is what AI-assisted programming looks like in early 2026: powerful but imperfect, fast but requiring vigilance. The tools will improve. The cost will drop. The human role will evolve. But for now, the collaboration works and a 40-year-old game runs in a browser because of it.
-
+So the human role shifts toward orchestrating intelligence, defining goals, verification and course correction. You need enough domain knowledge to notice when the AI is wrong, and enough patience to keep checking. A spec-driven approach helps. When everything is written down, errors become easier to spot. When sessions stay short, context stays fresh. When you force the AI to re-check what it produced, it catches mistakes it would otherwise miss.
