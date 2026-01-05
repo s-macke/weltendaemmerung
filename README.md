@@ -26,6 +26,41 @@ The key to making this work was being spec-driven rather than just prompting. I 
 
 The total API cost came to $100 spread across more than 50 sessions.
 
+The diagram below shows the spec-driven workflow. Starting from the original binary, each phase builds documentation that feeds the next—culminating in a web port implemented directly from the specification.
+
+```mermaid
+flowchart TD
+    subgraph Phase1["Phase 1: Analysis"]
+        A[("🎮 Original Binary<br/>weltendaemmerung.bin<br/>7129 bytes")] --> B["⚙️ Disassembly<br/>Flow analysis<br/>Code vs Data separation"]
+    end
+
+    subgraph Phase2["Phase 2: Reverse Engineering"]
+        B --> C["📝 Annotated ASM<br/>Split into modules<br/>Variable naming"]
+        B --> D["📊 Specification<br/>Memory layout<br/>Game mechanics"]
+
+        %% Force C and D into the same row
+        subgraph cd[" "]
+            direction LR
+            C
+            D
+        end
+        style cd fill:transparent,stroke:transparent
+
+        C -- "informs" --> D
+        D -- "refines" --> C
+        C & D --> E["📖 docs/*.md<br/>Movement, Attack<br/>Units, Map, etc."]
+    end
+
+    subgraph Phase3["Phase 3: Porting"]
+        E --> F["📋 PORTING.md<br/>Design document<br/>Implementation plan"]
+        F --> G["🔨 Implementation<br/>Step-by-step<br/>following spec"]
+        G --> H[("🌐 Web Port<br/>TypeScript + Vite<br/>Playable in browser")]
+    end
+
+    style A fill:#4a5568,stroke:#718096
+    style H fill:#48bb78,stroke:#38a169
+```
+
 ## Binary Analysis
 
 It started with the raw binary [weltendaemmerung.bin](disassembly/archive/weltendaemmerung.bin)—just 7129 bytes—and a simple prompt:
